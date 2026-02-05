@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Profile - FurniVibe</title>
+    <style>
+        body { font-family: sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; background-color: #f4f4f4; margin: 0; }
+        .profile-container { background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); width: 100%; max-width: 400px; }
+        .profile-header { text-align: center; margin-bottom: 1.5rem; }
+        .profile-header h2 { margin: 0; color: #333; }
+        .profile-header p { color: #666; font-size: 0.9rem; margin-top: 0.5rem; }
+        .profile-details { margin-bottom: 1.5rem; }
+        .detail-row { display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid #eee; }
+        .detail-label { font-weight: bold; color: #555; }
+        .detail-value { color: #333; }
+        .btn { display: block; width: 100%; padding: 0.75rem; background-color: #007bff; color: white; text-align: center; text-decoration: none; border-radius: 4px; font-weight: bold; box-sizing: border-box; }
+        .btn:hover { background-color: #0056b3; }
+    </style>
+</head>
+<body>
+
+<div class="profile-container">
+    <div class="profile-header">
+        <h2>{{ user.first_name }} {{ user.last_name }}</h2>
+        <p>@{{ user.username }}</p>
+    </div>
+
+    <div class="profile-details">
+        <div class="detail-row">
+            <span class="detail-label">Email:</span>
+            <span class="detail-value">{{ user.email }}</span>
+        </div>
+        <div class="detail-row">
+            <span class="detail-label">Phone:</span>
+            <span class="detail-value">{{ user.phone_number|default:"N/A" }}</span>
+        </div>
+        <div class="detail-row">
+            <span class="detail-label">Role:</span>
+            <span class="detail-value">
+                {% if user.is_superuser %}Super Admin{% elif user.is_staff %}Admin{% else %}User{% endif %}
+            </span>
+        </div>
+        <div class="detail-row">
+            <span class="detail-label">Status:</span>
+            <span class="detail-value">{% if user.is_active %}Active{% else %}Inactive{% endif %}</span>
+        </div>
+    </div>
+
+    <a href="{% url 'dashboard_home' %}" class="btn">Go to Dashboard</a>
+</div>
+
+</body>
+</html>

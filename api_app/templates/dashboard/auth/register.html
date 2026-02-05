@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - FurniVibe Dashboard</title>
+    <style>
+        body { font-family: sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; background-color: #f4f4f4; margin: 0; }
+        .register-container { background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); width: 100%; max-width: 400px; }
+        .form-group { margin-bottom: 1rem; }
+        .form-group label { display: block; margin-bottom: 0.5rem; font-weight: bold; color: #333; }
+        .form-group input { width: 100%; padding: 0.6rem; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        .btn { width: 100%; padding: 0.75rem; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 1rem; font-weight: bold; }
+        .btn:hover { background-color: #0056b3; }
+        .error-msg { color: #dc3545; font-size: 0.875rem; margin-top: 0.25rem; }
+        .login-link { text-align: center; margin-top: 1rem; font-size: 0.9rem; }
+        .login-link a { color: #007bff; text-decoration: none; }
+        .login-link a:hover { text-decoration: underline; }
+        h2 { text-align: center; margin-bottom: 1.5rem; color: #333; }
+    </style>
+</head>
+<body>
+
+<div class="register-container">
+    <h2>Admin Registration</h2>
+    
+    <form method="POST">
+        {% csrf_token %}
+        
+        <!-- Global Errors -->
+        {% if form.non_field_errors %}
+            <div class="error-msg" style="margin-bottom: 1rem; padding: 0.5rem; background: #ffe6e6; border-radius: 4px;">
+                {% for error in form.non_field_errors %}
+                    <p style="margin: 0;">{{ error }}</p>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <!-- First Name -->
+        <div class="form-group">
+            <label for="first_name">First Name</label>
+            <input type="text" name="first_name" id="first_name" value="{{ form.first_name.value|default:'' }}" required placeholder="Enter first name">
+            {% if form.first_name.errors %}
+                <div class="error-msg">{{ form.first_name.errors.0 }}</div>
+            {% endif %}
+        </div>
+
+        <!-- Last Name -->
+        <div class="form-group">
+            <label for="last_name">Last Name</label>
+            <input type="text" name="last_name" id="last_name" value="{{ form.last_name.value|default:'' }}" required placeholder="Enter last name">
+            {% if form.last_name.errors %}
+                <div class="error-msg">{{ form.last_name.errors.0 }}</div>
+            {% endif %}
+        </div>
+
+        <!-- Email -->
+        <div class="form-group">
+            <label for="email">Email Address</label>
+            <input type="email" name="email" id="email" value="{{ form.email.value|default:'' }}" required placeholder="Enter email">
+            {% if form.email.errors %}
+                <div class="error-msg">{{ form.email.errors.0 }}</div>
+            {% endif %}
+        </div>
+
+        <!-- Phone Number -->
+        <div class="form-group">
+            <label for="phone_number">Phone Number</label>
+            <input type="text" name="phone_number" id="phone_number" value="{{ form.phone_number.value|default:'' }}" required placeholder="Enter phone number">
+            {% if form.phone_number.errors %}
+                <div class="error-msg">{{ form.phone_number.errors.0 }}</div>
+            {% endif %}
+        </div>
+
+        <!-- Password -->
+        <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" name="password" id="password" required placeholder="Create password">
+            {% if form.password.errors %}
+                <div class="error-msg">{{ form.password.errors.0 }}</div>
+            {% endif %}
+        </div>
+
+        <!-- Confirm Password -->
+        <div class="form-group">
+            <label for="confirm_password">Confirm Password</label>
+            <input type="password" name="confirm_password" id="confirm_password" required placeholder="Confirm password">
+            {% if form.confirm_password.errors %}
+                <div class="error-msg">{{ form.confirm_password.errors.0 }}</div>
+            {% endif %}
+        </div>
+
+        <button type="submit" class="btn">Register</button>
+    </form>
+
+    <div class="login-link">
+        <p>Already have an account? <a href="{% url 'dashboard_login' %}">Login here</a></p>
+    </div>
+</div>
+
+</body>
+</html>
