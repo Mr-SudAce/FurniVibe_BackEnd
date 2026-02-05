@@ -1,0 +1,57 @@
+{% extends 'dashboard/dashboard.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+            <h6 class="m-0 font-weight-bold text-primary">
+                {% if form.instance.pk %}Edit Blog Post{% else %}Add New Blog Post{% endif %}
+            </h6>
+            <a href="{% url 'blog_list' %}" class="btn btn-secondary btn-sm">Back to List</a>
+        </div>
+        <div class="card-body">
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                {{ form.media }}
+                
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="form-group mb-3">
+                            <label>Title</label>
+                            {{ form.title }}
+                        </div>
+                        <div class="form-group mb-3">
+                            <label>Content</label>
+                            {{ form.content }}
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group mb-3">
+                            <label>Author</label>
+                            {{ form.author }}
+                        </div>
+                        <div class="card mb-3">
+                            <div class="card-header">Featured Image</div>
+                            <div class="card-body text-center">
+                                {% if form.instance.image %}
+                                    <img src="{{ form.instance.image.url }}" class="img-fluid mb-2" style="max-height: 150px;">
+                                {% endif %}
+                                {{ form.image }}
+                            </div>
+                        </div>
+                        <div class="form-check mb-3">
+                            {{ form.is_active }}
+                            <label class="form-check-label">Active</label>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-success">
+                    <i class="fas fa-save"></i> Save Blog Post
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

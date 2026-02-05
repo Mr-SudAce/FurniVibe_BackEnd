@@ -1,0 +1,64 @@
+{% extends 'dashboard/dashboard.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Product Variants</h1>
+        <a href="{% url 'variant_create' %}" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">
+            <i class="fas fa-plus fa-sm text-white-50"></i> Add New Variant
+        </a>
+    </div>
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">All Variants</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Model</th>
+                            <th>Material / Color</th>
+                            <th>Stock</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for variant in variants %}
+                        <tr>
+                            <td>{{ variant.product.name }}</td>
+                            <td>{{ variant.model }}</td>
+                            <td>
+                                {{ variant.material }} 
+                                {% if variant.color %}({{ variant.color }}){% endif %}
+                            </td>
+                            <td>{{ variant.stock }}</td>
+                            <td>
+                                {% if variant.is_active %}
+                                    <span class="badge badge-success">Active</span>
+                                {% else %}
+                                    <span class="badge badge-secondary">Inactive</span>
+                                {% endif %}
+                                {% if variant.is_made_to_order %}
+                                    <span class="badge badge-warning">Made to Order</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a href="{% url 'variant_update' variant.pk %}" class="btn btn-info btn-sm"><i class="fas fa-edit"></i></a>
+                                <a href="{% url 'variant_delete' variant.pk %}" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure?');"><i class="fas fa-trash"></i></a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="6" class="text-center">No variants found.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

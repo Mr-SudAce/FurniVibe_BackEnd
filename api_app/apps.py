@@ -4,6 +4,7 @@ from django.conf import settings
 from django.db import OperationalError, ProgrammingError
 
 
+
 def create_default_superuser(sender, **kwargs):
     from django.contrib.auth import get_user_model
 

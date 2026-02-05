@@ -1,6 +1,6 @@
 from django import forms
 from django.contrib.auth import get_user_model
-from .models import ProductModel
+from .models import ProductModel, CategoryModel, BrandModel, ProductVariantModel, BlogModel
 
 User = get_user_model()
 
@@ -67,4 +67,73 @@ class ProductForm(forms.ModelForm):
             "discount_percent",
             "warranty_years",
             "description",
+            "image",
+            "is_active",
+            "is_featured",
         ]
+        widgets = {
+            "name": forms.TextInput(attrs={"class": "form-control"}),
+            "category": forms.Select(attrs={"class": "form-control"}),
+            "brand": forms.Select(attrs={"class": "form-control"}),
+            "price": forms.NumberInput(attrs={"class": "form-control"}),
+            "discount_percent": forms.NumberInput(attrs={"class": "form-control"}),
+            "warranty_years": forms.NumberInput(attrs={"class": "form-control"}),
+            "image": forms.FileInput(attrs={"class": "form-control"}),
+        }
+
+class CategoryForm(forms.ModelForm):
+    class Meta:
+        model = CategoryModel
+        fields = ["name", "image", "description", "is_active"]
+        widgets = {
+            "name": forms.TextInput(attrs={"class": "form-control"}),
+            "image": forms.FileInput(attrs={"class": "form-control"}),
+            "description": forms.Textarea(attrs={"class": "form-control", "rows": 3}),
+            "is_active": forms.CheckboxInput(attrs={"class": "form-check-input"}),
+        }
+
+class BrandForm(forms.ModelForm):
+    class Meta:
+        model = BrandModel
+        fields = ["name", "logo", "description", "is_active"]
+        widgets = {
+            "name": forms.TextInput(attrs={"class": "form-control"}),
+            "logo": forms.FileInput(attrs={"class": "form-control"}),
+            "description": forms.Textarea(attrs={"class": "form-control", "rows": 3}),
+            "is_active": forms.CheckboxInput(attrs={"class": "form-check-input"}),
+        }
+
+class ProductVariantForm(forms.ModelForm):
+    class Meta:
+        model = ProductVariantModel
+        fields = [
+            "product", "model", "material", "color", 
+            "weight_kg", "length", "width", "height", 
+            "stock", "delivery_days", "is_made_to_order", "is_active"
+        ]
+        widgets = {
+            "product": forms.Select(attrs={"class": "form-control"}),
+            "model": forms.TextInput(attrs={"class": "form-control"}),
+            "material": forms.TextInput(attrs={"class": "form-control"}),
+            "color": forms.TextInput(attrs={"class": "form-control"}),
+            "weight_kg": forms.NumberInput(attrs={"class": "form-control"}),
+            "length": forms.TextInput(attrs={"class": "form-control"}),
+            "width": forms.TextInput(attrs={"class": "form-control"}),
+            "height": forms.TextInput(attrs={"class": "form-control"}),
+            "stock": forms.NumberInput(attrs={"class": "form-control"}),
+            "delivery_days": forms.NumberInput(attrs={"class": "form-control"}),
+            "is_made_to_order": forms.CheckboxInput(attrs={"class": "form-check-input"}),
+            "is_active": forms.CheckboxInput(attrs={"class": "form-check-input"}),
+        }
+
+class BlogForm(forms.ModelForm):
+    class Meta:
+        model = BlogModel
+        fields = ["title", "image", "content", "author", "is_active"]
+        widgets = {
+            "title": forms.TextInput(attrs={"class": "form-control"}),
+            "image": forms.FileInput(attrs={"class": "form-control"}),
+            "content": forms.Textarea(attrs={"class": "form-control"}),
+            "author": forms.Select(attrs={"class": "form-control"}),
+            "is_active": forms.CheckboxInput(attrs={"class": "form-check-input"}),
+        }

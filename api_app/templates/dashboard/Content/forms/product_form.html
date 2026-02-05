@@ -1,0 +1,120 @@
+{% extends 'dashboard/dashboard.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+            <h6 class="m-0 font-weight-bold text-primary">
+                {% if form.instance.pk %}Edit Product{% else %}Add New Product{% endif %}
+            </h6>
+            <a href="{% url 'product_list' %}" class="btn btn-secondary btn-sm">Back to List</a>
+        </div>
+        <div class="card-body">
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                {{ form.media }}
+                
+                <div class="row">
+                    <div class="col-md-8">
+                        <!-- Main Info -->
+                        <div class="form-group mb-3">
+                            <label for="{{ form.name.id_for_label }}">Product Name</label>
+                            {{ form.name }}
+                            {% if form.name.errors %}
+                                <div class="text-danger small">{{ form.name.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 form-group mb-3">
+                                <label for="{{ form.category.id_for_label }}">Category</label>
+                                {{ form.category }}
+                                {% if form.category.errors %}
+                                    <div class="text-danger small">{{ form.category.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 form-group mb-3">
+                                <label for="{{ form.brand.id_for_label }}">Brand</label>
+                                {{ form.brand }}
+                                {% if form.brand.errors %}
+                                    <div class="text-danger small">{{ form.brand.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-4 form-group mb-3">
+                                <label for="{{ form.price.id_for_label }}">Price</label>
+                                {{ form.price }}
+                                {% if form.price.errors %}
+                                    <div class="text-danger small">{{ form.price.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-4 form-group mb-3">
+                                <label for="{{ form.discount_percent.id_for_label }}">Discount (%)</label>
+                                {{ form.discount_percent }}
+                                {% if form.discount_percent.errors %}
+                                    <div class="text-danger small">{{ form.discount_percent.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-4 form-group mb-3">
+                                <label for="{{ form.warranty_years.id_for_label }}">Warranty (Years)</label>
+                                {{ form.warranty_years }}
+                                {% if form.warranty_years.errors %}
+                                    <div class="text-danger small">{{ form.warranty_years.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label for="{{ form.description.id_for_label }}">Description</label>
+                            {{ form.description }}
+                            {% if form.description.errors %}
+                                <div class="text-danger small">{{ form.description.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <!-- Sidebar / Image / Status -->
+                        <div class="card mb-3">
+                            <div class="card-header">Product Image</div>
+                            <div class="card-body text-center">
+                                {% if form.instance.image %}
+                                    <img src="{{ form.instance.image.url }}" alt="Current Image" class="img-fluid mb-2" style="max-height: 200px;">
+                                    <br>
+                                {% endif %}
+                                {{ form.image }}
+                                {% if form.image.errors %}
+                                    <div class="text-danger small">{{ form.image.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="card mb-3">
+                            <div class="card-header">Status</div>
+                            <div class="card-body">
+                                <div class="form-check mb-2">
+                                    {{ form.is_active }}
+                                    <label class="form-check-label" for="{{ form.is_active.id_for_label }}">Active</label>
+                                </div>
+                                <div class="form-check">
+                                    {{ form.is_featured }}
+                                    <label class="form-check-label" for="{{ form.is_featured.id_for_label }}">Featured</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-success btn-lg">
+                        <i class="fas fa-save"></i> Save Product
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
