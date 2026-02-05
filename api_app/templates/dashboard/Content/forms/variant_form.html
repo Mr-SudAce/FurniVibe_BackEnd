@@ -1,77 +1,95 @@
-{% extends 'dashboard/dashboard.html' %}
-{% load static %}
+{% extends 'dashboard/base_form.html' %}
 
-{% block content %}
-<div class="container-fluid">
-    <div class="card shadow mb-4">
-        <div class="card-header py-3 d-flex justify-content-between align-items-center">
-            <h6 class="m-0 font-weight-bold text-primary">
-                {% if form.instance.pk %}Edit Variant{% else %}Add New Variant{% endif %}
-            </h6>
-            <a href="{% url 'variant_list' %}" class="btn btn-secondary btn-sm">Back to List</a>
-        </div>
-        <div class="card-body">
-            <form method="POST">
-                {% csrf_token %}
-                
-                <div class="row">
-                    <div class="col-md-12 mb-3">
-                        <label>Product</label>
-                        {{ form.product }}
-                    </div>
-                </div>
+{% block form_title %}
+    {% if form.instance.pk %}Edit Variant{% else %}Add New Variant{% endif %}
+{% endblock %}
 
-                <div class="row">
-                    <div class="col-md-4 mb-3">
-                        <label>Model</label>
-                        {{ form.model }}
-                    </div>
-                    <div class="col-md-4 mb-3">
-                        <label>Material</label>
-                        {{ form.material }}
-                    </div>
-                    <div class="col-md-4 mb-3">
-                        <label>Color</label>
-                        {{ form.color }}
-                    </div>
-                </div>
+{% block back_url %}
+    {% url 'variant_list' %}
+{% endblock %}
 
-                <div class="row">
-                    <div class="col-md-3 mb-3">
-                        <label>Weight (kg)</label>
-                        {{ form.weight_kg }}
-                    </div>
-                    <div class="col-md-3 mb-3">
-                        <label>Length</label>
-                        {{ form.length }}
-                    </div>
-                    <div class="col-md-3 mb-3">
-                        <label>Width</label>
-                        {{ form.width }}
-                    </div>
-                    <div class="col-md-3 mb-3">
-                        <label>Height</label>
-                        {{ form.height }}
-                    </div>
-                </div>
+{% block main_fields %}
+<!-- Product -->
+<div class="form-group mb-3">
+    <label for="{{ form.product.id_for_label }}">Product</label>
+    {{ form.product }}
+    {% if form.product.errors %}
+        <div class="text-danger small">{{ form.product.errors }}</div>
+    {% endif %}
+</div>
 
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label>Stock</label>
-                        {{ form.stock }}
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <label>Delivery Days</label>
-                        {{ form.delivery_days }}
-                    </div>
-                </div>
-
-                <div class="form-check mb-2">{{ form.is_made_to_order }} <label>Made to Order</label></div>
-                <div class="form-check mb-4">{{ form.is_active }} <label>Active</label></div>
-
-                <button type="submit" class="btn btn-success"><i class="fas fa-save"></i> Save Variant</button>
-            </form>
-        </div>
+<!-- Model / Material / Color -->
+<div class="row">
+    <div class="col-md-4 mb-3">
+        <label for="{{ form.model.id_for_label }}">Model</label>
+        {{ form.model }}
+        {% if form.model.errors %}
+            <div class="text-danger small">{{ form.model.errors }}</div>
+        {% endif %}
+    </div>
+    <div class="col-md-4 mb-3">
+        <label for="{{ form.material.id_for_label }}">Material</label>
+        {{ form.material }}
+        {% if form.material.errors %}
+            <div class="text-danger small">{{ form.material.errors }}</div>
+        {% endif %}
+    </div>
+    <div class="col-md-4 mb-3">
+        <label for="{{ form.color.id_for_label }}">Color</label>
+        {{ form.color }}
+        {% if form.color.errors %}
+            <div class="text-danger small">{{ form.color.errors }}</div>
+        {% endif %}
     </div>
 </div>
+
+<!-- Dimensions -->
+<div class="row">
+    <div class="col-md-3 mb-3">
+        <label for="{{ form.weight_kg.id_for_label }}">Weight (kg)</label>
+        {{ form.weight_kg }}
+    </div>
+    <div class="col-md-3 mb-3">
+        <label for="{{ form.length.id_for_label }}">Length</label>
+        {{ form.length }}
+    </div>
+    <div class="col-md-3 mb-3">
+        <label for="{{ form.width.id_for_label }}">Width</label>
+        {{ form.width }}
+    </div>
+    <div class="col-md-3 mb-3">
+        <label for="{{ form.height.id_for_label }}">Height</label>
+        {{ form.height }}
+    </div>
+</div>
+
+<!-- Stock / Delivery -->
+<div class="row">
+    <div class="col-md-6 mb-3">
+        <label for="{{ form.stock.id_for_label }}">Stock</label>
+        {{ form.stock }}
+    </div>
+    <div class="col-md-6 mb-3">
+        <label for="{{ form.delivery_days.id_for_label }}">Delivery Days</label>
+        {{ form.delivery_days }}
+    </div>
+</div>
+{% endblock %}
+
+{% block side_fields %}
+<div class="form-check mb-2">
+    {{ form.is_made_to_order }}
+    <label class="form-check-label" for="{{ form.is_made_to_order.id_for_label }}">Made to Order</label>
+</div>
+
+<div class="form-check mb-4">
+    {{ form.is_active }}
+    <label class="form-check-label" for="{{ form.is_active.id_for_label }}">Active</label>
+</div>
+{% endblock %}
+
+{% block form_actions %}
+<button type="submit" class="btn btn-success">
+    <i class="fas fa-save"></i> Save Variant
+</button>
 {% endblock %}

@@ -50,7 +50,7 @@ def product_create(request):
         unique_field="slug",
         success_msg="Product created successfully!",
         redirect_url="product_list",
-        template_name=f"{defaultPath}form/product_form.html",
+        template_name=f"{defaultPath}forms/product_form.html",
         list_context_name="products",
         form_context_name="form",
     )
@@ -66,7 +66,7 @@ def product_update(request, pk):
         form_class=ProductForm,
         success_msg="Product updated successfully!",
         redirect_url="product_list",
-        template_name=f"{defaultPath}form/product_form.html",
+        template_name=f"{defaultPath}forms/product_form.html",
         form_context_name="form",
         object_context_name="product",
     )
@@ -102,7 +102,7 @@ def category_create(request):
         "slug",
         "Category added!",
         "category_list",
-        f"{defaultPath}form/category_form.html",
+        f"{defaultPath}forms/category_form.html",
         "categories",
         "form",
     )
@@ -118,7 +118,7 @@ def category_update(request, pk):
         CategoryForm,
         "Category updated!",
         "category_list",
-        f"{defaultPath}form/category_form.html",
+        f"{defaultPath}forms/category_form.html",
         "form",
         "category",
     )
@@ -152,7 +152,7 @@ def brand_create(request):
         "slug",
         "Brand added!",
         "brand_list",
-        f"{defaultPath}form/brand_form.html",
+        f"{defaultPath}forms/brand_form.html",
         "brands",
         "form",
     )
@@ -168,7 +168,7 @@ def brand_update(request, pk):
         BrandForm,
         "Brand updated!",
         "brand_list",
-        f"{defaultPath}form/brand_form.html",
+        f"{defaultPath}forms/brand_form.html",
         "form",
         "brand",
     )
@@ -205,7 +205,7 @@ def variant_create(request):
         None,
         "Variant added!",
         "variant_list",
-        f"{defaultPath}form/variant_form.html",
+        f"{defaultPath}forms/variant_form.html",
         "variants",
         "form",
     )
@@ -221,7 +221,7 @@ def variant_update(request, pk):
         ProductVariantForm,
         "Variant updated!",
         "variant_list",
-        f"{defaultPath}form/variant_form.html",
+        f"{defaultPath}forms/variant_form.html",
         "form",
         "variant",
     )
@@ -255,7 +255,7 @@ def blog_create(request):
         "slug",
         "Blog added!",
         "blog_list",
-        f"{defaultPath}form/blog_form.html",
+        f"{defaultPath}forms/blog_form.html",
         "blogs",
         "form",
     )
@@ -271,7 +271,7 @@ def blog_update(request, pk):
         BlogForm,
         "Blog updated!",
         "blog_list",
-        f"{defaultPath}form/blog_form.html",
+        f"{defaultPath}forms/blog_form.html",
         "form",
         "blog",
     )

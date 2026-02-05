@@ -1,53 +1,53 @@
-{% extends 'dashboard/dashboard.html' %}
-{% load static %}
+{% extends 'dashboard/base_form.html' %}
 
-{% block content %}
-<div class="container-fluid">
-    <div class="card shadow mb-4">
-        <div class="card-header py-3 d-flex justify-content-between align-items-center">
-            <h6 class="m-0 font-weight-bold text-primary">
-                {% if form.instance.pk %}Edit Category{% else %}Add New Category{% endif %}
-            </h6>
-            <a href="{% url 'category_list' %}" class="btn btn-secondary btn-sm">Back to List</a>
-        </div>
-        <div class="card-body">
-            <form method="POST" enctype="multipart/form-data">
-                {% csrf_token %}
-                {{ form.media }}
-                
-                <div class="row">
-                    <div class="col-md-8">
-                        <div class="form-group mb-3">
-                            <label>Category Name</label>
-                            {{ form.name }}
-                        </div>
-                        <div class="form-group mb-3">
-                            <label>Description</label>
-                            {{ form.description }}
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="card mb-3">
-                            <div class="card-header">Image</div>
-                            <div class="card-body text-center">
-                                {% if form.instance.image %}
-                                    <img src="{{ form.instance.image.url }}" class="img-fluid mb-2" style="max-height: 150px;">
-                                {% endif %}
-                                {{ form.image }}
-                            </div>
-                        </div>
-                        <div class="form-check mb-3">
-                            {{ form.is_active }}
-                            <label class="form-check-label">Active</label>
-                        </div>
-                    </div>
-                </div>
+{% block form_title %}
+    {% if form.instance.pk %}Edit Category{% else %}Add New Category{% endif %}
+{% endblock %}
 
-                <button type="submit" class="btn btn-success">
-                    <i class="fas fa-save"></i> Save Category
-                </button>
-            </form>
-        </div>
+{% block back_url %}
+    {% url 'category_list' %}
+{% endblock %}
+
+{% block main_fields %}
+<div class="form-group mb-3">
+    <label for="{{ form.name.id_for_label }}">Category Name</label>
+    {{ form.name }}
+    {% if form.name.errors %}
+        <div class="text-danger small">{{ form.name.errors }}</div>
+    {% endif %}
+</div>
+
+<div class="form-group mb-3">
+    <label for="{{ form.description.id_for_label }}">Description</label>
+    {{ form.description }}
+    {% if form.description.errors %}
+        <div class="text-danger small">{{ form.description.errors }}</div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block side_fields %}
+<div class="card mb-3">
+    <div class="card-header">Image</div>
+    <div class="card-body text-center">
+        {% if form.instance.image %}
+            <img src="{{ form.instance.image.url }}" class="img-fluid preview-img-small">
+        {% endif %}
+        {{ form.image }}
+        {% if form.image.errors %}
+            <div class="text-danger small">{{ form.image.errors }}</div>
+        {% endif %}
     </div>
 </div>
+
+<div class="form-check mb-3">
+    {{ form.is_active }}
+    <label class="form-check-label" for="{{ form.is_active.id_for_label }}">Active</label>
+</div>
+{% endblock %}
+
+{% block form_actions %}
+<button type="submit" class="btn btn-success">
+    <i class="fas fa-save"></i> Save Category
+</button>
 {% endblock %}
