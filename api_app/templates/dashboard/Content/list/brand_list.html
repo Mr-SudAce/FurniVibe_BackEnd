@@ -6,7 +6,6 @@
 
 {% block add_url %}
 {% url 'brand_create' %}
-  
 {% endblock %}
 
 {% block table_title %}All Brands{% endblock %}
@@ -35,9 +34,9 @@
     <td>{{ brand.description|striptags|truncatechars:50 }}</td>
     <td>
         {% if brand.is_active %}
-            <span class="badge badge-success">Active</span>
+            <span class="badge bg-success">Active</span>
         {% else %}
-            <span class="badge badge-secondary">Inactive</span>
+            <span class="badge bg-secondary">Inactive</span>
         {% endif %}
     </td>
     <td>

@@ -7,15 +7,17 @@
 {% endblock %}
 
 {% block content %}
-
-<a href="{% block add_url %} {% endblock %}" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">
-    <i class="fas fa-plus fa-sm text-white-50"></i> Add New {% block add_new_name %}{% endblock %}
-</a>
 <div class="container-fluid">
+
+    <!-- Page Heading -->
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 class="h3 mb-0 text-gray-800">{% block list_title %}List{% endblock %}</h1>
+        <h1 class="h3 mb-0 text-gray-800">{% block list_title %}{% endblock %} List</h1>
+        <a href="{% block add_url %}{% endblock %}" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">
+            <i class="fas fa-plus fa-sm text-white-50"></i> Add New {% block add_new_name %}{% endblock %}
+        </a>
     </div>
 
+    <!-- Table Card -->
     <div class="card shadow mb-4">
         <div class="card-header py-3">
             <h6 class="m-0 font-weight-bold text-primary">{% block table_title %}All Items{% endblock %}</h6>
@@ -33,5 +35,6 @@
             </div>
         </div>
     </div>
+
 </div>
 {% endblock %}

@@ -16,7 +16,7 @@
     <th>Name</th>
     <th>Category</th>
     <th>Brand</th>
-    <th>Price</th>
+    <th>Price (Dis.)</th>
     <th>Status</th>
     <th>Actions</th>
 </tr>
@@ -38,14 +38,17 @@
     <td>{{ product.brand.name|default:"-" }}</td>
 
     <td>
-        {% if product.discount_percent > 0 %}
-        <del class="text-muted small">Rs.{{ product.price }}</del>
-        <div class="text-success font-weight-bold">
-            Rs.{{ product.discounted_price|floatformat:2 }}
-        </div>
-        {% else %}
-        Rs.{{ product.price }}
-        {% endif %}
+        <span class="d-flex m-0 ">
+
+            {% if product.discount_percent > 0 %}
+            <div class="text-success font-weight-bold">
+                Rs.{{ product.discounted_price|floatformat:2 }}
+            </div>
+            <!-- <del class="text-muted small">Rs.{{ product.price }}</del> -->
+            {% else %}
+            Rs.{{ product.price }}
+            {% endif %}
+        </span>
     </td>
 
     <td>
