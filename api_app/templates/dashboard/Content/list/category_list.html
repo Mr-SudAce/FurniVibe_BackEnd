@@ -5,8 +5,8 @@
 {% block add_new_name %}Category{% endblock %}
 
 {% block add_url %}
-{% url 'category_create' %} 
-  
+{% url 'category_create' %}
+
 {% endblock %}
 
 {% block table_title %}All Categories{% endblock %}
@@ -26,23 +26,26 @@
 <tr>
     <td>
         {% if category.image %}
-            <img src="{{ category.image.url }}" alt="{{ category.name }}" class="table-img" width="100px" height="100px">
+        <img src="{{ category.image.url }}" alt="{{ category.name }}" class="table-img" width="100px" height="100px">
         {% else %}
-            <span class="text-muted">No Image</span>
+        <span class="text-muted">No Image</span>
         {% endif %}
     </td>
     <td>{{ category.name }}</td>
     <td>{{ category.description|striptags|truncatechars:50 }}</td>
     <td>
         {% if category.is_active %}
-            <span class="badge badge-success">Active</span>
+        <span class="badge bg-success">Active</span>
         {% else %}
-            <span class="badge badge-secondary">Inactive</span>
+        <span class="badge bg-secondary">Inactive</span>
         {% endif %}
     </td>
     <td>
         <a href="{% url 'category_update' category.pk %}" class="btn btn-info btn-sm"><i class="bi bi-pencil-square"></i></a>
-        <a href="{% url 'category_delete' category.pk %}" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure?');"><i class="bi bi-trash"></i></a>
+        <form action="{% url 'category_delete' category.pk %}" method="POST" style="display:inline;">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure?');"><i class="bi bi-trash"></i></button>
+        </form>
     </td>
 </tr>
 {% empty %}

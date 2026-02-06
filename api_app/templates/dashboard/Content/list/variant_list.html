@@ -34,17 +34,17 @@
     <td>{{ variant.stock }}</td>
     <td>
         {% if variant.is_active %}
-        <span class="badge badge-success">Active</span>
+        <span class="badge bg-success">Active</span>
         {% else %}
-        <span class="badge badge-secondary">Inactive</span>
+        <span class="badge bg-secondary">Inactive</span>
         {% endif %}
         {% if variant.is_made_to_order %}
-        <span class="badge badge-warning">Made to Order</span>
+        <span class="badge bg-warning">Made to Order</span>
         {% endif %}
     </td>
     <td>
-        <a href="{% url 'variant_update' variant.pk %}" class="btn btn-info btn-sm"><i class="fas fa-edit"></i></a>
-        <a href="{% url 'variant_delete' variant.pk %}" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure?');"><i class="fas fa-trash"></i></a>
+        <a href="{% url 'variant_update' variant.pk %}" class="btn btn-info btn-sm"><i class="bi bi-pencil-square"></i></a>
+        <a href="{% url 'variant_delete' variant.pk %}" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure?');"><i class="bi bi-trash"></i></a>
     </td>
 </tr>
 {% empty %}
