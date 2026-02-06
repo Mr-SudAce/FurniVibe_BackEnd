@@ -1,40 +1,15 @@
 from rest_framework import viewsets
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.permissions import AllowAny
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
 
-from api_app.models import (
-    User,
-    CategoryModel,
-    BrandModel,
-    ProductModel,
-    ProductVariantModel,
-    BlogModel,
-    OrderModel,
-    OtherDetailModel,
-)
+from api_app.models import *
 
-from api_app.serializers import (
-    UserSerializer,
-    UserCreateSerializer,
-    CategorySerializer,
-    BrandSerializer,
-    ProductSerializer,
-    VariantSerializer,
-    BlogSerializer,
-    OrderSerializer,
-    OtherdetailSerializer,
-)
+from api_app.serializers import *
 
-from Handler.ApiViewHandler import (
-    handle_create,
-    handle_getAll,
-    handle_get_byid,
-    handle_update,
-    handle_deletion,
-)
+from Handler.ApiViewHandler import *
 
 from .permissions import IsStaffOrIsSuperUser, IsSuperUser
 
@@ -46,47 +21,12 @@ from .permissions import IsStaffOrIsSuperUser, IsSuperUser
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
+    serializer_class = UserSerializer
     authentication_classes = [TokenAuthentication]
-
     def get_permissions(self):
-        if self.action == "create":
+        if self.action in ["list", "retrieve"]:
             return [AllowAny()]
-
-        if self.action in ["update", "partial_update", "destroy"]:
-            return [IsSuperUser()]
-
         return [IsStaffOrIsSuperUser()]
-
-    def get_serializer_class(self):
-        if self.action in ["create", "update", "partial_update"]:
-            return UserCreateSerializer
-        return UserSerializer
-
-    def list(self, request, *args, **kwargs):
-        return handle_getAll(
-            model=User,
-            serializer_class=UserSerializer,
-            not_found_message="No users found",
-        )
-
-    def create(self, request, *args, **kwargs):
-        return handle_create(
-            serializer_class=UserCreateSerializer,
-            request=request,
-            success_message="User created successfully",
-        )
-
-    def retrieve(self, request, pk=None, *args, **kwargs):
-        return handle_get_byid(User, UserSerializer, pk, "User not found")
-
-    def update(self, request, pk=None, *args, **kwargs):
-        return handle_update(
-            User, UserCreateSerializer, pk, request, "User updated successfully"
-        )
-
-    def destroy(self, request, pk=None, *args, **kwargs):
-        return handle_deletion(User, pk, "User deleted successfully")
-
 
 # ---------------------------------------------------
 # CATEGORY VIEWSET

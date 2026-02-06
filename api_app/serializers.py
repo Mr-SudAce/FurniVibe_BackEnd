@@ -1,12 +1,11 @@
 from rest_framework import serializers
 from api_app.models import *
 from rest_framework.validators import UniqueValidator
-from django.contrib.auth import get_user_model
 from django.db import transaction
 import time
 from django.contrib.auth.hashers import make_password
+from .models import User
 
-User = get_user_model()
 
 # ----------------- User Read Serializer -----------------
 class UserSerializer(serializers.ModelSerializer):
