@@ -286,7 +286,6 @@ class BlogModel(models.Model):
     slug = models.SlugField(unique=True, blank=True)
     image = models.ImageField(upload_to="blogs/", blank=True, null=True)
     content = HTMLField(blank=True)
-    author = models.ForeignKey(User, on_delete=models.CASCADE)
     is_active = models.BooleanField(default=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
@@ -294,7 +293,13 @@ class BlogModel(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.slug:
-            self.slug = slugify(self.title)
+            base_slug = slugify(self.title)
+            slug = base_slug
+            counter = 1
+            while BlogModel.objects.filter(slug=slug).exists():
+                slug = f"{base_slug}-{counter}"
+                counter += 1
+            self.slug = slug
         super().save(*args, **kwargs)
 
     def __str__(self):

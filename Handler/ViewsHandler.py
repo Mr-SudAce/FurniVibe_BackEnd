@@ -1,22 +1,28 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
 from django.db import transaction, IntegrityError
-from rest_framework.decorators import permission_classes
+from django.utils.text import slugify
 from django.contrib.auth.hashers import make_password
+from django.contrib import messages
 from django.contrib.auth.decorators import user_passes_test
+
 
 # -------------------------------
 # PERMISSIONS
 # -------------------------------
 def is_staff(user):
-    return user.is_authenticated and (user.is_staff or user.is_staff or user.is_superuser)
+    return user.is_authenticated and (
+        user.is_staff or user.is_staff or user.is_superuser
+    )
+
 
 def is_superuser(user):
     return user.is_authenticated and (user.is_superuser or user.is_superuser)
 
+
 def admin_or_super_required(view_func):
     return user_passes_test(is_staff, login_url="dashboard_login")(view_func)
+
 
 def web_superadmin_required(view_func):
     return user_passes_test(is_superuser, login_url="dashboard_login")(view_func)
@@ -55,7 +61,6 @@ def handle_addition(
     list_context_name,
     form_context_name,
 ):
-
     form = form_class(request.POST or None, request.FILES or None)
 
     if request.method == "POST":
@@ -66,7 +71,6 @@ def handle_addition(
 
                     # Extra validation for User
                     if model_class.__name__ == "User":
-                        # hash password
                         hash_password_if_present(instance, form)
                         
                         # Auto-generate username if not present
@@ -78,8 +82,6 @@ def handle_addition(
                                 username = f"{base_username}{counter}"
                                 counter += 1
                             instance.username = username
-                        
-                        # Default role: Admin (not superadmin)
                         instance.is_staff = True
                         instance.is_superuser = False
                         instance.is_user = False

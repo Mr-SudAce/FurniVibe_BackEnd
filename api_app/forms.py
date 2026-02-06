@@ -130,6 +130,7 @@ class BlogForm(forms.ModelForm):
     class Meta:
         model = BlogModel
         fields = ["title", "image", "content", "is_active"]
+        exclude = ["author"]
         widgets = {
             "title": forms.TextInput(attrs={"class": "form-control"}),
             "image": forms.FileInput(attrs={"class": "form-control"}),

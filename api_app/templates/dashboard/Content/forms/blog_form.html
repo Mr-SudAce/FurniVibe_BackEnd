@@ -1,11 +1,11 @@
 {% extends 'dashboard/base_form.html' %}
 
 {% block form_title %}
-    {% if form.instance.pk %}Edit Blog Post{% else %}Add New Blog Post{% endif %}
+{% if form.instance.pk %}Edit Blog Post{% else %}Add New Blog Post{% endif %}
 {% endblock %}
 
 {% block back_url %}
-    {% url 'blog_list' %}
+{% url 'blog_list' %}
 {% endblock %}
 
 {% block main_fields %}
@@ -13,7 +13,7 @@
     <label for="{{ form.title.id_for_label }}">Title</label>
     {{ form.title }}
     {% if form.title.errors %}
-        <div class="text-danger small">{{ form.title.errors }}</div>
+    <div class="text-danger small">{{ form.title.errors }}</div>
     {% endif %}
 </div>
 
@@ -21,29 +21,22 @@
     <label for="{{ form.content.id_for_label }}">Content</label>
     {{ form.content }}
     {% if form.content.errors %}
-        <div class="text-danger small">{{ form.content.errors }}</div>
+    <div class="text-danger small">{{ form.content.errors }}</div>
     {% endif %}
 </div>
 {% endblock %}
 
 {% block side_fields %}
-<div class="form-group mb-3">
-    <label for="{{ form.author.id_for_label }}">Author</label>
-    {{ form.author }}
-    {% if form.author.errors %}
-        <div class="text-danger small">{{ form.author.errors }}</div>
-    {% endif %}
-</div>
 
 <div class="card mb-3">
     <div class="card-header">Featured Image</div>
     <div class="card-body text-center">
         {% if form.instance.image %}
-            <img src="{{ form.instance.image.url }}" class="img-fluid preview-img-small">
+        <img src="{{ form.instance.image.url }}" class="img-fluid preview-img-small">
         {% endif %}
         {{ form.image }}
         {% if form.image.errors %}
-            <div class="text-danger small">{{ form.image.errors }}</div>
+        <div class="text-danger small">{{ form.image.errors }}</div>
         {% endif %}
     </div>
 </div>
