@@ -6,6 +6,11 @@
 <link rel="stylesheet" href="{% static 'dashboard/css/list.css' %}">
 {% endblock %}
 
+
+  <a href="{% block add_url %} {% endblock %}" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">
+    <i class="fas fa-plus fa-sm text-white-50"></i> Add New {% block add_new_name %}{% endblock %}
+</a>
+
 {% block content %}
 <div class="container-fluid">
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
