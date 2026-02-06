@@ -2,10 +2,11 @@
 
 {% block list_title %}Product Variants{% endblock %}
 
-{% block add_button %}
-<a href="{% url 'variant_create' %}" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">
-    <i class="fas fa-plus fa-sm text-white-50"></i> Add New Variant
-</a>
+{% block add_new_name %}Variant{% endblock %}
+
+{% block add_url %}
+{% url 'variant_create' %}
+  
 {% endblock %}
 
 {% block table_title %}All Variants{% endblock %}

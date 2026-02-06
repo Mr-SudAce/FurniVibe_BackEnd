@@ -129,11 +129,10 @@ class ProductVariantForm(forms.ModelForm):
 class BlogForm(forms.ModelForm):
     class Meta:
         model = BlogModel
-        fields = ["title", "image", "content", "author", "is_active"]
+        fields = ["title", "image", "content", "is_active"]
         widgets = {
             "title": forms.TextInput(attrs={"class": "form-control"}),
             "image": forms.FileInput(attrs={"class": "form-control"}),
             "content": forms.Textarea(attrs={"class": "form-control"}),
-            "author": forms.Select(attrs={"class": "form-control"}),
             "is_active": forms.CheckboxInput(attrs={"class": "form-check-input"}),
         }

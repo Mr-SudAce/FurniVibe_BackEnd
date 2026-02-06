@@ -2,10 +2,11 @@
 
 {% block list_title %}Categories{% endblock %}
 
-{% block add_button %}
-<a href="{% url 'category_create' %}" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">
-    <i class="fas fa-plus fa-sm text-white-50"></i> Add New Category
-</a>
+{% block add_new_name %}Category{% endblock %}
+
+{% block add_url %}
+{% url 'category_create' %} 
+  
 {% endblock %}
 
 {% block table_title %}All Categories{% endblock %}

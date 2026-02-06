@@ -2,11 +2,11 @@
 
 {% block list_title %}Blog Posts{% endblock %}
 
-{% block add_button %}
-<a href="{% url 'blog_create' %}" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">
-    <i class="fas fa-plus fa-sm text-white-50"></i> Add New Post
-</a>
+{% block add_url %}
+{% url 'blog_create' %}
 {% endblock %}
+
+{% block add_new_name %}Blog{% endblock %}
 
 {% block table_title %}All Blog Posts{% endblock %}
 
@@ -25,26 +25,41 @@
 <tr>
     <td>
         {% if blog.image %}
-            <img src="{{ blog.image.url }}" alt="{{ blog.title }}" class="table-img">
+        <img src="{{ blog.image.url }}" alt="{{ blog.title }}" class="table-img">
         {% else %}
-            <span class="text-muted">No Image</span>
+        <span class="text-muted">No Image</span>
         {% endif %}
     </td>
+
     <td>{{ blog.title }}</td>
     <td>{{ blog.author.username }}</td>
+
     <td>
         {% if blog.is_active %}
-            <span class="badge badge-success">Active</span>
+        <span class="badge badge-success">Active</span>
         {% else %}
-            <span class="badge badge-secondary">Inactive</span>
+        <span class="badge badge-secondary">Inactive</span>
         {% endif %}
     </td>
+
     <td>
-        <a href="{% url 'blog_update' blog.pk %}" class="btn btn-info btn-sm"><i class="fas fa-edit"></i></a>
-        <a href="{% url 'blog_delete' blog.pk %}" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure?');"><i class="fas fa-trash"></i></a>
+        <a href="{% url 'blog_update' blog.pk %}"
+            class="btn btn-info btn-sm">
+            <i class="bi bi-edit"></i>
+        </a>
+
+        <a href="{% url 'blog_delete' blog.pk %}"
+            class="btn btn-danger btn-sm"
+            onclick="return confirm('Are you sure?');">
+            <i class="bi bi-trash"></i>
+        </a>
     </td>
 </tr>
 {% empty %}
-<tr><td colspan="5" class="text-center">No blog posts found.</td></tr>
+<tr>
+    <td colspan="5" class="text-center text-muted">
+        No blog posts found.
+    </td>
+</tr>
 {% endfor %}
 {% endblock %}
