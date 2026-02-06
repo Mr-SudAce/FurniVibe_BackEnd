@@ -2,6 +2,7 @@
 {% load static %}
 
 {% block extra_css %}
+<link rel="stylesheet" href="{% static 'CSS/main.css' %}">
 <link rel="stylesheet" href="{% static 'CSS/form.css' %}">
 {% endblock %}
 
@@ -25,33 +26,24 @@
                 {% csrf_token %}
                 {{ form.media }}
 
-                <div class="row">
-                    <!-- Main Fields -->
+                <div class="row g-3">
                     <div class="col-md-8">
-                        {% block main_fields %}
-                        <!-- Left side form fields -->
-                        {% endblock %}
+                        {% block main_fields %}{% endblock %}
                     </div>
-
-                    <!-- Side Fields -->
                     <div class="col-md-4">
-                        {% block side_fields %}
-                        <!-- Right side fields (image, status, etc) -->
-                        {% endblock %}
+                        {% block side_fields %}{% endblock %}
                     </div>
                 </div>
 
-                <!-- Actions -->
-                <div class="mt-3">
+                <div class="mt-4">
                     {% block form_actions %}
-                    <button type="submit" class="btn btn-success">
-                        <i class="fas fa-save"></i> Save
+                    <button type="submit" class="btn btn-success btn-lg shadow-sm">
+                        <i class="bi bi-save"></i> Save
                     </button>
                     {% endblock %}
                 </div>
             </form>
-        </div>
 
+        </div>
     </div>
-</div>
-{% endblock %}
+    {% endblock %}

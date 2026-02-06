@@ -1,0 +1,29 @@
+/* Inputs full width + rounded */
+.form-control {
+    border-radius: 8px;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid #ced4da;
+}
+
+/* Labels bold */
+label {
+    font-weight: 600;
+}
+
+/* Card-body spacing */
+.card-body {
+    padding: 2rem;
+}
+
+/* Side fields (right column) styling */
+.col-md-4 {
+    background-color: #f8f9fc;
+    border-radius: 10px;
+    padding: 1rem;
+}
+
+/* Save button styling */
+.btn-success {
+    padding: 0.5rem 1.2rem;
+    font-size: 1rem;
+}

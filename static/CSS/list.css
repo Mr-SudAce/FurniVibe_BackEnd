@@ -1,0 +1,24 @@
+/* Table hover effect */
+.table-hover tbody tr:hover {
+    background-color: #f2f2f2;
+    cursor: pointer;
+}
+
+/* Table border-radius for nicer look */
+.table {
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+/* Table header colors */
+.table thead th {
+    background-color: #f8f9fc;
+    font-weight: 600;
+    color: #333;
+}
+
+/* Optional: add small shadows to table container */
+.table-responsive {
+    box-shadow: 0 3px 8px rgba(0,0,0,0.05);
+    border-radius: 10px;
+}

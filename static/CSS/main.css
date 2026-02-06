@@ -1,34 +1,54 @@
-
-
-.container{
-    max-width: 100%;
+/* --- Container --- */
+.container, .container-fluid {
+    max-width: 1200px;
     width: 95%;
     margin: auto;
+    padding: 0 1rem;
 }
 
-
-
-
-
-
-
-
-/* Common Dashboard Styles */
+/* --- Card Style --- */
 .card {
-    margin-bottom: 1.5rem;
     border: none;
-    box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.12);
 }
 
 .card-header {
-    background-color: #f8f9fc;
-    border-bottom: 1px solid #e3e6f0;
+    background-color: #fff;
+    border-bottom: none;
+    font-weight: 600;
 }
 
-/* Responsive adjustments */
-@media (max-width: 576px) {
-    .container-fluid {
-        padding-left: 1rem;
-        padding-right: 1rem;
+/* --- Buttons --- */
+.btn {
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+}
+
+/* --- Navbar --- */
+.navbar {
+    border-radius: 0;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+}
+
+/* --- Table --- (basic styling shared) */
+.table th, .table td {
+    vertical-align: middle !important;
+}
+
+/* --- Responsive --- */
+@media (max-width: 768px) {
+    .d-flex.flex-wrap.gap-2 {
+        justify-content: center;
     }
 }
