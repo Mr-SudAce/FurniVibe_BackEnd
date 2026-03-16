@@ -7,6 +7,7 @@ from .models import (
     ProductVariantModel,
     BlogModel,
     ProductImageModel,
+    OtherDetailModel,
 )
 
 User = get_user_model()
@@ -175,4 +176,31 @@ class MoreImagesForm(forms.ModelForm):
         widgets = {
             "product": forms.Select(attrs={"class": "form-control"}),
             "image": forms.FileInput(attrs={"class": "form-control"}),
+        }
+
+
+class OtherDetailForm(forms.ModelForm):
+    class Meta:
+        model = OtherDetailModel
+        fields = [
+            "facebook",
+            "instagram",
+            "twitter",
+            "youtube",
+            "email",
+            "location",
+            "contact",
+            "whatsapp",
+            "viber",
+        ]
+        widgets = {
+            "facebook": forms.URLInput(attrs={"class": "form-control"}),
+            "instagram": forms.URLInput(attrs={"class": "form-control"}),
+            "twitter": forms.URLInput(attrs={"class": "form-control"}),
+            "youtube": forms.URLInput(attrs={"class": "form-control"}),
+            "email": forms.EmailInput(attrs={"class": "form-control"}),
+            "location": forms.TextInput(attrs={"class": "form-control"}),
+            "contact": forms.TextInput(attrs={"class": "form-control"}),
+            "whatsapp": forms.TextInput(attrs={"class": "form-control"}),
+            "viber": forms.TextInput(attrs={"class": "form-control"}),
         }

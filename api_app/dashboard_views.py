@@ -30,6 +30,18 @@ def dashboard_home(request):
 
 
 @login_required(login_url="dashboard_login")
+def account_profile(request):
+    return render(
+        request, "dashboard/auth/account_profile.html", {"user": request.user}
+    )
+
+
+# ---------------------------------------------------
+# PRODUCT VIEWS
+# ---------------------------------------------------
+
+
+@login_required(login_url="dashboard_login")
 @user_passes_test(is_staff, login_url="dashboard_login")
 def product_list(request):
     products = ProductModel.objects.all()
@@ -193,9 +205,6 @@ def variant_list(request):
 @login_required(login_url="dashboard_login")
 @user_passes_test(is_staff, login_url="dashboard_login")
 def variant_create(request):
-    # Variants don't have a slug, so we pass None for unique_field or handle differently if needed.
-    # handle_addition expects unique_field, but if model doesn't have it, we might need to adjust logic or pass a dummy.
-    # Assuming handle_addition handles None or we use a field that exists.
     return handle_addition(
         request,
         ProductVariantForm,
@@ -275,6 +284,12 @@ def blog_update(request, pk):
     )
 
 
+@login_required(login_url="dashboard_login")
+@user_passes_test(is_staff, login_url="dashboard_login")
+def blog_delete(request, pk):
+    return handle_deletion(request, pk, BlogModel, "Blog deleted!", "blog_list")
+
+
 # ---------------------------------------------------
 # MORE-IMAGES VIEWS
 # ---------------------------------------------------
@@ -319,8 +334,8 @@ def more_images_update(request, pk):
         "form",
         "image",
     )
-    
-    
+
+
 @login_required(login_url="dashboard_login")
 @user_passes_test(is_staff, login_url="dashboard_login")
 def more_image_delete(request, pk):
@@ -329,14 +344,55 @@ def more_image_delete(request, pk):
     )
 
 
+# ---------------------------------------------------
+# OTHER DETAILS VIEWS
+# ---------------------------------------------------
+
+
 @login_required(login_url="dashboard_login")
 @user_passes_test(is_staff, login_url="dashboard_login")
-def blog_delete(request, pk):
-    return handle_deletion(request, pk, BlogModel, "Blog deleted!", "blog_list")
+def other_detail_list(request):
+    details = OtherDetailModel.objects.all()
+    return render(
+        request, f"{defaultPath}list/otherdetails_list.html", {"details": details}
+    )
 
 
 @login_required(login_url="dashboard_login")
-def account_profile(request):
-    return render(
-        request, "dashboard/auth/account_profile.html", {"user": request.user}
+@user_passes_test(is_staff, login_url="dashboard_login")
+def other_detail_create(request):
+    return handle_addition(
+        request,
+        OtherDetailForm,
+        OtherDetailModel,
+        "slug",
+        "Other Detail added!",
+        "other_detail_list",
+        f"{defaultPath}forms/otherdetails_form.html",
+        "otherdetails",
+        "form",
+    )
+
+
+@login_required(login_url="dashboard_login")
+@user_passes_test(is_staff, login_url="dashboard_login")
+def other_detail_update(request, pk):
+    return handle_update(
+        request,
+        pk,
+        OtherDetailModel,
+        OtherDetailForm,
+        "Other Detail updated!",
+        "otherdetail_list",
+        f"{defaultPath}forms/otherdetails_form.html",
+        "form",
+        "otherdetail",
+    )
+
+
+@login_required(login_url="dashboard_login")
+@user_passes_test(is_staff, login_url="dashboard_login")
+def other_detail_delete(request, pk):
+    return handle_deletion(
+        request, pk, OtherDetailModel, "Other Detail deleted!", "other_detail_list"
     )

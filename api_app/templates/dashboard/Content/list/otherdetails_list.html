@@ -1,0 +1,89 @@
+{% extends 'dashboard/base_list.html' %}
+
+{% block list_title %}Other Details{% endblock %}
+
+{% block add_url %}
+{% url 'other_detail_create' %}
+{% endblock %}
+
+{% block add_new_name %}Other Detail{% endblock %}
+
+{% block table_title %}All Other Details{% endblock %}
+
+{% block table_headers %}
+<tr>
+    <th>Contact</th>
+    <th>WhatsApp</th>
+    <th>Viber</th>
+    <th>Email</th>
+    <th>Facebook</th>
+    <th>Instagram</th>
+    <th>Twitter</th>
+    <th>Youtube</th>
+    <th>Location</th>
+    <th>Actions</th>
+</tr>
+{% endblock %}
+
+{% block table_rows %}
+{% for detail in details %}
+<tr>
+    <td>{{ detail.contact }}</td>
+    <td>{{ detail.whatsapp }}</td>
+    <td>{{ detail.viber }}</td>
+    <td>{{ detail.email }}</td>
+    <td>
+        {% if detail.facebook %}
+        <a href="{{ detail.facebook }}" target="_blank">Facebook</a>
+        {% else %}
+        <span class="text-muted">-</span>
+        {% endif %}
+    </td>
+    <td>
+        {% if detail.instagram %}
+        <a href="{{ detail.instagram }}" target="_blank">Instagram</a>
+        {% else %}
+        <span class="text-muted">-</span>
+        {% endif %}
+    </td>
+    <td>
+        {% if detail.twitter %}
+        <a href="{{ detail.twitter }}" target="_blank">Twitter</a>
+        {% else %}
+        <span class="text-muted">-</span>
+        {% endif %}
+    </td>
+    <td>
+        {% if detail.youtube %}
+        <a href="{{ detail.youtube }}" target="_blank">Youtube</a>
+        {% else %}
+        <span class="text-muted">-</span>
+        {% endif %}
+    </td>
+    <td>
+        {% if detail.location %}
+        <a href="{{ detail.location }}" target="_blank">Map</a>
+        {% else %}
+        <span class="text-muted">-</span>
+        {% endif %}
+    </td>
+    <td>
+        <a href="{% url 'other_detail_update' detail.pk %}" class="btn btn-info btn-sm" title="Edit">
+            <i class="bi bi-pencil-square"></i>
+        </a>
+
+        <a href="{% url 'other_detail_delete' detail.pk %}" class="btn btn-danger btn-sm"
+           onclick="return confirm('Are you sure you want to delete this item?');"
+           title="Delete">
+            <i class="bi bi-trash"></i>
+        </a>
+    </td>
+</tr>
+{% empty %}
+<tr>
+    <td colspan="10" class="text-center text-muted">
+        No details found.
+    </td>
+</tr>
+{% endfor %}
+{% endblock %}

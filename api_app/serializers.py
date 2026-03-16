@@ -206,6 +206,7 @@ class ProductSerializer(serializers.ModelSerializer):
             "name",
             "slug",
             "category",
+            "image",
             "category_id",
             "brand",
             "brand_id",

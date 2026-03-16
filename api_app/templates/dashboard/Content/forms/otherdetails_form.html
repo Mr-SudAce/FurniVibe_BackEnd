@@ -1,0 +1,102 @@
+{% extends 'dashboard/base_form.html' %}
+
+{% block form_title %}
+    {% if form.instance.pk %}Edit Other Detail{% else %}Add New Other Detail{% endif %}
+{% endblock %}
+
+{% block back_url %}
+    {% url 'other_detail_list' %}
+{% endblock %}
+
+{% block main_fields %}
+<!-- Contact Numbers -->
+<div class="row">
+    <div class="col-md-4 form-group mb-3">
+        <label for="{{ form.contact.id_for_label }}">Contact</label>
+        {{ form.contact }}
+        {% if form.contact.errors %}
+            <div class="text-danger small">{{ form.contact.errors }}</div>
+        {% endif %}
+    </div>
+
+    <div class="col-md-4 form-group mb-3">
+        <label for="{{ form.whatsapp.id_for_label }}">WhatsApp</label>
+        {{ form.whatsapp }}
+        {% if form.whatsapp.errors %}
+            <div class="text-danger small">{{ form.whatsapp.errors }}</div>
+        {% endif %}
+    </div>
+
+    <div class="col-md-4 form-group mb-3">
+        <label for="{{ form.viber.id_for_label }}">Viber</label>
+        {{ form.viber }}
+        {% if form.viber.errors %}
+            <div class="text-danger small">{{ form.viber.errors }}</div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Email & Location -->
+<div class="row">
+    <div class="col-md-6 form-group mb-3">
+        <label for="{{ form.email.id_for_label }}">Email</label>
+        {{ form.email }}
+        {% if form.email.errors %}
+            <div class="text-danger small">{{ form.email.errors }}</div>
+        {% endif %}
+    </div>
+
+    <div class="col-md-6 form-group mb-3">
+        <label for="{{ form.location.id_for_label }}">Location (Google Maps)</label>
+        {{ form.location }}
+        {% if form.location.errors %}
+            <div class="text-danger small">{{ form.location.errors }}</div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Social Media Links -->
+<div class="row">
+    <div class="col-md-3 form-group mb-3">
+        <label for="{{ form.facebook.id_for_label }}">Facebook</label>
+        {{ form.facebook }}
+        {% if form.facebook.errors %}
+            <div class="text-danger small">{{ form.facebook.errors }}</div>
+        {% endif %}
+    </div>
+
+    <div class="col-md-3 form-group mb-3">
+        <label for="{{ form.instagram.id_for_label }}">Instagram</label>
+        {{ form.instagram }}
+        {% if form.instagram.errors %}
+            <div class="text-danger small">{{ form.instagram.errors }}</div>
+        {% endif %}
+    </div>
+
+    <div class="col-md-3 form-group mb-3">
+        <label for="{{ form.twitter.id_for_label }}">Twitter</label>
+        {{ form.twitter }}
+        {% if form.twitter.errors %}
+            <div class="text-danger small">{{ form.twitter.errors }}</div>
+        {% endif %}
+    </div>
+
+    <div class="col-md-3 form-group mb-3">
+        <label for="{{ form.youtube.id_for_label }}">Youtube</label>
+        {{ form.youtube }}
+        {% if form.youtube.errors %}
+            <div class="text-danger small">{{ form.youtube.errors }}</div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block side_fields %}
+<!-- Optional: Could add a card preview or status if needed, but OtherDetailModel has no image/status -->
+{% endblock %}
+
+{% block form_actions %}
+<button type="submit" class="btn btn-success btn-lg">
+    <i class="fas fa-save"></i> Save Details
+</button>
+{% endblock %}

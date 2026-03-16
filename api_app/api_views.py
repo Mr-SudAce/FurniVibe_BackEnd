@@ -146,7 +146,10 @@ class OtherDetailViewSet(viewsets.ModelViewSet):
     queryset = OtherDetailModel.objects.all()
     serializer_class = OtherdetailSerializer
     authentication_classes = [TokenAuthentication]
-    permission_classes = [IsStaffOrIsSuperUser]
+    def get_permissions(self):
+        if self.action in ["list", "retrieve"]:
+            return [AllowAny()]
+        return [IsStaffOrIsSuperUser()]
 
 
 # ---------------------------------------------------
