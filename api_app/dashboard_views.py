@@ -383,7 +383,7 @@ def other_detail_update(request, pk):
         OtherDetailModel,
         OtherDetailForm,
         "Other Detail updated!",
-        "otherdetail_list",
+        "other_detail_list",
         f"{defaultPath}forms/otherdetails_form.html",
         "form",
         "otherdetail",

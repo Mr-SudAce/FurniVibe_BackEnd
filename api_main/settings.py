@@ -29,7 +29,7 @@ SECRET_KEY = "django-insecure-3&-&&dbo$uvuwr31fv6k$4t6y=uoc2s+9*f61r=p&&ou4phs$@
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["localhost", "127.0.0.1", "192.168.18.2"]
+ALLOWED_HOSTS = ["localhost", "127.0.0.1", "192.168.18.2", "furnivibe.pythonanywhere.com"]
 
 
 # Application definition
