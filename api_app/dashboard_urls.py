@@ -51,10 +51,10 @@ urlpatterns = [
     path("moreImages/<int:pk>/delete/", dashboard_views.more_image_delete, name="more_images_delete"),
     
     # Other Details URLs
-    path("otherDetails/list/", dashboard_views.other_detail_list, name="other_detail_list"),
-    path("otherDetails/create/", dashboard_views.other_detail_create, name="other_detail_create"),
-    path("otherDetails/<int:pk>/update/", dashboard_views.other_detail_update, name="other_detail_update"),
-    path("otherDetails/<int:pk>/delete/", dashboard_views.other_detail_delete, name="other_detail_delete"),
+    path("other-details/list/", dashboard_views.other_detail_list, name="other_detail_list"),
+    path("other-details/create/", dashboard_views.other_detail_create, name="other_detail_create"),
+    path("other-details/<int:pk>/update/", dashboard_views.other_detail_update, name="other_detail_update"),
+    path("other-details/<int:pk>/delete/", dashboard_views.other_detail_delete, name="other_detail_delete"),
 
 
 ]   
