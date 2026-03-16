@@ -1,4 +1,4 @@
-from django.shortcuts import render, get_object_or_404, redirect
+from django.shortcuts import render
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.views import LoginView
 from django.views.generic.edit import CreateView
@@ -22,9 +22,7 @@ class AccountProfileView(LoginView):
     template_name = "dashboard/auth/account_profile.html"
 
 
-
 defaultPath = "dashboard/Content/"
-
 
 
 def dashboard_home(request):
@@ -274,6 +272,60 @@ def blog_update(request, pk):
         f"{defaultPath}forms/blog_form.html",
         "form",
         "blog",
+    )
+
+
+# ---------------------------------------------------
+# MORE-IMAGES VIEWS
+# ---------------------------------------------------
+@login_required(login_url="dashboard_login")
+@user_passes_test(is_staff, login_url="dashboard_login")
+def more_images_list(request):
+    images = ProductImageModel.objects.all()
+    return render(
+        request,
+        f"{defaultPath}list/more_images_list.html",
+        {"images": images},
+    )
+
+
+@login_required(login_url="dashboard_login")
+@user_passes_test(is_staff, login_url="dashboard_login")
+def more_images_create(request):
+    return handle_addition(
+        request,
+        MoreImagesForm,
+        ProductImageModel,
+        None,
+        "Image added!",
+        "more_images_list",
+        f"{defaultPath}forms/more_images_form.html",
+        "images",
+        "form",
+    )
+
+
+@login_required(login_url="dashboard_login")
+@user_passes_test(is_staff, login_url="dashboard_login")
+def more_images_update(request, pk):
+    return handle_update(
+        request,
+        pk,
+        ProductImageModel,
+        MoreImagesForm,
+        "Image updated!",
+        "more_images_list",
+        f"{defaultPath}forms/more_images_form.html",
+        "form",
+        "image",
+    )
+    
+    
+@login_required(login_url="dashboard_login")
+@user_passes_test(is_staff, login_url="dashboard_login")
+def more_image_delete(request, pk):
+    return handle_deletion(
+        request, pk, ProductImageModel, "Image deleted!", "more_images_list"
     )
 
 

@@ -1,0 +1,53 @@
+{% extends 'dashboard/base_form.html' %}
+
+{% block form_title %}
+    {% if form.instance.pk %}Edit Image{% else %}Add New Image{% endif %}
+{% endblock %}
+
+{% block back_url %}
+    {% url 'more_images_list' %}
+{% endblock %}
+
+{% block main_fields %}
+
+<div class="form-group mb-3">
+    <label for="{{ form.product.id_for_label }}">Product</label>
+    {{ form.product }}
+    {% if form.product.errors %}
+        <div class="text-danger small">{{ form.product.errors }}</div>
+    {% endif %}
+</div>
+
+{% endblock %}
+
+
+{% block side_fields %}
+
+<div class="card mb-3">
+    <div class="card-header">Image</div>
+
+    <div class="card-body text-center">
+
+        {% if form.instance.image %}
+            <img src="{{ form.instance.image.url }}" class="img-fluid preview-img-small mb-2">
+        {% endif %}
+
+        {{ form.image }}
+
+        {% if form.image.errors %}
+            <div class="text-danger small">{{ form.image.errors }}</div>
+        {% endif %}
+
+    </div>
+</div>
+
+{% endblock %}
+
+
+{% block form_actions %}
+
+<button type="submit" class="btn btn-success">
+    <i class="fas fa-save"></i> Save Image
+</button>
+
+{% endblock %}

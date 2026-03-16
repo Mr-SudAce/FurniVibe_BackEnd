@@ -43,4 +43,11 @@ urlpatterns = [
     path("blogs/create/", dashboard_views.blog_create, name="blog_create"),
     path("blogs/<int:pk>/update/", dashboard_views.blog_update, name="blog_update"),
     path("blogs/<int:pk>/delete/", dashboard_views.blog_delete, name="blog_delete"),
+    
+    # MoreImage URLs
+    path("moreImages/list/", dashboard_views.more_images_list, name="more_images_list"),
+    path("moreImages/create/", dashboard_views.more_images_create, name="more_images_create"),
+    path("moreImages/<int:pk>/update/", dashboard_views.more_images_update, name="more_images_update"),
+    path("moreImages/<int:pk>/delete/", dashboard_views.more_image_delete, name="more_images_delete"),
+
 ]   

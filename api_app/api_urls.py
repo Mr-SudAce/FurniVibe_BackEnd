@@ -18,6 +18,10 @@ router.register(r"variants", api_views.ProductVariantViewSet)
 router.register(r"blogs", api_views.BlogViewSet)
 router.register(r"orders", api_views.OrderViewSet)
 
+# --- More Images ----
+router.register(r"more-images", api_views.MoreImagesViewSet)
+
+
 # --- Site Configuration Endpoint ---
 router.register(r"other-details", api_views.OtherDetailViewSet)
 

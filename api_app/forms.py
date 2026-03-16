@@ -1,17 +1,29 @@
 from django import forms
 from django.contrib.auth import get_user_model
-from .models import ProductModel, CategoryModel, BrandModel, ProductVariantModel, BlogModel
+from .models import (
+    ProductModel,
+    CategoryModel,
+    BrandModel,
+    ProductVariantModel,
+    BlogModel,
+    ProductImageModel,
+)
 
 User = get_user_model()
 
+
 class UserRegisterForm(forms.ModelForm):
     password = forms.CharField(
-        widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Password'}),
-        min_length=8
+        widget=forms.PasswordInput(
+            attrs={"class": "form-control", "placeholder": "Password"}
+        ),
+        min_length=8,
     )
     confirm_password = forms.CharField(
-        widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Confirm Password'}),
-        label="Confirm Password"
+        widget=forms.PasswordInput(
+            attrs={"class": "form-control", "placeholder": "Confirm Password"}
+        ),
+        label="Confirm Password",
     )
 
     class Meta:
@@ -29,23 +41,25 @@ class UserRegisterForm(forms.ModelForm):
         confirm_password = cleaned_data.get("confirm_password")
 
         if password and confirm_password and password != confirm_password:
-            self.add_error('confirm_password', "Passwords do not match")
-        
+            self.add_error("confirm_password", "Passwords do not match")
+
         return cleaned_data
 
     def save(self, commit=True):
         user = super().save(commit=False)
         user.set_password(self.cleaned_data["password"])
-        
+
         # Auto-generate username: firstname + lastname + number if needed
-        base_username = f"{self.cleaned_data['first_name']}{self.cleaned_data['last_name']}".lower()
+        base_username = (
+            f"{self.cleaned_data['first_name']}{self.cleaned_data['last_name']}".lower()
+        )
         username = base_username
         counter = 1
         while User.objects.filter(username=username).exists():
             username = f"{base_username}{counter}"
             counter += 1
         user.username = username
-        
+
         # Default role: Admin (not superadmin)
         user.is_staff = True
         user.is_superuser = False
@@ -81,6 +95,7 @@ class ProductForm(forms.ModelForm):
             "image": forms.FileInput(attrs={"class": "form-control"}),
         }
 
+
 class CategoryForm(forms.ModelForm):
     class Meta:
         model = CategoryModel
@@ -91,6 +106,7 @@ class CategoryForm(forms.ModelForm):
             "description": forms.Textarea(attrs={"class": "form-control", "rows": 3}),
             "is_active": forms.CheckboxInput(attrs={"class": "form-check-input"}),
         }
+
 
 class BrandForm(forms.ModelForm):
     class Meta:
@@ -103,13 +119,23 @@ class BrandForm(forms.ModelForm):
             "is_active": forms.CheckboxInput(attrs={"class": "form-check-input"}),
         }
 
+
 class ProductVariantForm(forms.ModelForm):
     class Meta:
         model = ProductVariantModel
         fields = [
-            "product", "model", "material", "color", 
-            "weight_kg", "length", "width", "height", 
-            "stock", "delivery_days", "is_made_to_order", "is_active"
+            "product",
+            "model",
+            "material",
+            "color",
+            "weight_kg",
+            "length",
+            "width",
+            "height",
+            "stock",
+            "delivery_days",
+            "is_made_to_order",
+            "is_active",
         ]
         widgets = {
             "product": forms.Select(attrs={"class": "form-control"}),
@@ -122,9 +148,12 @@ class ProductVariantForm(forms.ModelForm):
             "height": forms.TextInput(attrs={"class": "form-control"}),
             "stock": forms.NumberInput(attrs={"class": "form-control"}),
             "delivery_days": forms.NumberInput(attrs={"class": "form-control"}),
-            "is_made_to_order": forms.CheckboxInput(attrs={"class": "form-check-input"}),
+            "is_made_to_order": forms.CheckboxInput(
+                attrs={"class": "form-check-input"}
+            ),
             "is_active": forms.CheckboxInput(attrs={"class": "form-check-input"}),
         }
+
 
 class BlogForm(forms.ModelForm):
     class Meta:
@@ -136,4 +165,14 @@ class BlogForm(forms.ModelForm):
             "image": forms.FileInput(attrs={"class": "form-control"}),
             "content": forms.Textarea(attrs={"class": "form-control"}),
             "is_active": forms.CheckboxInput(attrs={"class": "form-check-input"}),
+        }
+
+
+class MoreImagesForm(forms.ModelForm):
+    class Meta:
+        model = ProductImageModel
+        fields = ["product", "image"]
+        widgets = {
+            "product": forms.Select(attrs={"class": "form-control"}),
+            "image": forms.FileInput(attrs={"class": "form-control"}),
         }

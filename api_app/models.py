@@ -4,7 +4,11 @@ from django.utils.text import slugify
 from django.contrib.auth import get_user_model
 from decimal import Decimal
 from django.contrib.auth.hashers import make_password
-from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
+from django.contrib.auth.models import (
+    AbstractBaseUser,
+    BaseUserManager,
+    PermissionsMixin,
+)
 
 
 class UserManager(BaseUserManager):
@@ -27,6 +31,7 @@ class UserManager(BaseUserManager):
         extra_fields.setdefault("is_superuser", True)
 
         return self.create_user(email, username, password, **extra_fields)
+
 
 # User model
 class User(AbstractBaseUser, PermissionsMixin):
@@ -203,7 +208,9 @@ class ProductVariantModel(models.Model):
     material = models.CharField(max_length=100, blank=True)
     color = models.CharField(max_length=50, blank=True)
 
-    weight_kg = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True)
+    weight_kg = models.DecimalField(
+        max_digits=6, decimal_places=2, null=True, blank=True
+    )
     length = models.CharField(max_length=50, blank=True, null=True)
     width = models.CharField(max_length=50, blank=True, null=True)
     height = models.CharField(max_length=50, blank=True, null=True)
@@ -211,7 +218,7 @@ class ProductVariantModel(models.Model):
     stock = models.PositiveIntegerField(default=0)
     is_made_to_order = models.BooleanField(default=False)
     delivery_days = models.PositiveIntegerField(default=7)
-    
+
     is_active = models.BooleanField(default=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
@@ -353,13 +360,23 @@ class OrderModel(models.Model):
 
     delivery_type = models.CharField(
         max_length=20,
-        choices=[("standard", "Standard"), ("express", "Express"), ("installation", "Delivery + Installation")],
+        choices=[
+            ("standard", "Standard"),
+            ("express", "Express"),
+            ("installation", "Delivery + Installation"),
+        ],
         default="standard",
     )
 
     status = models.CharField(
         max_length=20,
-        choices=[("pending", "Pending"), ("paid", "Paid"), ("shipped", "Shipped"), ("delivered", "Delivered"), ("cancelled", "Cancelled")],
+        choices=[
+            ("pending", "Pending"),
+            ("paid", "Paid"),
+            ("shipped", "Shipped"),
+            ("delivered", "Delivered"),
+            ("cancelled", "Cancelled"),
+        ],
         default="pending",
     )
 
@@ -372,7 +389,9 @@ class OrderModel(models.Model):
 
 # Order Item Model
 class OrderItemModel(models.Model):
-    order = models.ForeignKey(OrderModel, related_name="items", on_delete=models.CASCADE)
+    order = models.ForeignKey(
+        OrderModel, related_name="items", on_delete=models.CASCADE
+    )
     product_name = models.CharField(max_length=255)
     variant_details = models.CharField(max_length=255)
     price = models.DecimalField(max_digits=10, decimal_places=2)
@@ -392,13 +411,23 @@ class PaymentModel(models.Model):
 
     payment_method = models.CharField(
         max_length=20,
-        choices=[("cod", "Cash on Delivery"), ("esewa", "eSewa"), ("khalti", "Khalti"), ("stripe", "Stripe")],
+        choices=[
+            ("cod", "Cash on Delivery"),
+            ("esewa", "eSewa"),
+            ("khalti", "Khalti"),
+            ("stripe", "Stripe"),
+        ],
     )
     transaction_id = models.CharField(max_length=255, blank=True, null=True)
 
     payment_status = models.CharField(
         max_length=20,
-        choices=[("pending", "Pending"), ("success", "Success"), ("failed", "Failed"), ("refunded", "Refunded")],
+        choices=[
+            ("pending", "Pending"),
+            ("success", "Success"),
+            ("failed", "Failed"),
+            ("refunded", "Refunded"),
+        ],
         default="pending",
     )
     paid_at = models.DateTimeField(null=True, blank=True)

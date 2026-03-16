@@ -1,0 +1,58 @@
+{% extends 'dashboard/base_list.html' %}
+
+{% block list_title %}More Images{% endblock %}
+
+{% block add_new_name %}Image{% endblock %}
+
+{% block add_url %}
+{% url 'more_images_create' %}
+{% endblock %}
+
+{% block table_title %}All Images{% endblock %}
+
+{% block table_headers %}
+<tr>
+    <th>Image</th>
+    <th>Product</th>
+    <th>Actions</th>
+</tr>
+{% endblock %}
+
+{% block table_rows %}
+{% for image in images %}
+<tr>
+
+    <td>
+        {% if image.image %}
+        <img src="{{ image.image.url }}" alt="Image" class="table-img" width="100px" height="100px">
+        {% else %}
+        <span class="text-muted">No Image</span>
+        {% endif %}
+    </td>
+
+    <td>
+        {{ image.product.name }}
+    </td>
+
+    <td>
+        <a href="{% url 'more_images_update' image.pk %}" class="btn btn-info btn-sm">
+            <i class="bi bi-pencil-square"></i>
+        </a>
+
+        <form action="{% url 'more_images_delete' image.pk %}" method="POST" style="display:inline;">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger btn-sm"
+                onclick="return confirm('Are you sure?');">
+                <i class="bi bi-trash"></i>
+            </button>
+        </form>
+    </td>
+
+</tr>
+
+{% empty %}
+<tr>
+    <td colspan="3" class="text-center">No images found.</td>
+</tr>
+{% endfor %}
+{% endblock %}
