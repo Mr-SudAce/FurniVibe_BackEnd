@@ -321,9 +321,11 @@ class OtherDetailModel(models.Model):
     facebook = models.CharField(max_length=255, blank=True, default="#")
     instagram = models.CharField(max_length=255, blank=True, default="#")
     twitter = models.CharField(max_length=255, blank=True, default="#")
+    tiktok = models.CharField(max_length=255, blank=True, default="#")
     youtube = models.CharField(max_length=255, blank=True, default="#")
     email = models.EmailField(max_length=254, blank=False, default="")
-    location = HTMLField(blank=True, default="https://www.google.com/maps/embed?...")
+    # default location of Nepal
+    location = HTMLField(blank=True, default="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3767838.611094719!2d81.48363299646843!3d28.376722984860947!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3995e8c77d2e68cf%3A0x34a29abcd0cc86de!2sNepal!5e1!3m2!1sen!2snp!4v1773754934762!5m2!1sen!2snp")
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

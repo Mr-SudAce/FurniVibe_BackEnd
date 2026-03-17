@@ -427,6 +427,7 @@ class OtherdetailSerializer(serializers.ModelSerializer):
             "facebook",
             "instagram",
             "twitter",
+            "tiktok",
             "youtube",
             "email",
             "location",

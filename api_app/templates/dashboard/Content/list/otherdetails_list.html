@@ -11,78 +11,146 @@
 {% block table_title %}All Other Details{% endblock %}
 
 {% block table_headers %}
-<tr>
-    <th>Contact</th>
-    <th>WhatsApp</th>
-    <th>Viber</th>
-    <th>Email</th>
-    <th>Facebook</th>
-    <th>Instagram</th>
-    <th>Twitter</th>
-    <th>Youtube</th>
-    <th>Location</th>
+<tr class="text-center">
+    <th>Contact <i class="bi bi-telephone-fill mx-1"></i></th>
+    <th>WhatsApp<i class="bi bi-whatsapp mx-1"></i></th>
+    <th>Viber<i class="bi bi-chat-dots-fill mx-1"></i></th>
+    <th>Email <i class="bi bi-envelope-fill"></i> </th>
+    <th>Social Links</th>
+    <th>Location <i class="bi bi-geo-alt-fill"></i></th>
     <th>Actions</th>
 </tr>
 {% endblock %}
 
 {% block table_rows %}
 {% for detail in details %}
-<tr>
-    <td>{{ detail.contact }}</td>
-    <td>{{ detail.whatsapp }}</td>
-    <td>{{ detail.viber }}</td>
-    <td>{{ detail.email }}</td>
+<tr class="align-middle text-center">
+
+    <!-- Contact -->
     <td>
-        {% if detail.facebook %}
-        <a href="{{ detail.facebook }}" target="_blank">Facebook</a>
+        
+        {% if detail.contact %}
+        <span class="text-dark fw-bolder">
+            {{ detail.contact }}
+        </span>
         {% else %}
         <span class="text-muted">-</span>
         {% endif %}
     </td>
+
+    <!-- WhatsApp -->
     <td>
-        {% if detail.instagram %}
-        <a href="{{ detail.instagram }}" target="_blank">Instagram</a>
+        {% if detail.whatsapp %}
+        <span class="text-dark fw-bolder">
+            {{ detail.whatsapp }}
+        </span>
         {% else %}
         <span class="text-muted">-</span>
         {% endif %}
     </td>
+
+    <!-- Viber -->
     <td>
-        {% if detail.twitter %}
-        <a href="{{ detail.twitter }}" target="_blank">Twitter</a>
+        {% if detail.viber %}
+        <span class="text-dark fw-bolder">
+            {{ detail.viber }}
+        </span>
         {% else %}
         <span class="text-muted">-</span>
         {% endif %}
     </td>
+
+    <!-- Email -->
     <td>
-        {% if detail.youtube %}
-        <a href="{{ detail.youtube }}" target="_blank">Youtube</a>
+        {% if detail.email %}
+        <span class="text-dark fw-bolder">
+            {{ detail.email }}
+        </span>
         {% else %}
         <span class="text-muted">-</span>
         {% endif %}
     </td>
+
+    <!-- Social Links -->
+    <td>
+        <div class="justify-content-center gap-2" style="display: grid; grid-template-columns: repeat(2, 1fr);">
+
+            {% if detail.facebook %}
+            <a href="{{ detail.facebook }}" target="_blank" class="btn btn-sm btn-primary" title="Facebook">
+                <i class="bi bi-facebook"></i>
+            </a>
+            {% endif %}
+
+            {% if detail.instagram %}
+            <a href="{{ detail.instagram }}" target="_blank" class="btn btn-sm btn-danger" title="Instagram">
+                <i class="bi bi-instagram"></i>
+            </a>
+            {% endif %}
+
+            {% if detail.twitter %}
+            <a href="{{ detail.twitter }}" target="_blank" class="btn btn-sm btn-info text-white" title="Twitter">
+                <i class="bi bi-twitter"></i>
+            </a>
+            {% endif %}
+
+            {% if detail.tiktok %}
+            <a href="{{ detail.tiktok }}" target="_blank" class="btn btn-sm btn-dark" title="TikTok">
+                <i class="bi bi-tiktok"></i>
+            </a>
+            {% endif %}
+
+            {% if detail.youtube %}
+            <a href="{{ detail.youtube }}" target="_blank" class="btn btn-sm btn-danger" title="Youtube">
+                <i class="bi bi-youtube"></i>
+            </a>
+            {% endif %}
+
+            {% if not detail.facebook and not detail.instagram and not detail.twitter and not detail.tiktok and not detail.youtube %}
+            <span class="text-muted">-</span>
+            {% endif %}
+
+        </div>
+    </td>
+
+    <!-- Location -->
     <td>
         {% if detail.location %}
-        <a href="{{ detail.location }}" target="_blank">Map</a>
+        <span class="btn btn-sm">
+            <iframe src="{{detail.location}}" frameborder="0" width="200px">
+            </iframe>
+        </span>
         {% else %}
         <span class="text-muted">-</span>
         {% endif %}
     </td>
-    <td>
-        <a href="{% url 'other_detail_update' detail.pk %}" class="btn btn-info btn-sm" title="Edit">
-            <i class="bi bi-pencil-square"></i>
-        </a>
 
-        <a href="{% url 'other_detail_delete' detail.pk %}" class="btn btn-danger btn-sm"
-           onclick="return confirm('Are you sure you want to delete this item?');"
-           title="Delete">
-            <i class="bi bi-trash"></i>
-        </a>
+    <!-- Actions -->
+    <td>
+        <div class="d-flex justify-content-center gap-2">
+
+            <a href="{% url 'other_detail_update' detail.pk %}"
+               class="btn btn-sm btn-warning"
+               title="Edit">
+                <i class="bi bi-pencil-square"></i>
+            </a>
+
+            <a href="{% url 'other_detail_delete' detail.pk %}"
+               class="btn btn-sm btn-danger"
+               onclick="return confirm('Are you sure you want to delete this item?');"
+               title="Delete">
+                <i class="bi bi-trash"></i>
+            </a>
+
+        </div>
     </td>
+
 </tr>
+
 {% empty %}
 <tr>
-    <td colspan="10" class="text-center text-muted">
-        No details found.
+    <td colspan="7" class="text-center py-5">
+        <i class="bi bi-database-x fs-1 text-muted"></i>
+        <p class="text-muted mt-2">No details found.</p>
     </td>
 </tr>
 {% endfor %}
