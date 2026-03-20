@@ -1,0 +1,46 @@
+{% extends "dashboard/dashboard.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">Change Superadmin Password</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        {% for field in form %}
+                            <div class="mb-3">
+                                <label class="form-label small fw-bold">{{ field.label }}</label>
+                                {{ field }}
+                                {% if field.errors %}
+                                    <div class="text-danger small">{{ field.errors|striptags }}</div>
+                                {% endif %}
+                                {% if field.help_text %}
+                                    <div class="form-text small">{{ field.help_text|safe }}</div>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+
+                        <div class="d-grid gap-2 mt-4">
+                            <button type="submit" class="btn btn-primary">Update Password</button>
+                            <a href="/" class="btn btn-light">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Styling the Django form inputs to look like Bootstrap */
+    input { 
+        display: block; width: 100%; padding: 0.375rem 0.75rem; 
+        font-size: 1rem; border: 1px solid #dee2e6; border-radius: 0.375rem; 
+    }
+</style>
+{% endblock %}

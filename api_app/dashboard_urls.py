@@ -1,4 +1,5 @@
 from django.urls import path
+from django.contrib.auth import views as auth_views
 from django.contrib.auth.views import LogoutView
 
 from . import dashboard_views
@@ -22,6 +23,19 @@ urlpatterns = [
         "accounts/profile/",
         dashboard_views.AccountProfileView.as_view(),
         name="accProfile",
+    ),
+    # Update pw
+    path("settings/password/", dashboard_views.update_pw, name="update_pw"),
+    # reset pw
+    path(
+        "password-reset/",
+        auth_views.PasswordResetView.as_view(template_name="reset_pw.html"),
+        name="password_reset",
+    ),
+    path(
+        "password-reset/done/",
+        auth_views.PasswordResetDoneView.as_view(),
+        name="password_reset_done",
     ),
     # Dashboard home / Product List
     path("", dashboard_views.dashboard_home, name="dashboard_home"),
