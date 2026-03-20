@@ -1,18 +1,11 @@
-import traceback
-
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.views import LoginView
 from django.views.generic.edit import CreateView
 from django.urls import reverse_lazy
-from requests import Response
-from rest_framework import status
-from rest_framework.views import APIView
-from api_app.permissions import IsStaffOrIsSuperUser
 from .models import *
 from .forms import *
 from .serializers import *
-from rest_framework import mixins
 from Handler.ViewsHandler import *
 
 
@@ -35,10 +28,10 @@ defaultPath = "dashboard/Content/"
 
 def dashboard_home(request):
     total_orders = OrderModel.objects.count()
-    pending_orders = OrderModel.objects.filter(status='pending').count()
-    completed_orders = OrderModel.objects.filter(status='completed').count()
-    cancelled_orders = OrderModel.objects.filter(status='cancelled').count()
-    recent_orders = OrderModel.objects.order_by('-created_at')[:9]
+    pending_orders = OrderModel.objects.filter(status="pending").count()
+    completed_orders = OrderModel.objects.filter(status="completed").count()
+    cancelled_orders = OrderModel.objects.filter(status="cancelled").count()
+    recent_orders = OrderModel.objects.order_by("-created_at")[:9]
 
     context = {
         "total_orders": total_orders,
@@ -419,25 +412,11 @@ def other_detail_delete(request, pk):
     )
 
 
-
-
-
-
-# @login_required(login_url="dashboard_login")
-# @user_passes_test(is_staff, login_url="dashboard_login")
-# def order_list_view(request):
-#     orders = OrderModel.objects.all()
-#     return render(request, "list/orders_list.html", {"orders": orders})
-
-
 @login_required(login_url="dashboard_login")
 @user_passes_test(is_staff, login_url="dashboard_login")
 def order_list_view(request):
-    orders = OrderModel.objects.all().order_by('-created_at')
+    orders = OrderModel.objects.all().order_by("-created_at")
     return render(request, f"{defaultPath}list/order_list.html", {"orders": orders})
-
-
-
 
 
 def update_order(request, pk):
@@ -450,4 +429,6 @@ def update_order(request, pk):
     else:
         form = OrderUpdateForm(instance=order)
 
-    return render(request, f"{defaultPath}forms/order_form.html", {"form": form, "order": order})
+    return render(
+        request, f"{defaultPath}forms/order_form.html", {"form": form, "order": order}
+    )
