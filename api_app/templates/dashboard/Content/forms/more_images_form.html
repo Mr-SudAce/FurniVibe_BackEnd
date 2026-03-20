@@ -1,53 +1,83 @@
 {% extends 'dashboard/base_form.html' %}
+{% load static %}
 
 {% block form_title %}
-    {% if form.instance.pk %}Edit Image{% else %}Add New Image{% endif %}
+    {% if form.instance.pk %}Edit Gallery Image{% else %}Upload New Gallery Image{% endif %}
 {% endblock %}
 
-{% block back_url %}
-    {% url 'more_images_list' %}
-{% endblock %}
+{% block back_url %}{% url 'more_images_list' %}{% endblock %}
 
 {% block main_fields %}
+<div class="card shadow-none border bg-white mb-4">
+    <div class="card-header bg-light py-3">
+        <h6 class="m-0 font-weight-bold text-dark">
+            <i class="bi bi-link-45deg me-1 text-primary"></i> Association Details
+        </h6>
+    </div>
+    <div class="card-body p-4">
+        <div class="form-group mb-4">
+            <label for="{{ form.product.id_for_label }}" class="fw-bold">
+                Linked Product
+            </label>
+            {{ form.product }}
+            <div class="text-muted tiny-text mt-1">
+                <i class="bi bi-info-circle me-1"></i> Select the product this image belongs to. 
+            </div>
+            {% if form.product.errors %}
+                <div class="text-danger small mt-1">{{ form.product.errors }}</div>
+            {% endif %}
+        </div>
 
-<div class="form-group mb-3">
-    <label for="{{ form.product.id_for_label }}">Product</label>
-    {{ form.product }}
-    {% if form.product.errors %}
-        <div class="text-danger small">{{ form.product.errors }}</div>
-    {% endif %}
+        <div class="alert alert-light border-start border-primary border-4 py-3 small mb-0">
+            <div class="d-flex">
+                <i class="bi bi-lightbulb text-warning fs-4 me-3"></i>
+                <div>
+                    <strong>Pro Tip:</strong> High-quality, square (1:1) or landscape (4:3) images work best for product galleries. Ensure the background is consistent with your main product image.
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
-
 {% endblock %}
 
-
 {% block side_fields %}
-
-<div class="card mb-3">
-    <div class="card-header">Image</div>
-
-    <div class="card-body text-center">
-
-        {% if form.instance.image %}
-            <img src="{{ form.instance.image.url }}" class="img-fluid preview-img-small mb-2">
-        {% endif %}
-
-        {{ form.image }}
-
-        {% if form.image.errors %}
-            <div class="text-danger small">{{ form.image.errors }}</div>
-        {% endif %}
-
+<div class="card border shadow-none bg-white mb-4">
+    <div class="card-header bg-light small fw-bold text-uppercase py-2" style="font-size: 10px; letter-spacing: 1px;">
+        Media File
+    </div>
+    <div class="card-body text-center p-4">
+        <div class="gallery-upload-preview mb-3">
+            {% if form.instance.image %}
+                <img src="{{ form.instance.image.url }}" class="img-fluid rounded shadow-sm border" style="max-height: 200px; width: 100%; object-fit: cover;">
+                <p class="text-success tiny-text mt-2 mb-0"><i class="bi bi-check-circle"></i> Currently Uploaded</p>
+            {% else %}
+                <div class="bg-light rounded border-dashed d-flex flex-column align-items-center justify-content-center py-5" style="border: 2px dashed #d1d3e2;">
+                    <i class="bi bi-cloud-arrow-up text-muted fs-1"></i>
+                    <p class="text-muted small mb-0 mt-2">No file selected</p>
+                </div>
+            {% endif %}
+        </div>
+        
+        <div class="form-group mb-0">
+            {{ form.image }}
+            {% if form.image.errors %}
+                <div class="text-danger small mt-2">{{ form.image.errors }}</div>
+            {% endif %}
+        </div>
     </div>
 </div>
 
+<div class="p-3 border rounded bg-white text-center">
+    <p class="text-muted tiny-text mb-0">
+        <i class="bi bi-shield-lock me-1"></i> 
+        Images are automatically optimized and served via secure CDN.
+    </p>
+</div>
 {% endblock %}
 
-
 {% block form_actions %}
-
-<button type="submit" class="btn btn-success">
-    <i class="fas fa-save"></i> Save Image
+<button type="submit" class="btn btn-primary btn-lg px-5 shadow-sm rounded-pill">
+    <i class="bi bi-cloud-plus-fill me-2"></i> 
+    {% if form.instance.pk %}Update Image{% else %}Upload to Gallery{% endif %}
 </button>
-
 {% endblock %}

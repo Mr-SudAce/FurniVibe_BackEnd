@@ -1,53 +1,86 @@
 {% extends 'dashboard/base_list.html' %}
+{% load static %}
 
-{% block list_title %}Product Variants{% endblock %}
-
-{% block add_new_name %}Variant{% endblock %}
-
-{% block add_url %}
-{% url 'variant_create' %}
-  
+{% block extra_css %}
+    {{ block.super }}
+    <link rel="stylesheet" href="{% static 'CSS/variant_list.css' %}">
 {% endblock %}
 
-{% block table_title %}All Variants{% endblock %}
+{% block list_title %}Product Variants{% endblock %}
+{% block add_new_name %}Variant{% endblock %}
+{% block add_url %}{% url 'variant_create' %}{% endblock %}
+{% block table_title %}Inventory SKU Management{% endblock %}
 
 {% block table_headers %}
 <tr>
-    <th>Product</th>
-    <th>Model</th>
-    <th>Material / Color</th>
-    <th>Stock</th>
-    <th>Status</th>
-    <th>Actions</th>
+    <th>Parent Product</th>
+    <th>Model / SKU</th>
+    <th>Specifications</th>
+    <th class="text-center">Current Stock</th>
+    <th>Availability</th>
+    <th class="text-end">Actions</th>
 </tr>
 {% endblock %}
 
 {% block table_rows %}
 {% for variant in variants %}
 <tr>
-    <td>{{ variant.product.name }}</td>
-    <td>{{ variant.model }}</td>
     <td>
-        {{ variant.material }}
-        {% if variant.color %}({{ variant.color }}){% endif %}
+        <div class="fw-bold text-dark">{{ variant.product.name }}</div>
+        <div class="tiny-text text-muted">ID: #VAR-{{ variant.pk }}</div>
     </td>
-    <td>{{ variant.stock }}</td>
+
     <td>
-        {% if variant.is_active %}
-        <span class="badge bg-success">Active</span>
-        {% else %}
-        <span class="badge bg-secondary">Inactive</span>
-        {% endif %}
-        {% if variant.is_made_to_order %}
-        <span class="badge bg-warning">Made to Order</span>
-        {% endif %}
+        <code class="model-code">{{ variant.model|default:"N/A" }}</code>
     </td>
+
     <td>
-        <a href="{% url 'variant_update' variant.pk %}" class="btn btn-info btn-sm"><i class="bi bi-pencil-square"></i></a>
-        <a href="{% url 'variant_delete' variant.pk %}" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure?');"><i class="bi bi-trash"></i></a>
+        <div class="d-flex align-items-center gap-2">
+            <span class="spec-tag">{{ variant.material|default:"Standard" }}</span>
+            {% if variant.color %}
+                <span class="color-indicator" style="background-color: {{ variant.color|lower }};" title="{{ variant.color }}"></span>
+                <span class="small text-muted">{{ variant.color }}</span>
+            {% endif %}
+        </div>
+    </td>
+
+    <td class="text-center">
+        <div class="stock-display {% if variant.stock < 5 %}stock-low{% endif %}">
+            {{ variant.stock }}
+        </div>
+    </td>
+
+    <td>
+        <div class="d-flex flex-column gap-1">
+            {% if variant.is_active %}
+                <span class="status-pill-active">Active</span>
+            {% else %}
+                <span class="status-pill-inactive">Inactive</span>
+            {% endif %}
+
+            {% if variant.is_made_to_order %}
+                <span class="status-pill-custom"><i class="bi bi-hammer me-1"></i>Made to Order</span>
+            {% endif %}
+        </div>
+    </td>
+
+    <td>
+        <div class="d-flex justify-content-end gap-2">
+            <a href="{% url 'variant_update' variant.pk %}" class="btn-action-edit" title="Edit Variant">
+                <i class="bi bi-pencil"></i>
+            </a>
+            <a href="{% url 'variant_delete' variant.pk %}" class="btn-action-delete" 
+               onclick="return confirm('Delete this variant? This may affect order history.');" title="Delete Variant">
+                <i class="bi bi-trash"></i>
+            </a>
+        </div>
     </td>
 </tr>
 {% empty %}
-<tr><td colspan="6" class="text-center">No variants found.</td></tr>
+<tr>
+    <td colspan="6" class="text-center py-5">
+        <p class="text-muted">No Variants Found.</p>
+    </td>
+</tr>
 {% endfor %}
 {% endblock %}

@@ -1,58 +1,70 @@
 {% extends 'dashboard/base_list.html' %}
+{% load static %}
 
-{% block list_title %}More Images{% endblock %}
-
-{% block add_new_name %}Image{% endblock %}
-
-{% block add_url %}
-{% url 'more_images_create' %}
+{% block extra_css %}
+    {{ block.super }}
+    <link rel="stylesheet" href="{% static 'CSS/list.css' %}">
 {% endblock %}
 
-{% block table_title %}All Images{% endblock %}
+{% block list_title %}Product Gallery{% endblock %}
+{% block add_new_name %}Gallery Image{% endblock %}
+{% block add_url %}{% url 'more_images_create' %}{% endblock %}
+{% block table_title %}Extended Image Assets{% endblock %}
 
 {% block table_headers %}
 <tr>
-    <th>Image</th>
-    <th>Product</th>
-    <th>Actions</th>
+    <th style="width: 150px;">Preview</th>
+    <th>Linked Product</th>
+    <th>File Info</th>
+    <th class="text-end">Actions</th>
 </tr>
 {% endblock %}
 
 {% block table_rows %}
 {% for image in images %}
 <tr>
-
     <td>
-        {% if image.image %}
-        <img src="{{ image.image.url }}" alt="Image" class="table-img" width="100px" height="100px">
-        {% else %}
-        <span class="text-muted">No Image</span>
-        {% endif %}
+        <div class="gallery-thumb">
+            {% if image.image %}
+                <img src="{{ image.image.url }}" alt="Gallery Asset">
+                <a href="{{ image.image.url }}" target="_blank" class="view-overlay">
+                    <i class="bi bi-zoom-in"></i>
+                </a>
+            {% else %}
+                <div class="thumb-placeholder"><i class="bi bi-image"></i></div>
+            {% endif %}
+        </div>
     </td>
 
     <td>
-        {{ image.product.name }}
+        <div class="fw-bold text-dark">{{ image.product.name }}</div>
+        <div class="text-muted small">Category: {{ image.product.category.name|default:"General" }}</div>
     </td>
 
     <td>
-        <a href="{% url 'more_images_update' image.pk %}" class="btn btn-info btn-sm">
-            <i class="bi bi-pencil-square"></i>
-        </a>
-
-        <form action="{% url 'more_images_delete' image.pk %}" method="POST" style="display:inline;">
-            {% csrf_token %}
-            <button type="submit" class="btn btn-danger btn-sm"
-                onclick="return confirm('Are you sure?');">
-                <i class="bi bi-trash"></i>
-            </button>
-        </form>
+        <span class="badge-file-type">JPG/PNG</span>
+        <div class="tiny-text text-muted mt-1">Uploaded to: /media/products/</div>
     </td>
 
+    <td>
+        <div class="d-flex justify-content-end gap-2">
+            <a href="{% url 'more_images_update' image.pk %}" class="btn-action-edit" title="Replace Image">
+                <i class="bi bi-pencil"></i>
+            </a>
+            <form action="{% url 'more_images_delete' image.pk %}" method="POST" class="d-inline">
+                {% csrf_token %}
+                <button type="submit" class="btn-action-delete border-0" onclick="return confirm('Delete this gallery image?');">
+                    <i class="bi bi-trash"></i>
+                </button>
+            </form>
+        </div>
+    </td>
 </tr>
-
 {% empty %}
 <tr>
-    <td colspan="3" class="text-center">No images found.</td>
+    <td colspan="4" class="text-center py-5">
+        <p class="text-muted">No additional images have been uploaded.</p>
+    </td>
 </tr>
 {% endfor %}
 {% endblock %}

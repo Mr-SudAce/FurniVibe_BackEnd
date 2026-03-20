@@ -153,7 +153,7 @@ class ProductModel(models.Model):
         upload_to="products/",
         blank=True,
         null=True,
-        default="images/default_product.png",
+        default="images/default_img.png",
     )
 
     moreImages = models.ManyToManyField("ProductImageModel", blank=True)

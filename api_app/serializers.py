@@ -7,7 +7,6 @@ from django.contrib.auth.hashers import make_password
 from .models import User
 
 
-# ----------------- User Read Serializer -----------------
 class UserSerializer(serializers.ModelSerializer):
     status = serializers.SerializerMethodField()
 
@@ -33,9 +32,6 @@ class UserSerializer(serializers.ModelSerializer):
             return "Admin"
         return "User"
 
-
-
-# ----------------- User Create Serializer -----------------
 class UserCreateSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(
         required=True,
@@ -115,24 +111,20 @@ class UserCreateSerializer(serializers.ModelSerializer):
         instance.save()
         return instance
 
-
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = CategoryModel
         fields = ["id", "name", "slug", "image", "description"]
-
 
 class BrandSerializer(serializers.ModelSerializer):
     class Meta:
         model = BrandModel
         fields = ["id", "name", "slug"]
 
-
 class ProductImageSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductImageModel
         fields = ["id", "image"]
-
 
 class ProductVariantSerializer(serializers.ModelSerializer):
     class Meta:
@@ -151,7 +143,6 @@ class ProductVariantSerializer(serializers.ModelSerializer):
             "delivery_days",
         ]
 
-
 class ProductReviewSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True)
 
@@ -164,7 +155,6 @@ class ProductReviewSerializer(serializers.ModelSerializer):
             "comment",
             "created_at",
         ]
-
 
 class ProductSerializer(serializers.ModelSerializer):
     name = serializers.CharField(
@@ -221,7 +211,6 @@ class ProductSerializer(serializers.ModelSerializer):
             "reviews",
         ]
 
-
 class CartItemSerializer(serializers.ModelSerializer):
     cart_id = serializers.PrimaryKeyRelatedField(
         queryset=CartModel.objects.all(),
@@ -257,7 +246,6 @@ class CartItemSerializer(serializers.ModelSerializer):
     def get_total_price(self, obj):
         return obj.total_price
 
-
 class CartSerializer(serializers.ModelSerializer):
     items = CartItemSerializer(many=True, read_only=True)
     cart_total = serializers.SerializerMethodField()
@@ -269,7 +257,34 @@ class CartSerializer(serializers.ModelSerializer):
     def get_cart_total(self, obj):
         return sum(item.total_price for item in obj.items.all())
 
+# Read Only Version 
+class CartItemReadSerializer(serializers.ModelSerializer):
+    variant = ProductVariantSerializer(read_only=True)
+    product = serializers.SerializerMethodField()
+    total_price = serializers.SerializerMethodField()
 
+    class Meta:
+        model = CartItemModel
+        fields = ["id", "product", "variant", "quantity", "price", "total_price"]
+
+    def get_product(self, obj):
+        return ProductSerializer(obj.variant.product).data
+
+    def get_total_price(self, obj):
+        return obj.total_price
+    
+class CartReadSerializer(serializers.ModelSerializer):
+    items = CartItemReadSerializer(many=True, read_only=True)
+    total_amount = serializers.SerializerMethodField()
+
+    class Meta:
+        model = CartModel
+        fields = ["id", "user", "items", "total_amount", "created_at"]
+
+    def get_total_amount(self, obj):
+        return sum([item.total_price for item in obj.items.all()])
+# Read Only Version ^
+    
 class ShippingAddressSerializer(serializers.ModelSerializer):
     class Meta:
         model = ShippingAddressModel
@@ -282,7 +297,6 @@ class ShippingAddressSerializer(serializers.ModelSerializer):
             "state",
             "postal_code",
         ]
-
 
 class OrderItemSerializer(serializers.ModelSerializer):
     total_price = serializers.SerializerMethodField()
@@ -301,9 +315,20 @@ class OrderItemSerializer(serializers.ModelSerializer):
     def get_total_price(self, obj):
         return obj.total_price
 
+class PaymentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PaymentModel
+        fields = [
+            "id",
+            "payment_method",
+            "transaction_id",
+            "payment_status",
+            "paid_at",
+        ]
 
 class OrderSerializer(serializers.ModelSerializer):
     items = OrderItemSerializer(many=True, read_only=True)
+    payment = PaymentSerializer(source="paymentmodel", read_only=True)
     shipping_address = ShippingAddressSerializer(read_only=True)
 
     class Meta:
@@ -317,7 +342,6 @@ class OrderSerializer(serializers.ModelSerializer):
             "items",
             "created_at",
         ]
-
 
 class CheckoutSerializer(serializers.Serializer):
     cart_id = serializers.IntegerField()
@@ -352,10 +376,7 @@ class CheckoutSerializer(serializers.Serializer):
             raise serializers.ValidationError("Cart is empty.")
 
         with transaction.atomic():
-
             total_amount = 0
-
-            # 🔒 STOCK LOCK + PRICE CALC
             for item in cart_items:
                 variant = ProductVariantModel.objects.select_for_update().get(
                     id=item.variant.id
@@ -401,23 +422,8 @@ class CheckoutSerializer(serializers.Serializer):
             # 🧹 CLOSE CART
             cart.is_active = False
             cart.save()
-
             cart_items.delete()
-
             return order
-
-
-class PaymentSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = PaymentModel
-        fields = [
-            "id",
-            "payment_method",
-            "transaction_id",
-            "payment_status",
-            "paid_at",
-        ]
-
 
 class OtherdetailSerializer(serializers.ModelSerializer):
     class Meta:
@@ -435,26 +441,6 @@ class OtherdetailSerializer(serializers.ModelSerializer):
             "whatsapp",
             "viber",
         ]
-
-
-class VariantSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ProductVariantModel
-        fields = [
-            "id",
-            "product",
-            "model",
-            "material",
-            "color",
-            "length",
-            "width",
-            "height",
-            "weight_kg",
-            "stock",
-            "is_made_to_order",
-            "delivery_days",
-        ]
-
 
 class BlogSerializer(serializers.ModelSerializer):
     author = UserSerializer(read_only=True)

@@ -16,6 +16,7 @@ from pathlib import Path
 load_dotenv()
 import os
 
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -24,12 +25,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-3&-&&dbo$uvuwr31fv6k$4t6y=uoc2s+9*f61r=p&&ou4phs$@"
+# Fallback to insecure key only if env var is missing (Development convenience)
+SECRET_KEY = os.getenv("SECRET_KEY", "django-insecure-3&-&&dbo$uvuwr31fv6k$4t6y=uoc2s+9*f61r=p&&ou4phs$@")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["localhost", "127.0.0.1", "192.168.18.2", "furnivibe.pythonanywhere.com"]
+ALLOWED_HOSTS = ["localhost", "127.0.0.1", "192.168.18.2", "furnivibe.pythonanywhere.com", "*"]
 
 
 # Application definition
@@ -44,6 +46,8 @@ INSTALLED_APPS = [
     "api_app.apps.ApiConfig",
     "rest_framework",
     "rest_framework.authtoken",
+    "django_filters",
+    "drf_spectacular",
     "corsheaders",
     "tinymce",
 ]
@@ -56,6 +60,8 @@ REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": [
         "rest_framework.permissions.IsAuthenticated",
     ],
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+    "DEFAULT_FILTER_BACKENDS": ["django_filters.rest_framework.DjangoFilterBackend"],
 }
 
 
@@ -75,7 +81,7 @@ ROOT_URLCONF = "api_main.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [BASE_DIR / "templates"],
+        'DIRS': [BASE_DIR / 'api_app/templates'],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -135,11 +141,12 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
-STATIC_URL = "/static/"  # Ensure it starts with a forward slash
-MEDIA_URL = "/media/"  # Ensure it starts with a forward slash
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, "static"),
-]
+STATIC_URL = "/static/"
+MEDIA_URL = "/media/"
+
+STATICFILES_DIRS = [os.path.join(BASE_DIR, "static"),]
+
+STATICFILES_STORAGE = "django.contrib.staticfiles.storage.StaticFilesStorage"
 
 # Media/Static files settings
 STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
@@ -164,8 +171,20 @@ DEFAULT_SUPERADMIN_PASSWORD = os.getenv("DEFAULT_SUPERADMIN_PASSWORD", "admin123
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
+    "http://localhost:3000",
 ]
+
+# If True, overrides ALLOWED_ORIGINS. Set to False for strict production security.
 CORS_ALLOW_ALL_ORIGINS = True
+
+# Allow credentials (cookies/auth headers)
+CORS_ALLOW_CREDENTIALS = True
 
 # Login URL for dashboard
 LOGIN_URL = "dashboard_login"
+
+SPECTACULAR_SETTINGS = {
+    "TITLE": "FurniVibe API",
+    "DESCRIPTION": "API Documentation for FurniVibe E-commerce Platform",
+    "VERSION": "1.0.0",
+}

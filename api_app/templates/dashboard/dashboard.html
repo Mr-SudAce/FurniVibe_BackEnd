@@ -4,73 +4,238 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <!-- BootStrap CDN -->
+        <title>Dashboard | Admin</title>
+        <link
+            href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+            rel="stylesheet">
         <link
             href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
             rel="stylesheet">
-        <!-- Bootstrap Icons -->
         <link rel="stylesheet"
             href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
         <link rel="stylesheet" href="{% static 'CSS/main.css' %}">
-        <title>Dashboard</title>
+
+        <style>
+        :root { --sidebar-width: 260px; }
+        body { background-color: #f8f9fa; font-family: 'Inter', sans-serif; display: flex; min-height: 100vh; margin: 0; }
+        
+        /* Sidebar Styling */
+        .sidebar { 
+            width: var(--sidebar-width); 
+            background: white; 
+            border-right: 1px solid #eef2f6; 
+            height: 100vh; 
+            position: fixed; 
+            left: 0; 
+            top: 0; 
+            display: flex; 
+            flex-direction: column; 
+            padding: 2rem 1.2rem;
+            z-index: 1030;
+        }
+
+        /* Main Content Styling */
+        .main-wrapper { 
+            flex: 1; 
+            margin-left: var(--sidebar-width); 
+            padding: 2rem; 
+            min-width: 0; /* Prevents flex items from overflowing */
+        }
+
+        /* Navigation Links */
+        .nav-link-custom {
+            display: flex;
+            align-items: center;
+            padding: 0.8rem 1rem;
+            color: #6c757d;
+            text-decoration: none;
+            border-radius: 12px;
+            margin-bottom: 0.4rem;
+            transition: all 0.2s ease;
+        }
+        .nav-link-custom i { margin-right: 12px; font-size: 1.1rem; }
+        .nav-link-custom:hover, .nav-link-custom.active {
+            background-color: #f0f4ff;
+            color: #0d6efd;
+        }
+        .nav-link-custom.text-danger:hover { background-color: #fff5f5; }
+
+        /* Responsive */
+        @media (max-width: 992px) {
+            :root { var(--sidebar-width: 80px); }
+            .sidebar span, .sidebar p, .sidebar h4 { display: none; }
+            .sidebar { text-align: center; padding: 2rem 0.5rem; }
+            .nav-link-custom { justify-content: center; }
+            .nav-link-custom i { margin-right: 0; }
+            .main-wrapper { margin-left: 80px; }
+        }
+    </style>
     </head>
     <body>
 
-        <!-- Top Navbar -->
-        <nav
-            class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm mb-4">
-            <div class="container-fluid">
-                <a class="navbar-brand fw-bold" href="#">My Dashboard</a>
-                <div class="d-flex align-items-center">
-                    <a class="btn btn-outline-light btn-sm me-2"
-                        href="{% url 'dashboard_logout' %}">
-                        <i class="bi bi-box-arrow-right"></i> Logout
-                    </a>
+        <aside class="sidebar">
+            <div class="text-center mb-5">
+                <h4 class="fw-bold text-primary">ADMIN PANEL</h4>
+                <p class="text-muted small">Store Management</p>
+            </div>
+
+            <nav class="flex-grow-1">
+                <p class="text-muted small fw-bold text-uppercase mb-3 px-3"
+                    style="letter-spacing: 1px; font-size: 0.7rem;">Menu</p>
+                <a href="/"
+                    class="nav-link-custom {% if request.path == '/' %}active{% endif %}">
+                    <i class="bi bi-house-door"></i> <span>Dashboard</span>
+                </a>
+                <a href="{% url 'product_list' %}" class="nav-link-custom"><i
+                        class="bi bi-box-seam"></i> <span>Products</span></a>
+                <a href="{% url 'category_list' %}" class="nav-link-custom"><i
+                        class="bi bi-grid"></i> <span>Categories</span></a>
+                <a href="{% url 'brand_list' %}" class="nav-link-custom"><i
+                        class="bi bi-bookmark-star"></i> <span>Brands</span></a>
+                <a href="{% url 'variant_list' %}" class="nav-link-custom"><i
+                        class="bi bi-layers"></i> <span>Variants</span></a>
+                <a href="{% url 'blog_list' %}" class="nav-link-custom"><i
+                        class="bi bi-chat-left-dots"></i> <span>Blogs</span></a>
+                <a href="{% url 'more_images_list' %}"
+                    class="nav-link-custom"><i class="bi bi-images"></i>
+                    <span>Gallery</span></a>
+                <a href="{% url 'other_detail_list' %}"
+                    class="nav-link-custom"><i class="bi bi-info-circle"></i>
+                    <span>Details</span></a>
+            </nav>
+
+            <div class="mt-auto pt-4 border-top">
+                <a href="{% url 'dashboard_logout' %}"
+                    class="nav-link-custom text-danger">
+                    <i class="bi bi-box-arrow-right"></i> <span>Logout</span>
+                </a>
+            </div>
+        </aside>
+
+        <main class="main-wrapper">
+
+            {% if request.path == "/" %}
+            <header
+                class="mb-4 d-flex justify-content-between align-items-center">
+                <h2 class="fw-bold m-0">Main Dashboard</h2>
+                <div class="dropdown">
+                    <button
+                        class="btn btn-white border-0 shadow-sm rounded-pill px-4"
+                        type="button">
+                        <i class="bi bi-calendar3 me-2 text-primary"></i> Today
+                    </button>
+                </div>
+            </header>
+
+            <div class="row g-4 mb-4">
+                <div class="col-md-3">
+                    <div class="stat-card">
+                        <div class="icon-circle text-primary"><i
+                                class="bi bi-bar-chart-fill"></i></div>
+                        <div>
+                            <p class="small text-muted mb-0">Total Orders</p>
+                            <h4 class="fw-bold mb-0">
+                                {{ total_orders|default:"0"}}
+                            </h4>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-card">
+                        <div class="icon-circle text-warning"><i
+                                class="bi bi-clock-fill"></i></div>
+                        <div>
+                            <p class="small text-muted mb-0">Pending</p>
+                            <h4 class="fw-bold mb-0">
+                                {{ pending_orders|default:"0"}}
+                            </h4>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-card">
+                        <div class="icon-circle text-success"><i
+                                class="bi bi-check-lg"></i></div>
+                        <div>
+                            <p class="small text-muted mb-0">Completed</p>
+                            <h4 class="fw-bold mb-0">
+                                {{ completed_orders|default:"0"}}
+                            </h4>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-card">
+                        <div class="icon-circle text-danger"><i
+                                class="bi bi-x-lg"></i></div>
+                        <div>
+                            <p class="small text-muted mb-0">Cancelled</p>
+                            <h4 class="fw-bold mb-0">
+                                {{ cancelled_orders|default:"0" }}
+                            </h4>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </nav>
 
-        <div class="container-fluid">
-            <!-- Quick Action Buttons -->
-            <div class="mb-4 d-flex flex-wrap gap-2">
-                <a href="{% url 'category_create' %}"
-                    class="btn btn-secondary btn-sm shadow-sm">
-                    <i class="bi bi-plus-circle"></i> Add Category
-                </a>
-                <a href="{% url 'brand_create' %}"
-                    class="btn btn-info btn-sm shadow-sm text-white">
-                    <i class="bi bi-plus-circle"></i> Add Brand
-                </a>
-                <a href="{% url 'product_create' %}"
-                    class="btn btn-primary btn-sm shadow-sm">
-                    <i class="bi bi-plus-circle"></i> Add Product
-                </a>
-                <a href="{% url 'variant_create' %}"
-                    class="btn btn-success btn-sm shadow-sm">
-                    <i class="bi bi-plus-circle"></i> Add Variant
-                </a>
-                <a href="{% url 'more_images_create' %}"
-                    class="btn btn-success btn-sm shadow-sm">
-                    <i class="bi bi-plus-circle"></i> Add More Images Product
-                </a>
-                
-                <a href="{% url 'other_detail_create' %}"
-                    class="btn btn-success btn-sm shadow-sm">
-                    <i class="bi bi-plus-circle"></i> Add Other Details
-                </a>
-
-                <a href="{% url 'blog_create' %}"
-                    class="btn btn-warning btn-sm shadow-sm text-white">
-                    <i class="bi bi-plus-circle"></i> Add Blog
-                </a>
+            <div class="table-card">
+                <div
+                    class="p-4 border-bottom d-flex justify-content-between align-items-center">
+                    <h5 class="fw-bold m-0">Recent Activity</h5>
+                    <button class="btn btn-sm btn-light rounded-pill px-3">View
+                        All</button>
+                </div>
+                <div class="table-responsive">
+                    <table class="table align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th class="ps-4">Order ID</th>
+                                <th>Customer</th>
+                                <th>Total</th>
+                                <th>Status</th>
+                                <th class="text-end pe-4">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for order in recent_orders %}
+                            <tr>
+                                <td class="ps-4 fw-bold">#{{ order.id }}</td>
+                                <td>{{ order.user.username }}</td>
+                                <td class="fw-bold text-primary">${{
+                                    order.total_amount
+                                    }}</td>
+                                <td>
+                                    <span
+                                        class="badge-status bg-light text-dark">{{
+                                        order.status }}</span>
+                                </td>
+                                <td class="text-end pe-4">
+                                    <a
+                                        href="{% url 'admin_order_detail' order.id %}"
+                                        class="btn btn-sm btn-light rounded-circle"><i
+                                            class="bi bi-eye"></i></a>
+                                    <a
+                                        href="{% url 'admin_order_update_status' order.id %}"
+                                        class="btn btn-sm btn-primary rounded-pill px-3 ms-1">Update</a>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="5" class="text-center py-5">No
+                                    orders found.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
             </div>
+            {% endif %}
 
-            <!-- Main Content -->
-            {% block content %}
-            {% endblock %}
-        </div>
+            <div class="content-body mt-4">
+                {% block content %}{% endblock %}
+            </div>
+        </main>
 
-        <!-- Bootstrap JS -->
         <script
             src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     </body>

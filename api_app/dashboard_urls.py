@@ -55,6 +55,15 @@ urlpatterns = [
     path("other-details/create/", dashboard_views.other_detail_create, name="other_detail_create"),
     path("other-details/<int:pk>/update/", dashboard_views.other_detail_update, name="other_detail_update"),
     path("other-details/<int:pk>/delete/", dashboard_views.other_detail_delete, name="other_detail_delete"),
+    
+    # ------------------------------
+    # Orders - Dashboard Templates
+    # ------------------------------
+    
+    path("orders/list/", dashboard_views.order_list_view, name="order_list"),
+    path("orders/<int:pk>/update/", dashboard_views.update_order, name="update_order"), 
+  
+
 
 
 ]   

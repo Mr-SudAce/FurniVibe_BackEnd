@@ -1,0 +1,9 @@
+{% extends 'dashboard/base_form.html' %}
+
+{% block form_title %}Update Order{% endblock %}
+{% block back_url %}{% url 'order_list' %}{% endblock %}
+
+{% block main_fields %}
+<label>Status</label>
+{{ form.status }}
+{% endblock %}

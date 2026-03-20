@@ -1,86 +1,89 @@
 {% extends 'dashboard/base_list.html' %}
+{% load static %}
 
-{% block list_title %}Products{% endblock %}
-
-{% block add_url %}
-{% url 'product_create' %}
+{% block extra_css %}
+    {{ block.super }}
+    <link rel="stylesheet" href="{% static 'CSS/list.css' %}">
 {% endblock %}
 
+{% block list_title %}Products{% endblock %}
+{% block add_url %}{% url 'product_create' %}{% endblock %}
 {% block add_new_name %}Product{% endblock %}
-
-{% block table_title %}All Products{% endblock %}
+{% block table_title %}Inventory Management{% endblock %}
 
 {% block table_headers %}
 <tr>
-    <th>Image</th>
-    <th>Name</th>
-    <th>Category</th>
-    <th>Brand</th>
-    <th>Price (Dis.)</th>
+    <th class="text-center">Preview</th>
+    <th>Product Details</th>
+    <th>Category & Brand</th>
+    <th>Pricing</th>
     <th>Status</th>
-    <th>Actions</th>
+    <th class="text-end">Actions</th>
 </tr>
 {% endblock %}
 
 {% block table_rows %}
 {% for product in products %}
 <tr>
-    <td>
-        {% if product.image %}
-        <img src="{{ product.image.url }}" class="table-img" alt="{{ product.name }}" width="100px" height="100px">
-        {% else %}
-        <span class="text-muted">No Image</span>
-        {% endif %}
-    </td>
-
-    <td>{{ product.name }}</td>
-    <td>{{ product.category.name }}</td>
-    <td>{{ product.brand.name|default:"-" }}</td>
-
-    <td>
-        <span class="d-flex m-0 ">
-
-            {% if product.discount_percent > 0 %}
-            <div class="text-success font-weight-bold">
-                Rs.{{ product.discounted_price|floatformat:2 }}
-            </div>
-            <!-- <del class="text-muted small">Rs.{{ product.price }}</del> -->
+    <td class="text-center">
+        <div class="product-img-wrapper">
+            {% if product.image %}
+                <img src="{{ product.image.url }}" alt="{{ product.name }}">
             {% else %}
-            Rs.{{ product.price }}
+                <div class="img-placeholder"><i class="bi bi-image"></i></div>
             {% endif %}
-        </span>
+        </div>
     </td>
 
     <td>
-        {% if product.is_active %}
-        <span class="badge bg-success">Active</span>
+        <div class="fw-bold text-dark">{{ product.name }}</div>
+        <small class="text-muted">ID: #PROD-{{ product.pk }}</small>
+    </td>
+
+    <td>
+        <div class="badge-category">{{ product.category.name|default:"Uncategorized" }}</div>
+        <div class="small text-muted mt-1"><i class="bi bi-bookmark-fill me-1"></i>{{ product.brand.name|default:"-" }}</div>
+    </td>
+
+    <td>
+        {% if product.discount_percent > 0 %}
+            <div class="price-discounted">Rs. {{ product.discounted_price|floatformat:2 }}</div>
+            <div class="price-original text-decoration-line-through">Rs. {{ product.price }}</div>
         {% else %}
-        <span class="badge bg-secondary">Inactive</span>
-        {% endif %}
-
-        {% if product.is_featured %}
-        <span class="badge bg-info">Featured</span>
+            <div class="price-regular">Rs. {{ product.price }}</div>
         {% endif %}
     </td>
 
     <td>
-        <a href="{% url 'product_update' product.pk %}"
-            class="btn btn-info btn-sm" title="Edit">
-            <i class="bi bi-pencil-square"></i>
-        </a>
+        <div class="d-flex flex-column gap-1">
+            {% if product.is_active %}
+                <span class="status-pill-active">Active</span>
+            {% else %}
+                <span class="status-pill-inactive">Inactive</span>
+            {% endif %}
 
-        <a href="{% url 'product_delete' product.pk %}"
-            class="btn btn-danger btn-sm"
-            onclick="return confirm('Are you sure you want to delete this item?');"
-            title="Delete">
-            <i class="bi bi-trash"></i>
-        </a>
+            {% if product.is_featured %}
+                <span class="status-pill-featured"><i class="bi bi-star-fill me-1"></i>Featured</span>
+            {% endif %}
+        </div>
+    </td>
+
+    <td>
+        <div class="d-flex justify-content-end gap-2">
+            <a href="{% url 'product_update' product.pk %}" class="btn-action-edit" title="Edit Product">
+                <i class="bi bi-pencil"></i>
+            </a>
+            <a href="{% url 'product_delete' product.pk %}" class="btn-action-delete" 
+               onclick="return confirm('Delete this product permanently?');" title="Delete Product">
+                <i class="bi bi-trash"></i>
+            </a>
+        </div>
     </td>
 </tr>
 {% empty %}
 <tr>
-    <td colspan="7" class="text-center text-muted">
-        No products found.
+    <td colspan="6" class="text-center py-5">
+        <p class="text-muted">No Product Found.</p>
     </td>
 </tr>
 {% endfor %}

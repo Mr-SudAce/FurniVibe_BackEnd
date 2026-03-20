@@ -1,0 +1,32 @@
+{% extends 'dashboard/dashboard.html' %}
+
+{% block content %}
+<div class="container-fluid">
+
+    <h3>Order #{{ order.id }}</h3>
+
+    <p><strong>Status:</strong> {{ order.status }}</p>
+    <p><strong>Total:</strong> Rs. {{ order.total_amount }}</p>
+
+    <h5 class="mt-4">Items</h5>
+
+    <table class="table table-bordered">
+        <tr>
+            <th>Product</th>
+            <th>Variant</th>
+            <th>Qty</th>
+            <th>Price</th>
+        </tr>
+
+        {% for item in order.items.all %}
+        <tr>
+            <td>{{ item.product_name }}</td>
+            <td>{{ item.variant_details }}</td>
+            <td>{{ item.quantity }}</td>
+            <td>{{ item.price }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+</div>
+{% endblock %}

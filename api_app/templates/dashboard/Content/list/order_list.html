@@ -1,0 +1,54 @@
+{% extends 'dashboard/base_list.html' %}
+
+{% load static %}
+
+{% block list_title %}Orders{% endblock %}
+{% block table_title %}All Orders{% endblock %}
+
+{% block add_url %}#{% endblock %}
+{% block add_new_name %}{% endblock %}
+
+{% block table_headers %}
+<tr class="text-center">
+    <th>ID</th>
+    <th>User</th>
+    <th>Total</th>
+    <th>Status</th>
+    <th>Created</th>
+    <th>Action</th>
+</tr>
+{% endblock %}
+
+{% block table_rows %}
+{% for order in orders %}
+<tr class="text-center">
+    <td>{{ order.id }}</td>
+
+    <td>
+        {% if order.user %}
+            {{ order.user.username }}
+        {% else %}
+            -
+        {% endif %}
+    </td>
+
+    <td>Rs. {{ order.total_amount|default:"0.00" }}</td>
+
+    <td>{{ order.status|default:"-" }}</td>
+
+    <td>{{ order.created_at|date:"Y-m-d H:i" }}</td>
+
+    <td>
+        <a href="{% url 'order_detail' order.id %}" class="btn btn-sm btn-info">
+            View
+        </a>
+    </td>
+</tr>
+{% empty %}
+<tr>
+    <td colspan="6" class="text-center text-muted">
+        No orders found.
+    </td>
+</tr>
+{% endfor %}
+{% endblock %}

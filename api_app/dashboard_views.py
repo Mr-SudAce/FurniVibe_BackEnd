@@ -1,10 +1,18 @@
+import traceback
+
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.views import LoginView
 from django.views.generic.edit import CreateView
 from django.urls import reverse_lazy
+from requests import Response
+from rest_framework import status
+from rest_framework.views import APIView
+from api_app.permissions import IsStaffOrIsSuperUser
 from .models import *
 from .forms import *
+from .serializers import *
+from rest_framework import mixins
 from Handler.ViewsHandler import *
 
 
@@ -26,7 +34,20 @@ defaultPath = "dashboard/Content/"
 
 
 def dashboard_home(request):
-    return render(request, "dashboard/dashboard.html")
+    total_orders = OrderModel.objects.count()
+    pending_orders = OrderModel.objects.filter(status='pending').count()
+    completed_orders = OrderModel.objects.filter(status='completed').count()
+    cancelled_orders = OrderModel.objects.filter(status='cancelled').count()
+    recent_orders = OrderModel.objects.order_by('-created_at')[:9]
+
+    context = {
+        "total_orders": total_orders,
+        "pending_orders": pending_orders,
+        "completed_orders": completed_orders,
+        "cancelled_orders": cancelled_orders,
+        "recent_orders": recent_orders,
+    }
+    return render(request, "dashboard/dashboard.html", context)
 
 
 @login_required(login_url="dashboard_login")
@@ -59,7 +80,7 @@ def product_create(request):
         model_class=ProductModel,
         unique_field="slug",
         success_msg="Product created successfully!",
-        redirect_url="product_list",
+        redirect_url="product_create",
         template_name=f"{defaultPath}forms/product_form.html",
         list_context_name="products",
         form_context_name="form",
@@ -111,7 +132,7 @@ def category_create(request):
         CategoryModel,
         "slug",
         "Category added!",
-        "category_list",
+        "category_create",
         f"{defaultPath}forms/category_form.html",
         "categories",
         "form",
@@ -161,7 +182,7 @@ def brand_create(request):
         BrandModel,
         "slug",
         "Brand added!",
-        "brand_list",
+        "brand_create",
         f"{defaultPath}forms/brand_form.html",
         "brands",
         "form",
@@ -211,7 +232,7 @@ def variant_create(request):
         ProductVariantModel,
         None,
         "Variant added!",
-        "variant_list",
+        "variant_create",
         f"{defaultPath}forms/variant_form.html",
         "variants",
         "form",
@@ -261,7 +282,7 @@ def blog_create(request):
         BlogModel,
         "slug",
         "Blog added!",
-        "blog_list",
+        "blog_create",
         f"{defaultPath}forms/blog_form.html",
         "blogs",
         "form",
@@ -313,7 +334,7 @@ def more_images_create(request):
         ProductImageModel,
         None,
         "Image added!",
-        "more_images_list",
+        "more_images_create",
         f"{defaultPath}forms/more_images_form.html",
         "images",
         "form",
@@ -367,7 +388,7 @@ def other_detail_create(request):
         OtherDetailModel,
         "slug",
         "Other Detail added!",
-        "other_detail_list",
+        "other_detail_create",
         f"{defaultPath}forms/otherdetails_form.html",
         "otherdetails",
         "form",
@@ -396,3 +417,37 @@ def other_detail_delete(request, pk):
     return handle_deletion(
         request, pk, OtherDetailModel, "Other Detail deleted!", "other_detail_list"
     )
+
+
+
+
+
+
+# @login_required(login_url="dashboard_login")
+# @user_passes_test(is_staff, login_url="dashboard_login")
+# def order_list_view(request):
+#     orders = OrderModel.objects.all()
+#     return render(request, "list/orders_list.html", {"orders": orders})
+
+
+@login_required(login_url="dashboard_login")
+@user_passes_test(is_staff, login_url="dashboard_login")
+def order_list_view(request):
+    orders = OrderModel.objects.all().order_by('-created_at')
+    return render(request, f"{defaultPath}list/order_list.html", {"orders": orders})
+
+
+
+
+
+def update_order(request, pk):
+    order = get_object_or_404(OrderModel, pk=pk)
+    if request.method == "POST":
+        form = OrderUpdateForm(request.POST, instance=order)
+        if form.is_valid():
+            form.save()
+            return redirect("order_list")
+    else:
+        form = OrderUpdateForm(instance=order)
+
+    return render(request, f"{defaultPath}forms/order_form.html", {"form": form, "order": order})

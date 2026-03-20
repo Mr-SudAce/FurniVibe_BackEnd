@@ -1,95 +1,52 @@
 {% extends 'dashboard/base_form.html' %}
 
-{% block form_title %}
-    {% if form.instance.pk %}Edit Variant{% else %}Add New Variant{% endif %}
-{% endblock %}
-
-{% block back_url %}
-    {% url 'variant_list' %}
-{% endblock %}
+{% block form_title %}Product SKU Variant{% endblock %}
+{% block back_url %}{% url 'variant_list' %}{% endblock %}
 
 {% block main_fields %}
-<!-- Product -->
-<div class="form-group mb-3">
-    <label for="{{ form.product.id_for_label }}">Product</label>
+<div class="mb-4 border-bottom pb-3">
+    <label>Select Parent Product</label>
     {{ form.product }}
-    {% if form.product.errors %}
-        <div class="text-danger small">{{ form.product.errors }}</div>
-    {% endif %}
 </div>
 
-<!-- Model / Material / Color -->
-<div class="row">
-    <div class="col-md-4 mb-3">
-        <label for="{{ form.model.id_for_label }}">Model</label>
+<div class="row g-3">
+    <div class="col-md-4">
+        <label>Model/SKU</label>
         {{ form.model }}
-        {% if form.model.errors %}
-            <div class="text-danger small">{{ form.model.errors }}</div>
-        {% endif %}
     </div>
-    <div class="col-md-4 mb-3">
-        <label for="{{ form.material.id_for_label }}">Material</label>
+    <div class="col-md-4">
+        <label>Material</label>
         {{ form.material }}
-        {% if form.material.errors %}
-            <div class="text-danger small">{{ form.material.errors }}</div>
-        {% endif %}
     </div>
-    <div class="col-md-4 mb-3">
-        <label for="{{ form.color.id_for_label }}">Color</label>
+    <div class="col-md-4">
+        <label>Color Name</label>
         {{ form.color }}
-        {% if form.color.errors %}
-            <div class="text-danger small">{{ form.color.errors }}</div>
-        {% endif %}
     </div>
 </div>
 
-<!-- Dimensions -->
-<div class="row">
-    <div class="col-md-3 mb-3">
-        <label for="{{ form.weight_kg.id_for_label }}">Weight (kg)</label>
-        {{ form.weight_kg }}
-    </div>
-    <div class="col-md-3 mb-3">
-        <label for="{{ form.length.id_for_label }}">Length</label>
-        {{ form.length }}
-    </div>
-    <div class="col-md-3 mb-3">
-        <label for="{{ form.width.id_for_label }}">Width</label>
-        {{ form.width }}
-    </div>
-    <div class="col-md-3 mb-3">
-        <label for="{{ form.height.id_for_label }}">Height</label>
-        {{ form.height }}
-    </div>
+<div class="row mt-3">
+    <div class="col-md-3"><label>Weight (kg)</label>{{ form.weight_kg }}</div>
+    <div class="col-md-3"><label>Length</label>{{ form.length }}</div>
+    <div class="col-md-3"><label>Width</label>{{ form.width }}</div>
+    <div class="col-md-3"><label>Height</label>{{ form.height }}</div>
 </div>
 
-<!-- Stock / Delivery -->
-<div class="row">
-    <div class="col-md-6 mb-3">
-        <label for="{{ form.stock.id_for_label }}">Stock</label>
-        {{ form.stock }}
-    </div>
-    <div class="col-md-6 mb-3">
-        <label for="{{ form.delivery_days.id_for_label }}">Delivery Days</label>
-        {{ form.delivery_days }}
-    </div>
+<div class="row mt-3 bg-light p-3 rounded mx-0">
+    <div class="col-md-6"><label>Stock Quantity</label>{{ form.stock }}</div>
+    <div class="col-md-6"><label>Delivery (Days)</label>{{ form.delivery_days }}</div>
 </div>
 {% endblock %}
 
 {% block side_fields %}
+<div class="alert alert-info py-2 small">
+    <i class="bi bi-info-circle me-1"></i> Use these settings to control production status.
+</div>
 <div class="form-check mb-2">
     {{ form.is_made_to_order }}
-    <label class="form-check-label" for="{{ form.is_made_to_order.id_for_label }}">Made to Order</label>
+    <label class="form-check-label">Made to Order</label>
 </div>
-
-<div class="form-check mb-4">
+<div class="form-check">
     {{ form.is_active }}
-    <label class="form-check-label" for="{{ form.is_active.id_for_label }}">Active</label>
+    <label class="form-check-label">Available for Sale</label>
 </div>
-{% endblock %}
-
-{% block form_actions %}
-<button type="submit" class="btn btn-success">
-    <i class="fas fa-save"></i> Save Variant
-</button>
 {% endblock %}

@@ -1,50 +1,75 @@
 {% extends 'dashboard/base_list.html' %}
+{% load static %}
 
-{% block list_title %}Brands{% endblock %}
-
-{% block add_new_name %}Brand{% endblock %}
-
-{% block add_url %}
-{% url 'brand_create' %}
+{% block extra_css %}
+    {{ block.super }}
+    <link rel="stylesheet" href="{% static 'CSS/list.css' %}">
 {% endblock %}
 
-{% block table_title %}All Brands{% endblock %}
+{% block list_title %}Brands{% endblock %}
+{% block add_new_name %}Brand{% endblock %}
+{% block add_url %}{% url 'brand_create' %}{% endblock %}
+{% block table_title %}Brand Partnerships{% endblock %}
 
 {% block table_headers %}
 <tr>
-    <th>Logo</th>
-    <th>Name</th>
-    <th>Description</th>
+    <th class="text-center" style="width: 120px;">Logo</th>
+    <th>Brand Details</th>
+    <th>Bio / Description</th>
     <th>Status</th>
-    <th>Actions</th>
+    <th class="text-end">Actions</th>
 </tr>
 {% endblock %}
 
 {% block table_rows %}
 {% for brand in brands %}
 <tr>
-    <td>
-        {% if brand.logo %}
-            <img src="{{ brand.logo.url }}" alt="{{ brand.name }}" class="table-img-contain" width="100px" height="100px">
-        {% else %}
-            <span class="text-muted">No Logo</span>
-        {% endif %}
+    <td class="text-center">
+        <div class="brand-logo-container">
+            {% if brand.logo %}
+                <img src="{{ brand.logo.url }}" alt="{{ brand.name }}" class="brand-logo">
+            {% else %}
+                <div class="brand-logo-placeholder">
+                    <i class="bi bi-shield-check"></i>
+                </div>
+            {% endif %}
+        </div>
     </td>
-    <td>{{ brand.name }}</td>
-    <td>{{ brand.description|striptags|truncatechars:50 }}</td>
+
+    <td>
+        <div class="fw-bold text-dark">{{ brand.name }}</div>
+        <div class="small text-primary fw-medium">Official Partner</div>
+    </td>
+
+    <td class="text-muted small w-25">
+        {{ brand.description|striptags|default:"No description available."|truncatechars:65 }}
+    </td>
+
     <td>
         {% if brand.is_active %}
-            <span class="badge bg-success">Active</span>
+            <span class="status-pill-active">Active</span>
         {% else %}
-            <span class="badge bg-secondary">Inactive</span>
+            <span class="status-pill-inactive">Inactive</span>
         {% endif %}
     </td>
+
     <td>
-        <a href="{% url 'brand_update' brand.pk %}" class="btn btn-info btn-sm"><i class="bi bi-pencil-square"></i></a>
-        <a href="{% url 'brand_delete' brand.pk %}" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure?');"><i class="bi bi-trash"></i></a>
+        <div class="d-flex justify-content-end gap-2">
+            <a href="{% url 'brand_update' brand.pk %}" class="btn-action-edit" title="Edit Brand">
+                <i class="bi bi-pencil"></i>
+            </a>
+            <a href="{% url 'brand_delete' brand.pk %}" class="btn-action-delete" 
+               onclick="return confirm('Deleting this brand may affect associated products. Proceed?');" title="Delete Brand">
+                <i class="bi bi-trash"></i>
+            </a>
+        </div>
     </td>
 </tr>
 {% empty %}
-<tr><td colspan="5" class="text-center">No brands found.</td></tr>
+<tr>
+    <td colspan="5" class="text-center py-5">
+        <p class="text-muted">No Brands Found.</p>
+    </td>
+</tr>
 {% endfor %}
 {% endblock %}

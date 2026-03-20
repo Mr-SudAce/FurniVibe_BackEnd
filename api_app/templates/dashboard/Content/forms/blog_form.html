@@ -1,54 +1,35 @@
 {% extends 'dashboard/base_form.html' %}
 
 {% block form_title %}
-{% if form.instance.pk %}Edit Blog Post{% else %}Add New Blog Post{% endif %}
+    {% if form.instance.pk %}Update Post{% else %}Write New Article{% endif %}
 {% endblock %}
 
-{% block back_url %}
-{% url 'blog_list' %}
-{% endblock %}
+{% block back_url %}{% url 'blog_list' %}{% endblock %}
 
 {% block main_fields %}
-<div class="form-group mb-3">
-    <label for="{{ form.title.id_for_label }}">Title</label>
+<div class="mb-4">
+    <label>Article Title</label>
     {{ form.title }}
-    {% if form.title.errors %}
-    <div class="text-danger small">{{ form.title.errors }}</div>
-    {% endif %}
 </div>
-
-<div class="form-group mb-3">
-    <label for="{{ form.content.id_for_label }}">Content</label>
+<div class="mb-3">
+    <label>Body Content</label>
     {{ form.content }}
-    {% if form.content.errors %}
-    <div class="text-danger small">{{ form.content.errors }}</div>
-    {% endif %}
 </div>
 {% endblock %}
 
 {% block side_fields %}
-
-<div class="card mb-3">
-    <div class="card-header">Featured Image</div>
+<div class="card border mb-3">
+    <div class="card-header small fw-bold">Cover Photo</div>
     <div class="card-body text-center">
         {% if form.instance.image %}
-        <img src="{{ form.instance.image.url }}" class="img-fluid preview-img-small" >
+            <img src="{{ form.instance.image.url }}" class="preview-img mb-2">
         {% endif %}
         {{ form.image }}
-        {% if form.image.errors %}
-        <div class="text-danger small">{{ form.image.errors }}</div>
-        {% endif %}
     </div>
 </div>
 
-<div class="form-check mb-3">
+<div class="form-check mt-3">
     {{ form.is_active }}
-    <label class="form-check-label" for="{{ form.is_active.id_for_label }}">Active</label>
+    <label class="form-check-label fw-bold">Publish Immediately</label>
 </div>
-{% endblock %}
-
-{% block form_actions %}
-<button type="submit" class="btn btn-success">
-    <i class="fas fa-save"></i> Save Blog Post
-</button>
 {% endblock %}

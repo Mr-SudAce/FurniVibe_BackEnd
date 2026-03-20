@@ -1,110 +1,34 @@
 {% extends 'dashboard/base_form.html' %}
 
-{% block form_title %}
-    {% if form.instance.pk %}Edit Other Detail{% else %}Add New Other Detail{% endif %}
-{% endblock %}
-
-{% block back_url %}
-    {% url 'other_detail_list' %}
-{% endblock %}
+{% block form_title %}Company Settings{% endblock %}
+{% block back_url %}{% url 'other_detail_list' %}{% endblock %}
 
 {% block main_fields %}
-<!-- Contact Numbers -->
-<div class="row">
-    <div class="col-md-4 form-group mb-3">
-        <label for="{{ form.contact.id_for_label }}">Contact</label>
-        {{ form.contact }}
-        {% if form.contact.errors %}
-            <div class="text-danger small">{{ form.contact.errors }}</div>
-        {% endif %}
-    </div>
-
-    <div class="col-md-4 form-group mb-3">
-        <label for="{{ form.whatsapp.id_for_label }}">WhatsApp</label>
-        {{ form.whatsapp }}
-        {% if form.whatsapp.errors %}
-            <div class="text-danger small">{{ form.whatsapp.errors }}</div>
-        {% endif %}
-    </div>
-
-    <div class="col-md-4 form-group mb-3">
-        <label for="{{ form.viber.id_for_label }}">Viber</label>
-        {{ form.viber }}
-        {% if form.viber.errors %}
-            <div class="text-danger small">{{ form.viber.errors }}</div>
-        {% endif %}
-    </div>
+<h6 class="text-primary border-bottom pb-2 mb-3">Contact Information</h6>
+<div class="row g-3 mb-4">
+    <div class="col-md-4"><label><i class="bi bi-phone me-1"></i> Phone</label>{{ form.contact }}</div>
+    <div class="col-md-4"><label><i class="bi bi-whatsapp me-1"></i> WhatsApp</label>{{ form.whatsapp }}</div>
+    <div class="col-md-4"><label><i class="bi bi-chat-dots me-1"></i> Viber</label>{{ form.viber }}</div>
 </div>
 
-<!-- Email & Location -->
-<div class="row">
-    <div class="col-md-6 form-group mb-3">
-        <label for="{{ form.email.id_for_label }}">Email</label>
-        {{ form.email }}
-        {% if form.email.errors %}
-            <div class="text-danger small">{{ form.email.errors }}</div>
-        {% endif %}
-    </div>
-
-    <div class="col-md-6 form-group mb-3">
-        <label for="{{ form.location.id_for_label }}">Location (Google Maps)</label>
-        {{ form.location }}
-        {% if form.location.errors %}
-            <div class="text-danger small">{{ form.location.errors }}</div>
-        {% endif %}
-    </div>
+<div class="row g-3 mb-4">
+    <div class="col-md-6"><label>Official Email</label>{{ form.email }}</div>
+    <div class="col-md-6"><label>Maps Embed URL</label>{{ form.location }}</div>
 </div>
 
-<!-- Social Media Links -->
-<div class="row">
-    <div class="col-md-3 form-group mb-3">
-        <label for="{{ form.facebook.id_for_label }}">Facebook</label>
-        {{ form.facebook }}
-        {% if form.facebook.errors %}
-            <div class="text-danger small">{{ form.facebook.errors }}</div>
-        {% endif %}
-    </div>
-
-    <div class="col-md-3 form-group mb-3">
-        <label for="{{ form.instagram.id_for_label }}">Instagram</label>
-        {{ form.instagram }}
-        {% if form.instagram.errors %}
-            <div class="text-danger small">{{ form.instagram.errors }}</div>
-        {% endif %}
-    </div>
-
-    <div class="col-md-3 form-group mb-3">
-        <label for="{{ form.twitter.id_for_label }}">Twitter</label>
-        {{ form.twitter }}
-        {% if form.twitter.errors %}
-            <div class="text-danger small">{{ form.twitter.errors }}</div>
-        {% endif %}
-    </div>
-    
-    <div class="col-md-3 form-group mb-3">
-        <label for="{{ form.tiktok.id_for_label }}">Tiktok</label>
-        {{ form.tiktok }}
-        {% if form.tiktok.errors %}
-            <div class="text-danger small">{{ form.tiktok.errors }}</div>
-        {% endif %}
-    </div>
-
-    <div class="col-md-3 form-group mb-3">
-        <label for="{{ form.youtube.id_for_label }}">Youtube</label>
-        {{ form.youtube }}
-        {% if form.youtube.errors %}
-            <div class="text-danger small">{{ form.youtube.errors }}</div>
-        {% endif %}
-    </div>
+<h6 class="text-primary border-bottom pb-2 mb-3">Social Presence</h6>
+<div class="row g-3">
+    <div class="col-md-4"><label>Facebook</label>{{ form.facebook }}</div>
+    <div class="col-md-4"><label>Instagram</label>{{ form.instagram }}</div>
+    <div class="col-md-4"><label>Twitter/X</label>{{ form.twitter }}</div>
+    <div class="col-md-4"><label>TikTok</label>{{ form.tiktok }}</div>
+    <div class="col-md-4"><label>YouTube</label>{{ form.youtube }}</div>
 </div>
 {% endblock %}
 
 {% block side_fields %}
-<!-- Optional: Could add a card preview or status if needed, but OtherDetailModel has no image/status -->
-{% endblock %}
-
-{% block form_actions %}
-<button type="submit" class="btn btn-success btn-lg">
-    <i class="fas fa-save"></i> Save Details
-</button>
+<div class="text-center p-3 border rounded bg-white">
+    <i class="bi bi-gear-wide-connected fs-1 text-muted opacity-25"></i>
+    <p class="mt-2 text-muted small">These details populate the footer and contact pages of your public website.</p>
+</div>
 {% endblock %}

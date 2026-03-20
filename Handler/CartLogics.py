@@ -5,7 +5,7 @@ from rest_framework.decorators import api_view, permission_classes # type: ignor
 from rest_framework.response import Response
 from rest_framework import status
 from Handler.ApiViewHandler import *
-from api.models import *
+from api_app.models import *
 
 # Create Cart Logic
 @api_view(["POST"])

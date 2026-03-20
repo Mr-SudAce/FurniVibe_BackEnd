@@ -7,43 +7,45 @@
 {% endblock %}
 
 {% block content %}
-<div class="container-fluid">
-    <div class="card shadow mb-4">
-
-        <!-- Header -->
-        <div class="card-header py-3 d-flex justify-content-between align-items-center">
-            <h6 class="m-0 font-weight-bold text-primary">
-                {% block form_title %}Form Title{% endblock %}
-            </h6>
-            <a href="{% block back_url %}#{% endblock %}" class="btn btn-secondary btn-sm">
-                Show List
+<div class="py-4">
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+            <h5 class="m-0 font-weight-bold text-primary">
+                <i class="bi bi-pencil-square me-2"></i>{% block form_title %}Form Title{% endblock %}
+            </h5>
+            <a href="{% block back_url %}#{% endblock %}" class="btn btn-outline-secondary btn-sm rounded-pill">
+                <i class="bi bi-arrow-left me-1"></i> Back to List
             </a>
         </div>
 
-        <!-- Body -->
         <div class="card-body">
             <form method="POST" enctype="multipart/form-data">
                 {% csrf_token %}
                 {{ form.media }}
 
-                <div class="row g-3">
+                <div class="row g-4">
                     <div class="col-md-8">
-                        {% block main_fields %}{% endblock %}
+                        <div class="main-form-section">
+                            {% block main_fields %}{% endblock %}
+                        </div>
                     </div>
+                    
                     <div class="col-md-4">
-                        {% block side_fields %}{% endblock %}
+                        <div class="side-form-section p-3">
+                            {% block side_fields %}{% endblock %}
+                        </div>
                     </div>
                 </div>
 
-                <div class="mt-4">
+                <div class="mt-5 border-top pt-4">
                     {% block form_actions %}
-                    <button type="submit" class="btn btn-success btn-lg shadow-sm">
-                        <i class="bi bi-save"></i> Save
+                    <button type="submit" class="btn btn-success btn-lg px-5 shadow-sm">
+                        <i class="bi bi-check-circle me-2"></i> Save Changes
                     </button>
                     {% endblock %}
                 </div>
             </form>
-
         </div>
     </div>
-    {% endblock %}
+</div>
+{% endblock %}

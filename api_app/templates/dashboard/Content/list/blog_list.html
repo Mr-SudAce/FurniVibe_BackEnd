@@ -1,21 +1,23 @@
 {% extends 'dashboard/base_list.html' %}
+{% load static %}
 
-{% block list_title %}Blog Posts{% endblock %}
-
-{% block add_url %}
-{% url 'blog_create' %}
+{% block extra_css %}
+    {{ block.super }}
+    <link rel="stylesheet" href="{% static 'CSS/list.css' %}">
 {% endblock %}
 
-{% block add_new_name %}Blog{% endblock %}
-
-{% block table_title %}All Blog Posts{% endblock %}
+{% block list_title %}Blog Posts{% endblock %}
+{% block add_new_name %}Blog Post{% endblock %}
+{% block add_url %}{% url 'blog_create' %}{% endblock %}
+{% block table_title %}Content Management{% endblock %}
 
 {% block table_headers %}
 <tr>
-    <th>Image</th>
-    <th>Title</th>
+    <th>Cover Image</th>
+    <th>Article Details</th>
     <th>Status</th>
-    <th>Actions</th>
+    <th>Author/Date</th>
+    <th class="text-end">Actions</th>
 </tr>
 {% endblock %}
 
@@ -23,40 +25,51 @@
 {% for blog in blogs %}
 <tr>
     <td>
-        {% if blog.image %}
-        <img src="{{ blog.image.url }}" alt="{{ blog.title }}" class="table-img" width="100px" height="100px">
-        {% else %}
-        <span class="text-muted">No Image</span>
-        {% endif %}
+        <div class="blog-thumbnail-container">
+            {% if blog.image %}
+                <img src="{{ blog.image.url }}" alt="{{ blog.title }}" class="blog-img">
+            {% else %}
+                <div class="blog-img-placeholder"><i class="bi bi-card-text"></i></div>
+            {% endif %}
+        </div>
     </td>
 
-    <td>{{ blog.title }}</td>
+    <td class="w-50">
+        <div class="fw-bold text-dark h6 mb-1">{{ blog.title }}</div>
+        <div class="text-muted small">
+            <i class="bi bi-link-45deg"></i> /blog/{{ blog.title|slugify|truncatechars:30 }}
+        </div>
+    </td>
 
     <td>
         {% if blog.is_active %}
-        <span class="badge bg-success">Active</span>
+            <span class="status-pill-active">Published</span>
         {% else %}
-        <span class="badge bg-secondary">Inactive</span>
+            <span class="status-pill-inactive">Draft</span>
         {% endif %}
     </td>
 
     <td>
-        <a href="{% url 'blog_update' blog.pk %}"
-            class="btn btn-info btn-sm">
-            <i class="bi bi-pencil-square"></i>
-        </a>
+        <div class="small text-dark fw-medium">Admin</div>
+        <div class="text-muted tiny-text">{{ blog.created_at|date:"M d, Y"|default:"Recently" }}</div>
+    </td>
 
-        <a href="{% url 'blog_delete' blog.pk %}"
-            class="btn btn-danger btn-sm"
-            onclick="return confirm('Are you sure?');">
-            <i class="bi bi-trash"></i>
-        </a>
+    <td>
+        <div class="d-flex justify-content-end gap-2">
+            <a href="{% url 'blog_update' blog.pk %}" class="btn-action-edit" title="Edit Article">
+                <i class="bi bi-pencil"></i>
+            </a>
+            <a href="{% url 'blog_delete' blog.pk %}" class="btn-action-delete" 
+               onclick="return confirm('Delete this article? This action cannot be undone.');">
+                <i class="bi bi-trash"></i>
+            </a>
+        </div>
     </td>
 </tr>
 {% empty %}
 <tr>
-    <td colspan="5" class="text-center text-muted">
-        No blog posts found.
+    <td colspan="5" class="text-center py-5">
+        <p class="text-muted">No Blog Found.</p>
     </td>
 </tr>
 {% endfor %}

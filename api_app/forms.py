@@ -206,3 +206,20 @@ class OtherDetailForm(forms.ModelForm):
             "whatsapp": forms.TextInput(attrs={"class": "form-control"}),
             "viber": forms.TextInput(attrs={"class": "form-control"}),
         }
+    
+    
+
+from django import forms
+from api_app.models import OrderModel
+
+class OrderUpdateForm(forms.ModelForm):
+    class Meta:
+        model = OrderModel
+        fields = [
+            "status",
+            "delivery_type",
+        ]
+        widgets = {
+            "status": forms.Select(attrs={"class": "form-select"}),
+            "delivery_type": forms.Select(attrs={"class": "form-select"}),
+        }

@@ -1,24 +1,63 @@
-/* Table hover effect */
-.table-hover tbody tr:hover {
-    background-color: #f2f2f2;
-    cursor: pointer;
-}
-
-/* Table border-radius for nicer look */
-.table {
-    border-radius: 8px;
-    overflow: hidden;
-}
-
-/* Table header colors */
-.table thead th {
-    background-color: #f8f9fc;
-    font-weight: 600;
-    color: #333;
-}
-
-/* Optional: add small shadows to table container */
+/* --- Full Screen List Table --- */
 .table-responsive {
-    box-shadow: 0 3px 8px rgba(0,0,0,0.05);
-    border-radius: 10px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+    border-radius: 12px;
+    background: #fff;
+    border: 1px solid #edf2f7;
 }
+
+.table {
+    margin-bottom: 0;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.table thead th {
+    background-color: #f8fafc;
+    border-bottom: 2px solid #edf2f7;
+    padding: 1rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #475569;
+}
+
+.table tbody td {
+    padding: 1rem;
+    vertical-align: middle;
+    border-bottom: 1px solid #f1f5f9;
+    color: #1e293b;
+    font-size: 0.9rem;
+}
+
+.table-hover tbody tr:hover {
+    background-color: #f8fafc;
+    transition: background-color 0.2s ease;
+}
+
+/* Sidebar Custom Link Style */
+.nav-link-custom {
+    display: flex;
+    align-items: center;
+    padding: 0.8rem 1rem;
+    border-radius: 10px;
+    color: #64748b;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.nav-link-custom i { margin-right: 12px; font-size: 1.1rem; }
+
+.nav-link-custom:hover {
+    background-color: #eff6ff;
+    color: #2563eb;
+    transform: translateX(-5px); /* Moves toward content on hover */
+}
+
+.nav-link-custom.active {
+    background: #2563eb;
+    color: white;
+}
+
