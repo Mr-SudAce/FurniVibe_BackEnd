@@ -47,29 +47,56 @@
                 </a>
             </div>
 
-            <nav class="flex-grow-1 overflow-auto">
+            <nav class="flex-grow-1 overflow-auto no-scrollbar">
                 <p class="text-muted small fw-bold text-uppercase mb-3 px-3"
                     style="letter-spacing: 1px; font-size: 0.7rem;">Menu</p>
+
                 <a href="/"
-                    class="nav-link-custom {% if request.path == '/' %}active{% endif %}">
+                    class="nav-link-custom {% if request.path == '/' %}active{% endif %} transition-all duration-300">
                     <i class="bi bi-house-door"></i> <span>Dashboard</span>
                 </a>
-                <a href="{% url 'product_list' %}" class="nav-link-custom"><i
-                        class="bi bi-box-seam"></i> <span>Products</span></a>
-                <a href="{% url 'category_list' %}" class="nav-link-custom"><i
-                        class="bi bi-grid"></i> <span>Categories</span></a>
-                <a href="{% url 'brand_list' %}" class="nav-link-custom"><i
-                        class="bi bi-bookmark-star"></i> <span>Brands</span></a>
-                <a href="{% url 'variant_list' %}" class="nav-link-custom"><i
-                        class="bi bi-layers"></i> <span>Variants</span></a>
-                <a href="{% url 'blog_list' %}" class="nav-link-custom"><i
-                        class="bi bi-chat-left-dots"></i> <span>Blogs</span></a>
-                <a href="{% url 'more_images_list' %}"
-                    class="nav-link-custom"><i class="bi bi-images"></i>
-                    <span>Gallery</span></a>
-                <a href="{% url 'other_detail_list' %}"
-                    class="nav-link-custom"><i class="bi bi-info-circle"></i>
-                    <span>Details</span></a>
+
+                {% url 'product_list' as product_url %}
+                <a href="{{ product_url }}"
+                    class="nav-link-custom {% if request.path == product_url %}active{% endif %} transition-all duration-300">
+                    <i class="bi bi-box-seam"></i> <span>Products</span>
+                </a>
+
+                {% url 'category_list' as category_url %}
+                <a href="{{ category_url }}"
+                    class="nav-link-custom {% if request.path == category_url %}active{% endif %} transition-all duration-300">
+                    <i class="bi bi-grid"></i> <span>Categories</span>
+                </a>
+
+                {% url 'brand_list' as brand_url %}
+                <a href="{{ brand_url }}"
+                    class="nav-link-custom {% if request.path == brand_url %}active{% endif %} transition-all duration-300">
+                    <i class="bi bi-bookmark-star"></i> <span>Brands</span>
+                </a>
+
+                {% url 'variant_list' as variant_url %}
+                <a href="{{ variant_url }}"
+                    class="nav-link-custom {% if request.path == variant_url %}active{% endif %} transition-all duration-300">
+                    <i class="bi bi-layers"></i> <span>Variants</span>
+                </a>
+
+                {% url 'blog_list' as blog_url %}
+                <a href="{{ blog_url }}"
+                    class="nav-link-custom {% if request.path == blog_url %}active{% endif %} transition-all duration-300">
+                    <i class="bi bi-chat-left-dots"></i> <span>Blogs</span>
+                </a>
+
+                {% url 'more_images_list' as gallery_url %}
+                <a href="{{ gallery_url }}"
+                    class="nav-link-custom {% if request.path == gallery_url %}active{% endif %} transition-all duration-300">
+                    <i class="bi bi-images"></i> <span>Gallery</span>
+                </a>
+
+                {% url 'other_detail_list' as detail_url %}
+                <a href="{{ detail_url }}"
+                    class="nav-link-custom {% if request.path == detail_url %}active{% endif %} transition-all duration-300">
+                    <i class="bi bi-info-circle"></i> <span>Details</span>
+                </a>
             </nav>
 
             <div class="mt-auto pt-4 border-top">

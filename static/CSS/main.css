@@ -1,14 +1,18 @@
 /* --- Unified Root Variables --- */
 :root {
-    --primary-blue: #4e73df;
-    --primary-color: #4361ee;
+    --primary-blue: var(--primary-color);
+    --primary-color: #393939;
     --sidebar-width: 260px;
     --bg-body: #f4f7fe;
     --sidebar-bg: #ffffff;
-    --text-main: #2b3674;
-    --text-muted: #a3aed0;
+    --text-main: #000000;
+    --text-muted: var(--text-main)/10%;
     --card-shadow: 0px 18px 40px rgba(112, 144, 176, 0.12);
     --border-color: #eef2f6;
+}
+
+.no-scrollbar::-webkit-scrollbar{
+    display: none;
 }
 
 /* --- Global Reset & Body --- */
