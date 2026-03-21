@@ -25,19 +25,33 @@ urlpatterns = [
         name="accProfile",
     ),
     # Update pw
-    path("settings/password/", dashboard_views.update_pw, name="update_pw"),
+    path("profile/edit/", dashboard_views.edit_profile, name="edit_profile"),
+    path("profile/password/", dashboard_views.update_pw, name="update_pw"),
     # reset pw
     # 1. Submit email form
-    path('password-reset/', dashboard_views.MyPasswordResetView.as_view(), name='password_reset'),
-    
+    path(
+        "password-reset/",
+        dashboard_views.MyPasswordResetView.as_view(),
+        name="password_reset",
+    ),
     # 2. Email sent confirmation
-    path('password-reset/done/', dashboard_views.MyPasswordResetDoneView.as_view(), name='password_reset_done'),
-    
+    path(
+        "password-reset/done/",
+        dashboard_views.MyPasswordResetDoneView.as_view(),
+        name="password_reset_done",
+    ),
     # 3. Link from email (UID and Token)
-    path('password-reset-confirm/<uidb64>/<token>/', dashboard_views.MyPasswordResetConfirmView.as_view(), name='password_reset_confirm'),
-    
+    path(
+        "password-reset-confirm/<uidb64>/<token>/",
+        dashboard_views.MyPasswordResetConfirmView.as_view(),
+        name="password_reset_confirm",
+    ),
     # 4. Success message
-    path('password-reset-complete/', dashboard_views.MyPasswordResetCompleteView.as_view(), name='password_reset_complete'),
+    path(
+        "password-reset-complete/",
+        dashboard_views.MyPasswordResetCompleteView.as_view(),
+        name="password_reset_complete",
+    ),
     # Dashboard home / Product List
     path("", dashboard_views.dashboard_home, name="dashboard_home"),
     # Product CRUD URLs

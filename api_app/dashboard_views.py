@@ -34,47 +34,84 @@ defaultPath = "dashboard/Content/"
 # ############################## Reset  PW ####################################
 
 
-
 class MyPasswordResetView(auth_views.PasswordResetView):
-    template_name = 'dashboard/auth/reset_pw.html'
-    email_template_name = 'dashboard/password_reset_email.html'
-    success_url = reverse_lazy('password_reset_done')
+    template_name = "dashboard/auth/reset_pw.html"
+    email_template_name = "dashboard/password_reset_email.html"
+    success_url = reverse_lazy("password_reset_done")
+
 
 class MyPasswordResetDoneView(auth_views.PasswordResetDoneView):
-    template_name = 'dashboard/auth/reset_pw_done.html'
+    template_name = "dashboard/auth/reset_pw_done.html"
+
 
 class MyPasswordResetConfirmView(auth_views.PasswordResetConfirmView):
-    template_name = 'dashboard/auth/reset_pw_confirm.html'
-    success_url = reverse_lazy('password_reset_complete')
+    template_name = "dashboard/auth/reset_pw_confirm.html"
+    success_url = reverse_lazy("password_reset_complete")
+
 
 class MyPasswordResetCompleteView(auth_views.PasswordResetCompleteView):
-    template_name = 'dashboard/auth/reset_pw_complete.html'
+    template_name = "dashboard/auth/reset_pw_complete.html"
 
 
 # ############################## Update PW ####################################
 def is_dashboard_user(user):
     return user.is_authenticated and (user.is_staff or user.is_superuser)
 
+
 @login_required
 @user_passes_test(is_dashboard_user)
 def update_pw(request):
-    if request.method == 'POST':
+    if request.method == "POST":
         form = PasswordChangeForm(request.user, request.POST)
         if form.is_valid():
             user = form.save()
             # Keeps the session alive so they aren't logged out after password change
             update_session_auth_hash(request, user)
-            messages.success(request, 'Your password was successfully updated!')
-            return redirect('dashboard_home') 
+            messages.success(request, "Your password was successfully updated!")
+            return redirect("dashboard_home")
         else:
-            messages.error(request, 'Please correct the error below.')
+            messages.error(request, "Please correct the error below.")
     else:
         form = PasswordChangeForm(request.user)
-    
-    return render(request, 'dashboard/auth/update_pw.html', {
-        'form': form,
-        'page_title': 'Update Password'
-    })
+
+    return render(
+        request,
+        "dashboard/auth/update_pw.html",
+        {"form": form, "page_title": "Update Password"},
+    )
+
+
+# Edit Profile
+class UserEditForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ["username", "first_name", "last_name", "email"]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+            field.widget.attrs.update({"class": "form-control-custom"})
+
+
+def is_dashboard_user(user):
+    return user.is_authenticated and (user.is_staff or user.is_superuser)
+
+
+@login_required
+@user_passes_test(is_dashboard_user)
+def edit_profile(request):
+    if request.method == "POST":
+        form = UserEditForm(request.POST, instance=request.user)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Profile updated successfully!")
+            return redirect("edit_profile")
+        else:
+            messages.error(request, "Please correct the error below.")
+    else:
+        form = UserEditForm(instance=request.user)
+
+    return render(request, "dashboard/auth/edit_profile.html", {"form": form})
 
 
 def dashboard_home(request):
