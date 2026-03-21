@@ -95,7 +95,6 @@ class CategoryModel(models.Model):
         upload_to="categories/",
         blank=True,
         null=True,
-        default="images/default_category.png",
     )
     description = HTMLField(blank=True)
     is_active = models.BooleanField(default=True)
@@ -117,7 +116,7 @@ class BrandModel(models.Model):
     name = models.CharField(max_length=255, unique=True)
     slug = models.SlugField(unique=True, blank=True)
     logo = models.ImageField(
-        upload_to="brands/", blank=True, null=True, default="images/default_brand.png"
+        upload_to="brands/", blank=True, null=True
     )
     description = HTMLField(blank=True)
     is_active = models.BooleanField(default=True)
@@ -153,7 +152,6 @@ class ProductModel(models.Model):
         upload_to="products/",
         blank=True,
         null=True,
-        default="images/default_img.png",
     )
 
     moreImages = models.ManyToManyField("ProductImageModel", blank=True)

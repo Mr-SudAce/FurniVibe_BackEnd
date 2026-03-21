@@ -2,8 +2,8 @@
 {% load static %}
 
 {% block extra_css %}
-    {{ block.super }}
-    <link rel="stylesheet" href="{% static 'CSS/list.css' %}">
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'CSS/list.css' %}">
 {% endblock %}
 
 {% block list_title %}Products{% endblock %}
@@ -28,9 +28,11 @@
     <td class="text-center">
         <div class="product-img-wrapper">
             {% if product.image %}
-                <img src="{{ product.image.url }}" alt="{{ product.name }}">
+            <img src="{{ product.image.url }}" alt="{{ product.name }}"
+                width="100px">
             {% else %}
-                <div class="img-placeholder"><i class="bi bi-image"></i></div>
+            <img src="{% static 'images/default_img.png' %}"
+                alt="{{ product.name }}" width="100px">
             {% endif %}
         </div>
     </td>
@@ -41,40 +43,53 @@
     </td>
 
     <td>
-        <div class="badge-category">{{ product.category.name|default:"Uncategorized" }}</div>
-        <div class="small text-muted mt-1"><i class="bi bi-bookmark-fill me-1"></i>{{ product.brand.name|default:"-" }}</div>
+        <div class="badge-category">
+            {{product.category.name|default:"Uncategorized" }}
+        </div>
+        <div class="small text-muted mt-1"><i
+                class="bi bi-bookmark-fill me-1"></i>
+                {{product.brand.name|default:"-" }}
+            </div>
     </td>
 
     <td>
         {% if product.discount_percent > 0 %}
-            <div class="price-discounted">Rs. {{ product.discounted_price|floatformat:2 }}</div>
-            <div class="price-original text-decoration-line-through">Rs. {{ product.price }}</div>
+        <div class="price-discounted">
+            Rs. {{product.discounted_price|floatformat:2 }}
+        </div>
+        <div class="price-original text-decoration-line-through">
+            Rs. {{product.price }}
+        </div>
         {% else %}
-            <div class="price-regular">Rs. {{ product.price }}</div>
+        <div class="price-regular">Rs. {{ product.price }}</div>
         {% endif %}
     </td>
 
     <td>
         <div class="d-flex flex-column gap-1">
             {% if product.is_active %}
-                <span class="status-pill-active">Active</span>
+            <span class="status-pill-active">Active</span>
             {% else %}
-                <span class="status-pill-inactive">Inactive</span>
+            <span class="status-pill-inactive">Inactive</span>
             {% endif %}
 
             {% if product.is_featured %}
-                <span class="status-pill-featured"><i class="bi bi-star-fill me-1"></i>Featured</span>
+            <span class="status-pill-featured"><i
+                    class="bi bi-star-fill me-1"></i>Featured</span>
             {% endif %}
         </div>
     </td>
 
     <td>
         <div class="d-flex justify-content-end gap-2">
-            <a href="{% url 'product_update' product.pk %}" class="btn-action-edit" title="Edit Product">
+            <a href="{% url 'product_update' product.pk %}"
+                class="btn-action-edit" title="Edit Product">
                 <i class="bi bi-pencil"></i>
             </a>
-            <a href="{% url 'product_delete' product.pk %}" class="btn-action-delete" 
-               onclick="return confirm('Delete this product permanently?');" title="Delete Product">
+            <a href="{% url 'product_delete' product.pk %}"
+                class="btn-action-delete"
+                onclick="return confirm('Delete this product permanently?');"
+                title="Delete Product">
                 <i class="bi bi-trash"></i>
             </a>
         </div>

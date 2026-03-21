@@ -28,8 +28,8 @@
         <div class="category-icon-wrapper">
             {% if category.image %}
                 <img src="{{ category.image.url }}" alt="{{ category.name }}" width="100px" >
-            {% else %}
-                <div class="icon-placeholder"><i class="bi bi-folder2"></i></div>
+                {% else %}
+                <img src="{% static 'images/default_img.png' %}" alt="{{ category.name }}" width="100px" >
             {% endif %}
         </div>
     </td>

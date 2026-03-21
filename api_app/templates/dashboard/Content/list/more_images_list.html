@@ -2,8 +2,8 @@
 {% load static %}
 
 {% block extra_css %}
-    {{ block.super }}
-    <link rel="stylesheet" href="{% static 'CSS/list.css' %}">
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'CSS/list.css' %}">
 {% endblock %}
 
 {% block list_title %}Product Gallery{% endblock %}
@@ -26,34 +26,41 @@
     <td>
         <div class="gallery-thumb">
             {% if image.image %}
-                <img src="{{ image.image.url }}" alt="Gallery Asset">
-                <a href="{{ image.image.url }}" target="_blank" class="view-overlay">
-                    <i class="bi bi-zoom-in"></i>
-                </a>
+            <img src="{{ image.image.url }}" alt="Gallery Asset" width="100px">
+            <a href="{{ image.image.url }}" target="_blank"
+                class="view-overlay">
+                <i class="bi bi-zoom-in"></i>
+            </a>
             {% else %}
-                <div class="thumb-placeholder"><i class="bi bi-image"></i></div>
+            <img src="{% static 'images/default_img.png' %}" alt="Gallery Asset"
+            width="100px">
             {% endif %}
         </div>
     </td>
 
     <td>
         <div class="fw-bold text-dark">{{ image.product.name }}</div>
-        <div class="text-muted small">Category: {{ image.product.category.name|default:"General" }}</div>
+        <div class="text-muted small">Category: {{
+            image.product.category.name|default:"General" }}</div>
     </td>
 
     <td>
         <span class="badge-file-type">JPG/PNG</span>
-        <div class="tiny-text text-muted mt-1">Uploaded to: /media/products/</div>
+        <div class="tiny-text text-muted mt-1">Uploaded to:
+            /media/products/</div>
     </td>
 
     <td>
         <div class="d-flex justify-content-end gap-2">
-            <a href="{% url 'more_images_update' image.pk %}" class="btn-action-edit" title="Replace Image">
+            <a href="{% url 'more_images_update' image.pk %}"
+                class="btn-action-edit" title="Replace Image">
                 <i class="bi bi-pencil"></i>
             </a>
-            <form action="{% url 'more_images_delete' image.pk %}" method="POST" class="d-inline">
+            <form action="{% url 'more_images_delete' image.pk %}" method="POST"
+                class="d-inline">
                 {% csrf_token %}
-                <button type="submit" class="btn-action-delete border-0" onclick="return confirm('Delete this gallery image?');">
+                <button type="submit" class="btn-action-delete border-0"
+                    onclick="return confirm('Delete this gallery image?');">
                     <i class="bi bi-trash"></i>
                 </button>
             </form>

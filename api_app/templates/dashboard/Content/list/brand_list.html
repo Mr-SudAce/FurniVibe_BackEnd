@@ -2,8 +2,8 @@
 {% load static %}
 
 {% block extra_css %}
-    {{ block.super }}
-    <link rel="stylesheet" href="{% static 'CSS/list.css' %}">
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'CSS/list.css' %}">
 {% endblock %}
 
 {% block list_title %}Brands{% endblock %}
@@ -27,11 +27,11 @@
     <td class="text-center">
         <div class="brand-logo-container">
             {% if brand.logo %}
-                <img src="{{ brand.logo.url }}" alt="{{ brand.name }}" class="brand-logo">
+            <img src="{{ brand.logo.url}}" alt="{{ brand.name }}"
+                class="brand-logo" width="100px">
             {% else %}
-                <div class="brand-logo-placeholder">
-                    <i class="bi bi-shield-check"></i>
-                </div>
+            <img src="{% static 'images/default_img.png' %}"
+                alt="{{ brand.name }}" class="brand-logo" width="100px">
             {% endif %}
         </div>
     </td>
@@ -42,24 +42,27 @@
     </td>
 
     <td class="text-muted small w-25">
-        {{ brand.description|striptags|default:"No description available."|truncatechars:65 }}
+        {{brand.description|striptags|default:"No description available."|truncatechars:65}}
     </td>
 
     <td>
         {% if brand.is_active %}
-            <span class="status-pill-active">Active</span>
+        <span class="status-pill-active">Active</span>
         {% else %}
-            <span class="status-pill-inactive">Inactive</span>
+        <span class="status-pill-inactive">Inactive</span>
         {% endif %}
     </td>
 
     <td>
         <div class="d-flex justify-content-end gap-2">
-            <a href="{% url 'brand_update' brand.pk %}" class="btn-action-edit" title="Edit Brand">
+            <a href="{% url 'brand_update' brand.pk %}" class="btn-action-edit"
+                title="Edit Brand">
                 <i class="bi bi-pencil"></i>
             </a>
-            <a href="{% url 'brand_delete' brand.pk %}" class="btn-action-delete" 
-               onclick="return confirm('Deleting this brand may affect associated products. Proceed?');" title="Delete Brand">
+            <a href="{% url 'brand_delete' brand.pk %}"
+                class="btn-action-delete"
+                onclick="return confirm('Deleting this brand may affect associated products. Proceed?');"
+                title="Delete Brand">
                 <i class="bi bi-trash"></i>
             </a>
         </div>
