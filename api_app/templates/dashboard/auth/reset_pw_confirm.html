@@ -1,0 +1,43 @@
+{% extends "dashboard/dashboard.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-5">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <h4 class="mb-3">Set New Password</h4>
+                    
+                    {% if validlink %}
+                        <form method="post">
+                            {% csrf_token %}
+                            {% for field in form %}
+                                <div class="mb-3">
+                                    <label class="form-label small fw-bold">{{ field.label }}</label>
+                                    {{ field }}
+                                    {% if field.errors %}
+                                        <div class="text-danger small">{{ field.errors|striptags }}</div>
+                                    {% endif %}
+                                </div>
+                            {% endfor %}
+                            <div class="d-grid mt-4">
+                                <button type="submit" class="btn btn-primary">Confirm New Password</button>
+                            </div>
+                        </form>
+                    {% else %}
+                        <div class="alert alert-danger">
+                            The password reset link was invalid, possibly because it has already been used. 
+                            Please request a new password reset.
+                        </div>
+                        <a href="{% url 'password_reset' %}" class="btn btn-primary w-100">Request New Link</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    input { display: block; width: 100%; padding: 0.375rem 0.75rem; border: 1px solid #dee2e6; border-radius: 0.375rem; }
+</style>
+{% endblock %}

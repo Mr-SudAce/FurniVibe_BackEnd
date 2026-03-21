@@ -27,16 +27,17 @@ urlpatterns = [
     # Update pw
     path("settings/password/", dashboard_views.update_pw, name="update_pw"),
     # reset pw
-    path(
-        "password-reset/",
-        auth_views.PasswordResetView.as_view(template_name="reset_pw.html"),
-        name="password_reset",
-    ),
-    path(
-        "password-reset/done/",
-        auth_views.PasswordResetDoneView.as_view(),
-        name="password_reset_done",
-    ),
+    # 1. Submit email form
+    path('password-reset/', dashboard_views.MyPasswordResetView.as_view(), name='password_reset'),
+    
+    # 2. Email sent confirmation
+    path('password-reset/done/', dashboard_views.MyPasswordResetDoneView.as_view(), name='password_reset_done'),
+    
+    # 3. Link from email (UID and Token)
+    path('password-reset-confirm/<uidb64>/<token>/', dashboard_views.MyPasswordResetConfirmView.as_view(), name='password_reset_confirm'),
+    
+    # 4. Success message
+    path('password-reset-complete/', dashboard_views.MyPasswordResetCompleteView.as_view(), name='password_reset_complete'),
     # Dashboard home / Product List
     path("", dashboard_views.dashboard_home, name="dashboard_home"),
     # Product CRUD URLs

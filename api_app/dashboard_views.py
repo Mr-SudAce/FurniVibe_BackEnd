@@ -9,6 +9,8 @@ from Handler.ViewsHandler import *
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth import update_session_auth_hash
+from django.contrib.auth import views as auth_views
+from django.urls import reverse_lazy
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth.decorators import user_passes_test, login_required
 
@@ -29,26 +31,50 @@ class AccountProfileView(LoginView):
 
 defaultPath = "dashboard/Content/"
 
-# Update PW 
-def is_superadmin(user):
-    return user.is_authenticated and user.is_superuser
+# ############################## Reset  PW ####################################
+
+
+
+class MyPasswordResetView(auth_views.PasswordResetView):
+    template_name = 'dashboard/auth/reset_pw.html'
+    email_template_name = 'dashboard/password_reset_email.html'
+    success_url = reverse_lazy('password_reset_done')
+
+class MyPasswordResetDoneView(auth_views.PasswordResetDoneView):
+    template_name = 'dashboard/auth/reset_pw_done.html'
+
+class MyPasswordResetConfirmView(auth_views.PasswordResetConfirmView):
+    template_name = 'dashboard/auth/reset_pw_confirm.html'
+    success_url = reverse_lazy('password_reset_complete')
+
+class MyPasswordResetCompleteView(auth_views.PasswordResetCompleteView):
+    template_name = 'dashboard/auth/reset_pw_complete.html'
+
+
+# ############################## Update PW ####################################
+def is_dashboard_user(user):
+    return user.is_authenticated and (user.is_staff or user.is_superuser)
 
 @login_required
-@user_passes_test(is_superadmin)
+@user_passes_test(is_dashboard_user)
 def update_pw(request):
     if request.method == 'POST':
         form = PasswordChangeForm(request.user, request.POST)
         if form.is_valid():
             user = form.save()
-            # Important: Keeps the user logged in after the password change
+            # Keeps the session alive so they aren't logged out after password change
             update_session_auth_hash(request, user)
             messages.success(request, 'Your password was successfully updated!')
-            return redirect('dashboard_home') # Change to your dashboard home name
+            return redirect('dashboard_home') 
         else:
             messages.error(request, 'Please correct the error below.')
     else:
         form = PasswordChangeForm(request.user)
-    return render(request, 'dashboard/auth/update_pw.html', {'form': form})
+    
+    return render(request, 'dashboard/auth/update_pw.html', {
+        'form': form,
+        'page_title': 'Update Password'
+    })
 
 
 def dashboard_home(request):
