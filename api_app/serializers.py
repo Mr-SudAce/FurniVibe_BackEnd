@@ -2,16 +2,16 @@ from rest_framework import serializers
 from api_app.models import *
 from rest_framework.validators import UniqueValidator
 from django.db import transaction
-import time
+
 from django.contrib.auth.hashers import make_password
-from .models import User
+from .models import *
 
 
 class UserSerializer(serializers.ModelSerializer):
     status = serializers.SerializerMethodField()
 
     class Meta:
-        model = User
+        model = UserModel
         fields = [
             "id",
             "username",
@@ -21,34 +21,40 @@ class UserSerializer(serializers.ModelSerializer):
             "phone_number",
             "status",
             "is_active",
+            "is_user",
+            "is_staff",
             "created_at",
-            "last_login",
         ]
+        read_only_fields = ["username", "created_at", "is_staff", "is_superuser"]
 
     def get_status(self, obj):
         if obj.is_superuser:
             return "Super Admin"
-        elif obj.is_staff:
-            return "Admin"
-        return "User"
+        return "Admin" if obj.is_staff else "User"
+
 
 class UserCreateSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(
         required=True,
         validators=[
-            UniqueValidator(queryset=User.objects.all(), message="A user with that email already exists.")
+            UniqueValidator(
+                queryset=UserModel.objects.all(),
+                message="A user with this email exists.",
+            )
         ],
     )
     phone_number = serializers.CharField(
         required=True,
-        validators=[UniqueValidator(queryset=User.objects.all(), message="A user with that phone number already exists.")]
+        validators=[
+            UniqueValidator(
+                queryset=UserModel.objects.all(), message="Phone number already exists."
+            )
+        ],
     )
     password = serializers.CharField(write_only=True, min_length=8)
-    is_staff = serializers.BooleanField(default=False, write_only=True)
-    is_superuser = serializers.BooleanField(default=False, write_only=True)
 
     class Meta:
-        model = User
+        model = UserModel
         fields = [
             "id",
             "username",
@@ -58,35 +64,34 @@ class UserCreateSerializer(serializers.ModelSerializer):
             "phone_number",
             "password",
             "is_staff",
-            "is_superuser",
+            "is_user",
         ]
         read_only_fields = ["username"]
 
     def create(self, validated_data):
         password = validated_data.pop("password")
-        # Roles from input are ignored during creation.
-        validated_data.pop("is_staff", None)
-        validated_data.pop("is_superuser", None)
-        # Auto-generate username
-        base_username = f"{validated_data['first_name']}{validated_data['last_name']}".lower()
+        email = validated_data.pop("email")
+
+        first_name = validated_data.get("first_name", "").lower().strip()
+        last_name = validated_data.get("last_name", "").lower().strip()
+        base_username = f"{first_name}{last_name}"
+
+        if not base_username:
+            base_username = "user"
+
         username = base_username
         counter = 1
-        while User.objects.filter(username=username).exists():
+        while UserModel.objects.filter(username=username).exists():
             username = f"{base_username}{counter}"
             counter += 1
-
-        user = User(
+        user = UserModel.objects.create_user(
+            email=email,
             username=username,
-            **validated_data
+            password=password,
+            is_staff=False,
+            is_user=True,
+            **validated_data,
         )
-
-        user.password = make_password(password)
-
-        # New users are always created as 'Admin'
-        user.is_staff = True
-        user.is_superuser = False
-        user.is_user = False
-        user.save()
         return user
 
     def update(self, instance, validated_data):
@@ -98,33 +103,37 @@ class UserCreateSerializer(serializers.ModelSerializer):
             setattr(instance, attr, value)
 
         if password:
-            instance.password = make_password(password)
+            instance.password = password
 
         if is_superuser:
             instance.is_superuser = True
             instance.is_staff = True
             instance.is_user = False
-        elif is_staff:
-            instance.is_staff = True
-            instance.is_user = False
+        elif is_staff is not None:
+            instance.is_staff = is_staff
+            instance.is_user = not is_staff
 
         instance.save()
         return instance
+
 
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = CategoryModel
         fields = ["id", "name", "slug", "image", "description"]
 
+
 class BrandSerializer(serializers.ModelSerializer):
     class Meta:
         model = BrandModel
         fields = ["id", "name", "slug"]
 
+
 class ProductImageSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductImageModel
         fields = ["id", "image"]
+
 
 class ProductVariantSerializer(serializers.ModelSerializer):
     class Meta:
@@ -143,6 +152,7 @@ class ProductVariantSerializer(serializers.ModelSerializer):
             "delivery_days",
         ]
 
+
 class ProductReviewSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True)
 
@@ -156,6 +166,7 @@ class ProductReviewSerializer(serializers.ModelSerializer):
             "created_at",
         ]
 
+
 class ProductSerializer(serializers.ModelSerializer):
     name = serializers.CharField(
         validators=[
@@ -164,8 +175,7 @@ class ProductSerializer(serializers.ModelSerializer):
             )
         ]
     )
-    
-    
+
     # WRITE (IDs)
     category_id = serializers.PrimaryKeyRelatedField(
         queryset=CategoryModel.objects.all(),
@@ -189,6 +199,7 @@ class ProductSerializer(serializers.ModelSerializer):
         decimal_places=2,
         read_only=True,
     )
+
     class Meta:
         model = ProductModel
         fields = [
@@ -210,6 +221,7 @@ class ProductSerializer(serializers.ModelSerializer):
             "variants",
             "reviews",
         ]
+
 
 class CartItemSerializer(serializers.ModelSerializer):
     cart_id = serializers.PrimaryKeyRelatedField(
@@ -246,6 +258,7 @@ class CartItemSerializer(serializers.ModelSerializer):
     def get_total_price(self, obj):
         return obj.total_price
 
+
 class CartSerializer(serializers.ModelSerializer):
     items = CartItemSerializer(many=True, read_only=True)
     cart_total = serializers.SerializerMethodField()
@@ -257,7 +270,8 @@ class CartSerializer(serializers.ModelSerializer):
     def get_cart_total(self, obj):
         return sum(item.total_price for item in obj.items.all())
 
-# Read Only Version 
+
+# Read Only Version
 class CartItemReadSerializer(serializers.ModelSerializer):
     variant = ProductVariantSerializer(read_only=True)
     product = serializers.SerializerMethodField()
@@ -272,7 +286,8 @@ class CartItemReadSerializer(serializers.ModelSerializer):
 
     def get_total_price(self, obj):
         return obj.total_price
-    
+
+
 class CartReadSerializer(serializers.ModelSerializer):
     items = CartItemReadSerializer(many=True, read_only=True)
     total_amount = serializers.SerializerMethodField()
@@ -283,8 +298,11 @@ class CartReadSerializer(serializers.ModelSerializer):
 
     def get_total_amount(self, obj):
         return sum([item.total_price for item in obj.items.all()])
+
+
 # Read Only Version ^
-    
+
+
 class ShippingAddressSerializer(serializers.ModelSerializer):
     class Meta:
         model = ShippingAddressModel
@@ -297,6 +315,7 @@ class ShippingAddressSerializer(serializers.ModelSerializer):
             "state",
             "postal_code",
         ]
+
 
 class OrderItemSerializer(serializers.ModelSerializer):
     total_price = serializers.SerializerMethodField()
@@ -315,6 +334,7 @@ class OrderItemSerializer(serializers.ModelSerializer):
     def get_total_price(self, obj):
         return obj.total_price
 
+
 class PaymentSerializer(serializers.ModelSerializer):
     class Meta:
         model = PaymentModel
@@ -325,6 +345,7 @@ class PaymentSerializer(serializers.ModelSerializer):
             "payment_status",
             "paid_at",
         ]
+
 
 class OrderSerializer(serializers.ModelSerializer):
     items = OrderItemSerializer(many=True, read_only=True)
@@ -342,6 +363,7 @@ class OrderSerializer(serializers.ModelSerializer):
             "items",
             "created_at",
         ]
+
 
 class CheckoutSerializer(serializers.Serializer):
     cart_id = serializers.IntegerField()
@@ -425,6 +447,7 @@ class CheckoutSerializer(serializers.Serializer):
             cart_items.delete()
             return order
 
+
 class OtherdetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = OtherDetailModel
@@ -442,10 +465,11 @@ class OtherdetailSerializer(serializers.ModelSerializer):
             "viber",
         ]
 
+
 class BlogSerializer(serializers.ModelSerializer):
     author = UserSerializer(read_only=True)
     author_id = serializers.PrimaryKeyRelatedField(
-        queryset=User.objects.all(), source="author", write_only=True
+        queryset=UserModel.objects.all(), source="author", write_only=True
     )
 
     class Meta:

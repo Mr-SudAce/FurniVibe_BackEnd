@@ -47,7 +47,7 @@ custom_urlpatterns = [
 
 urlpatterns = [
     path("", include(router.urls)),
-    path("auth/token/", api_views.CustomAuthToken.as_view(), name="api_token_auth"),
+    path("token/", api_views.CustomAuthToken.as_view(), name="api_token_auth"),
     path("", include(custom_urlpatterns)),
     
     # 📜 API Documentation

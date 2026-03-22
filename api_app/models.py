@@ -34,7 +34,7 @@ class UserManager(BaseUserManager):
 
 
 # User model
-class User(AbstractBaseUser, PermissionsMixin):
+class UserModel(AbstractBaseUser, PermissionsMixin):
     first_name = models.CharField(max_length=50)
     last_name = models.CharField(max_length=50)
 
@@ -72,15 +72,10 @@ class User(AbstractBaseUser, PermissionsMixin):
     USERNAME_FIELD = "username"
     REQUIRED_FIELDS = ["email", "first_name", "last_name", "phone_number"]
 
-    @property
-    def is_staff(self):
-        return self.is_staff
 
     def save(self, *args, **kwargs):
-        # Hash password only if not hashed
-        if self.password and not self.password.startswith("pbkdf2_"):
+        if self.password and not self.password.startswith(('pbkdf2_sha256$', 'bcrypt', '$argon2id$', 'argon2')):
             self.password = make_password(self.password)
-
         super().save(*args, **kwargs)
 
     def __str__(self):
@@ -234,7 +229,7 @@ class ProductReviewModel(models.Model):
     product = models.ForeignKey(
         ProductModel, related_name="reviews", on_delete=models.CASCADE
     )
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(UserModel, on_delete=models.CASCADE)
 
     rating = models.PositiveSmallIntegerField(choices=[(i, i) for i in range(1, 6)])
     comment = models.TextField(blank=True)
@@ -248,7 +243,7 @@ class ProductReviewModel(models.Model):
 
 # Cart Model
 class CartModel(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
+    user = models.ForeignKey(UserModel, on_delete=models.CASCADE, null=True, blank=True)
     is_active = models.BooleanField(default=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
@@ -334,7 +329,7 @@ class OtherDetailModel(models.Model):
 
 # Shipping Address Model
 class ShippingAddressModel(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(UserModel, on_delete=models.CASCADE)
 
     full_name = models.CharField(max_length=255)
     phone = models.CharField(max_length=15)
@@ -353,7 +348,7 @@ class ShippingAddressModel(models.Model):
 
 # Order Model
 class OrderModel(models.Model):
-    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    user = models.ForeignKey(UserModel, on_delete=models.SET_NULL, null=True)
     shipping_address = models.ForeignKey(ShippingAddressModel, on_delete=models.PROTECT)
 
     total_amount = models.DecimalField(max_digits=10, decimal_places=2)

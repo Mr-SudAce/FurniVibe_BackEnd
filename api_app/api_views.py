@@ -1,5 +1,5 @@
 from rest_framework import viewsets
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated, BasePermission
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.models import Token
@@ -10,40 +10,126 @@ from django.db import transaction
 from django.utils.crypto import get_random_string
 from django.shortcuts import get_object_or_404
 from api_app.models import *
+from rest_framework.decorators import action
 from rest_framework import filters
 from django_filters.rest_framework import DjangoFilterBackend
 
 from api_app.serializers import *
 
 from Handler.ApiViewHandler import *
-
-from .permissions import IsStaffOrIsSuperUser, IsSuperUser
+from django.contrib.auth import get_user_model
+from .permissions import IsStaffOrIsSuperUser
 
 
 # ---------------------------------------------------
 # USER VIEWSET
 # ---------------------------------------------------
+User = get_user_model()
 
 
+# --- Custom Permission ---
+class IsStaffOrIsSuperUser(BasePermission):
+    def has_permission(self, request, view):
+        return bool(
+            request.user and (request.user.is_staff or request.user.is_superuser)
+        )
+
+
+# --- Login View (Supports Email or Username) ---
+class CustomAuthToken(ObtainAuthToken):
+    def post(self, request, *args, **kwargs):
+        login_id = request.data.get("username") or request.data.get("email")
+        password = request.data.get("password")
+
+        if not login_id or not password:
+            return Response(
+                {"error": "Username/Email and password required"}, status=400
+            )
+
+        user = (
+            User.objects.filter(email=login_id).first()
+            or User.objects.filter(username=login_id).first()
+        )
+
+        if user and user.check_password(password):
+            if not user.is_active:
+                return Response({"error": "User is inactive"}, status=400)
+
+            try:
+                token = Token.objects.get(user=user)
+            except Token.DoesNotExist:
+                token = Token.objects.create(user=user)
+
+            return Response(
+                {
+                    "token": token.key,
+                    "user_id": user.pk,
+                    "email": user.email,
+                    "username": user.username,
+                }
+            )
+
+        return Response(
+            {"non_field_errors": ["Unable to log in with provided credentials."]},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+
+# --- User ViewSet ---
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     authentication_classes = [TokenAuthentication]
+    filter_backends = [filters.SearchFilter]
+    search_fields = ["username", "email", "phone_number"]
 
     def get_serializer_class(self):
-        if self.action == 'create':
+        if self.action == "create":
             return UserCreateSerializer
         return UserSerializer
-    
-    # Allow admin filtering
-    filter_backends = [filters.SearchFilter]
-    search_fields = ['username', 'email', 'phone_number']
 
     def get_permissions(self):
         if self.action == "create":
             return [AllowAny()]
-        # Strictly protect list/retrieve to avoid exposing user data publicly
-        # Users can see their own profile via a specific /me endpoint or logic, but standard list should be admin only
+        if self.action == "me":
+            return [IsAuthenticated()]
         return [IsStaffOrIsSuperUser()]
+
+    @action(
+        detail=False,
+        methods=["get", "patch", "put"],
+        permission_classes=[IsAuthenticated],
+    )
+    def me(self, request):
+        user = request.user
+        if request.method == "GET":
+            serializer = self.get_serializer(user)
+            return Response(serializer.data)
+
+        serializer = self.get_serializer(user, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data)
+
+
+# class UserViewSet(viewsets.ModelViewSet):
+#     queryset = User.objects.all()
+#     authentication_classes = [TokenAuthentication]
+
+#     def get_serializer_class(self):
+#         if self.action == 'create':
+#             return UserCreateSerializer
+#         return UserSerializer
+
+#     # Allow admin filtering
+#     filter_backends = [filters.SearchFilter]
+#     search_fields = ['username', 'email', 'phone_number']
+
+#     def get_permissions(self):
+#         if self.action == "create":
+#             return [AllowAny()]
+#         # Strictly protect list/retrieve to avoid exposing user data publicly
+#         # Users can see their own profile via a specific /me endpoint or logic, but standard list should be admin only
+#         return [IsStaffOrIsSuperUser()]
 
 
 # ---------------------------------------------------
@@ -91,12 +177,16 @@ class ProductViewSet(viewsets.ModelViewSet):
     ).prefetch_related("images", "variants", "reviews", "reviews__user")
     serializer_class = ProductSerializer
     authentication_classes = [TokenAuthentication]
-    
+
     # ✅ UI ENHANCEMENT: Search, Filter, Sort
-    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
-    filterset_fields = ['category', 'brand', 'is_featured', 'is_active']
-    search_fields = ['name', 'description', 'brand__name', 'category__name']
-    ordering_fields = ['price', 'created_at', 'name', 'discount_percent']
+    filter_backends = [
+        DjangoFilterBackend,
+        filters.SearchFilter,
+        filters.OrderingFilter,
+    ]
+    filterset_fields = ["category", "brand", "is_featured", "is_active"]
+    search_fields = ["name", "description", "brand__name", "category__name"]
+    ordering_fields = ["price", "created_at", "name", "discount_percent"]
 
     def get_permissions(self):
         if self.action in ["list", "retrieve"]:
@@ -137,6 +227,7 @@ class ProductVariantViewSet(viewsets.ModelViewSet):
 # Public read / Admin write
 # ---------------------------------------------------
 
+
 class BlogViewSet(viewsets.ModelViewSet):
     queryset = BlogModel.objects.select_related("author").all()
     serializer_class = BlogSerializer
@@ -162,11 +253,15 @@ class OrderViewSet(viewsets.ModelViewSet):
     serializer_class = OrderSerializer
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsStaffOrIsSuperUser]
-    
+
     # ✅ Dashboard Search
-    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
-    filterset_fields = ['status', 'paymentmodel__payment_status', 'delivery_type']
-    search_fields = ['id', 'user__username', 'user__email', 'shipping_address__phone']
+    filter_backends = [
+        DjangoFilterBackend,
+        filters.SearchFilter,
+        filters.OrderingFilter,
+    ]
+    filterset_fields = ["status", "paymentmodel__payment_status", "delivery_type"]
+    search_fields = ["id", "user__username", "user__email", "shipping_address__phone"]
 
 
 # ---------------------------------------------------
@@ -178,6 +273,7 @@ class OtherDetailViewSet(viewsets.ModelViewSet):
     queryset = OtherDetailModel.objects.all()
     serializer_class = OtherdetailSerializer
     authentication_classes = [TokenAuthentication]
+
     def get_permissions(self):
         if self.action in ["list", "retrieve"]:
             return [AllowAny()]
@@ -227,11 +323,18 @@ class PlaceOrderAPI(APIView):
             items = cart.items.all()
 
             if not items.exists():
-                return Response({"detail": "Cart is empty."}, status=status.HTTP_400_BAD_REQUEST)
+                return Response(
+                    {"detail": "Cart is empty."}, status=status.HTTP_400_BAD_REQUEST
+                )
 
-            shipping_address = ShippingAddressModel.objects.filter(user=request.user).last()
+            shipping_address = ShippingAddressModel.objects.filter(
+                user=request.user
+            ).last()
             if not shipping_address:
-                return Response({"detail": "Shipping address not found."}, status=status.HTTP_400_BAD_REQUEST)
+                return Response(
+                    {"detail": "Shipping address not found."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
 
             total_amount = 0
 
@@ -251,8 +354,10 @@ class PlaceOrderAPI(APIView):
                     if not variant.is_made_to_order:
                         if variant.stock < item.quantity:
                             return Response(
-                                {"detail": f"Not enough stock for {variant.product.name}"},
-                                status=status.HTTP_400_BAD_REQUEST
+                                {
+                                    "detail": f"Not enough stock for {variant.product.name}"
+                                },
+                                status=status.HTTP_400_BAD_REQUEST,
                             )
                         variant.stock -= item.quantity
                         variant.save()
@@ -287,7 +392,9 @@ class PlaceOrderAPI(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         except CartModel.DoesNotExist:
-            return Response({"detail": "No active cart found."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"detail": "No active cart found."}, status=status.HTTP_400_BAD_REQUEST
+            )
 
 
 # -----------------------------
@@ -322,17 +429,16 @@ class CartViewAPI(APIView):
 
     def get(self, request):
         cart, _ = CartModel.objects.prefetch_related(
-            "items", "items__variant", "items__variant__product", 
-            "items__variant__product__images"
+            "items",
+            "items__variant",
+            "items__variant__product",
+            "items__variant__product__images",
         ).get_or_create(user=request.user, is_active=True)
 
         serializer = CartItemReadSerializer(cart.items.all(), many=True)
         total_amount = sum(item.total_price for item in cart.items.all())
 
-        return Response({
-            "cart_items": serializer.data,
-            "total_amount": total_amount
-        })
+        return Response({"cart_items": serializer.data, "total_amount": total_amount})
 
 
 # -----------------------------
@@ -350,7 +456,7 @@ class AddToCartAPI(APIView):
         if quantity > variant.stock:
             return Response(
                 {"detail": f"Only {variant.stock} items available."},
-                status=status.HTTP_400_BAD_REQUEST
+                status=status.HTTP_400_BAD_REQUEST,
             )
 
         cart, _ = CartModel.objects.get_or_create(user=request.user, is_active=True)
@@ -358,10 +464,7 @@ class AddToCartAPI(APIView):
         cart_item, created = CartItemModel.objects.get_or_create(
             cart=cart,
             variant=variant,
-            defaults={
-                "quantity": quantity,
-                "price": variant.product.discounted_price
-            }
+            defaults={"quantity": quantity, "price": variant.product.discounted_price},
         )
 
         if not created:
@@ -370,7 +473,7 @@ class AddToCartAPI(APIView):
             if cart_item.quantity > variant.stock:
                 return Response(
                     {"detail": f"Only {variant.stock} items available."},
-                    status=status.HTTP_400_BAD_REQUEST
+                    status=status.HTTP_400_BAD_REQUEST,
                 )
 
             cart_item.save()
@@ -394,8 +497,7 @@ class UpdateCartItemAPI(APIView):
 
         if quantity > cart_item.variant.stock:
             return Response(
-                {"detail": "Not enough stock."},
-                status=status.HTTP_400_BAD_REQUEST
+                {"detail": "Not enough stock."}, status=status.HTTP_400_BAD_REQUEST
             )
 
         cart_item.quantity = quantity
@@ -433,7 +535,6 @@ class ClearCartAPI(APIView):
         cart.items.all().delete()
 
         return Response({"detail": "Cart cleared."})
-
 
 
 # -----------------------------
@@ -501,4 +602,3 @@ class UpdatePaymentStatusAPI(APIView):
         return Response(
             {"detail": f"Payment for Order #{order_id} updated to {payment_status}."}
         )
-

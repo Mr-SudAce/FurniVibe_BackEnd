@@ -26,12 +26,20 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
 # Fallback to insecure key only if env var is missing (Development convenience)
-SECRET_KEY = os.getenv("SECRET_KEY", "django-insecure-3&-&&dbo$uvuwr31fv6k$4t6y=uoc2s+9*f61r=p&&ou4phs$@")
+SECRET_KEY = os.getenv(
+    "SECRET_KEY", "django-insecure-3&-&&dbo$uvuwr31fv6k$4t6y=uoc2s+9*f61r=p&&ou4phs$@"
+)
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["localhost", "127.0.0.1", "192.168.18.2", "furnivibe.pythonanywhere.com", "*"]
+ALLOWED_HOSTS = [
+    "localhost",
+    "127.0.0.1",
+    "192.168.18.2",
+    "furnivibe.pythonanywhere.com",
+    "*",
+]
 
 
 # Application definition
@@ -52,7 +60,6 @@ INSTALLED_APPS = [
     "tinymce",
 ]
 
-
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "rest_framework.authentication.TokenAuthentication",
@@ -64,6 +71,12 @@ REST_FRAMEWORK = {
     "DEFAULT_FILTER_BACKENDS": ["django_filters.rest_framework.DjangoFilterBackend"],
 }
 
+PASSWORD_HASHERS = [
+    "django.contrib.auth.hashers.Argon2PasswordHasher",
+    "django.contrib.auth.hashers.PBKDF2PasswordHasher",
+    "django.contrib.auth.hashers.PBKDF2SHA1PasswordHasher",
+    "django.contrib.auth.hashers.BCryptSHA256PasswordHasher",
+]
 
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
@@ -81,7 +94,7 @@ ROOT_URLCONF = "api_main.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        'DIRS': [BASE_DIR / 'api_app/templates'],
+        "DIRS": [BASE_DIR / "api_app/templates"],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -109,8 +122,14 @@ DATABASES = {
     }
 }
 
-# EMAIL 
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+]
+
+AUTH_USER_MODEL = 'api_app.UserModel'
+
+# EMAIL
+EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -146,7 +165,9 @@ USE_TZ = True
 STATIC_URL = "/static/"
 MEDIA_URL = "/media/"
 
-STATICFILES_DIRS = [os.path.join(BASE_DIR, "static"),]
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, "static"),
+]
 
 STATICFILES_STORAGE = "django.contrib.staticfiles.storage.StaticFilesStorage"
 
