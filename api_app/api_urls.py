@@ -2,6 +2,7 @@ from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from api_app import api_views
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 # Initialize the default router
 router = DefaultRouter()
@@ -18,6 +19,7 @@ router.register(r"variants", api_views.ProductVariantViewSet)
 # --- Content and Order Management Endpoints ---
 router.register(r"blogs", api_views.BlogViewSet)
 router.register(r"order-items", api_views.OrderViewSet, basename="order-item")
+router.register(r'shipping-address', api_views.ShippingAddressViewSet, basename='shipping-address')
 
 # --- More Images ----
 router.register(r"more-images", api_views.MoreImagesViewSet)
@@ -26,11 +28,14 @@ router.register(r"more-images", api_views.MoreImagesViewSet)
 router.register(r"other-details", api_views.OtherDetailViewSet)
 
 custom_urlpatterns = [
+    path('auth/register/', api_views.RegisterAPI.as_view(), name='register'),
+    path('auth/login/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('auth/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     # Orders
     path("orders/place/", api_views.PlaceOrderAPI.as_view(), name="api_place_order"),
     path("orders/my/", api_views.MyOrdersAPI.as_view(), name="api_my_orders"),
     path("orders/<int:order_id>/", api_views.OrderDetailAPI.as_view(), name="api_order_detail"),
-      # ------------------------------
+    # ------------------------------
     # Orders - API Endpoints
     # ------------------------------
     path("orders/", api_views.AdminOrderListAPI.as_view(), name="admin_orders"),

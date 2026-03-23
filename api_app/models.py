@@ -12,15 +12,16 @@ from django.contrib.auth.models import (
 
 
 class UserManager(BaseUserManager):
-    def create_user(self, email, username, password=None, **extra_fields):
+    def create_user(self, email, username=None, password=None, **extra_fields):
         if not email:
             raise ValueError("Users must have an email address")
-        if not username:
-            raise ValueError("Users must have a username")
-
+        
         email = self.normalize_email(email)
         user = self.model(email=email, username=username, **extra_fields)
-        user.set_password(password)
+        
+        if password:
+            user.set_password(password) 
+            
         user.save(using=self._db)
         return user
 
@@ -28,10 +29,7 @@ class UserManager(BaseUserManager):
         extra_fields.setdefault("is_staff", True)
         extra_fields.setdefault("is_superuser", True)
         extra_fields.setdefault("is_active", True)
-        extra_fields.setdefault("is_superuser", True)
-
         return self.create_user(email, username, password, **extra_fields)
-
 
 # User model
 class UserModel(AbstractBaseUser, PermissionsMixin):
@@ -71,11 +69,19 @@ class UserModel(AbstractBaseUser, PermissionsMixin):
 
     USERNAME_FIELD = "username"
     REQUIRED_FIELDS = ["email", "first_name", "last_name", "phone_number"]
-
-
+    
     def save(self, *args, **kwargs):
-        if self.password and not self.password.startswith(('pbkdf2_sha256$', 'bcrypt', '$argon2id$', 'argon2')):
-            self.password = make_password(self.password)
+        if not self.username:
+            base_username = slugify(f"{self.first_name} {self.last_name}")
+            if not base_username and self.email:
+                base_username = self.email.split('@')[0]
+            unique_username = base_username
+            counter = 1
+            while UserModel.objects.filter(username=unique_username).exists():
+                unique_username = f"{base_username}-{counter}"
+                counter += 1
+            
+            self.username = unique_username
         super().save(*args, **kwargs)
 
     def __str__(self):
@@ -272,7 +278,8 @@ class CartItemModel(models.Model):
         return self.quantity * self.price
 
     def save(self, *args, **kwargs):
-        if self._state.adding and not self.price:
+        if not self.price:
+            # Pulls the property from the ProductModel
             self.price = self.variant.product.discounted_price
         super().save(*args, **kwargs)
 

@@ -9,6 +9,8 @@ from .models import *
 
 class UserSerializer(serializers.ModelSerializer):
     status = serializers.SerializerMethodField()
+    # १. पासवर्ड फिल्ड थप्नुहोस् (यो write_only हुनुपर्छ ताकि कसैले हेर्न नसकोस्)
+    password = serializers.CharField(write_only=True, required=True)
 
     class Meta:
         model = UserModel
@@ -19,18 +21,27 @@ class UserSerializer(serializers.ModelSerializer):
             "first_name",
             "last_name",
             "phone_number",
+            "password",
             "status",
             "is_active",
             "is_user",
             "is_staff",
             "created_at",
         ]
-        read_only_fields = ["username", "created_at", "is_staff", "is_superuser"]
+        read_only_fields = ["created_at", "is_staff", "is_superuser"]
 
     def get_status(self, obj):
         if obj.is_superuser:
             return "Super Admin"
         return "Admin" if obj.is_staff else "User"
+
+    def create(self, validated_data):
+        return UserModel.objects.create_user(**validated_data)
+    def update(self, instance, validated_data):
+        password = validated_data.pop('password', None)
+        if password:
+            instance.set_password(password)
+        return super().update(instance, validated_data)
 
 
 class UserCreateSerializer(serializers.ModelSerializer):
@@ -71,11 +82,11 @@ class UserCreateSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         password = validated_data.pop("password")
         email = validated_data.pop("email")
-
+        
         first_name = validated_data.get("first_name", "").lower().strip()
         last_name = validated_data.get("last_name", "").lower().strip()
         base_username = f"{first_name}{last_name}"
-
+        
         if not base_username:
             base_username = "user"
 
@@ -84,34 +95,31 @@ class UserCreateSerializer(serializers.ModelSerializer):
         while UserModel.objects.filter(username=username).exists():
             username = f"{base_username}{counter}"
             counter += 1
+
         user = UserModel.objects.create_user(
             email=email,
             username=username,
             password=password,
-            is_staff=False,
-            is_user=True,
-            **validated_data,
+            **validated_data
         )
         return user
 
     def update(self, instance, validated_data):
         password = validated_data.pop("password", None)
         is_staff = validated_data.pop("is_staff", None)
-        is_superuser = validated_data.pop("is_superuser", None)
+        is_user = validated_data.pop("is_user", None)
 
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
 
         if password:
-            instance.password = password
-
-        if is_superuser:
-            instance.is_superuser = True
-            instance.is_staff = True
-            instance.is_user = False
-        elif is_staff is not None:
+            instance.set_password(password)
+        if is_staff is not None:
             instance.is_staff = is_staff
-            instance.is_user = not is_staff
+            if is_staff:
+                instance.is_user = False
+            else:
+                instance.is_user = True
 
         instance.save()
         return instance

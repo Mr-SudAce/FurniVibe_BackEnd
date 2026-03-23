@@ -25,6 +25,7 @@ django-filter==25.2
 django-tailwind==3.8.0
 django-tinymce==4.1.0
 djangorestframework==3.15.2
+djangorestframework_simplejwt==5.5.1
 drf-spectacular==0.29.0
 executing==2.1.0
 filelock==3.17.0
@@ -56,6 +57,7 @@ pure_eval==0.2.3
 PyAudio==0.2.14
 pycparser==3.0
 Pygments==2.19.1
+PyJWT==2.12.1
 pypiwin32==223
 python-dateutil==2.9.0.post0
 python-discovery==1.1.0
