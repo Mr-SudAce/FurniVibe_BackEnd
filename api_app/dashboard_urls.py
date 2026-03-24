@@ -1,22 +1,23 @@
 from django.urls import path
-from django.contrib.auth import views as auth_views
+from rest_framework.routers import DefaultRouter
 from django.contrib.auth.views import LogoutView
 
 from . import dashboard_views
+
 
 urlpatterns = [
     # Auth URLs
     path("login/", dashboard_views.DashboardLoginView.as_view(), name="dashboard_login"),
     path("register/",dashboard_views.DashboardRegisterView.as_view(),name="dashboard_register",),
-    path("dashboard_logout/",LogoutView.as_view(next_page="dashboard_login"),name="dashboard_logout",),
     path("accounts/profile/",dashboard_views.AccountProfileView.as_view(),name="accProfile",), # Update pw
     path("profile/edit/", dashboard_views.edit_profile, name="edit_profile"),
     path("profile/password/", dashboard_views.update_pw, name="update_pw"),
     path("password-reset/",dashboard_views.MyPasswordResetView.as_view(),name="password_reset",),# reset pw
     path("password-reset/done/",dashboard_views.MyPasswordResetDoneView.as_view(),name="password_reset_done",),# Email sent confirmation
     path("password-reset-confirm/<uidb64>/<token>/",dashboard_views.MyPasswordResetConfirmView.as_view(),name="password_reset_confirm",),# Link from email (UID and Token)
-    path("password-reset-complete/",dashboard_views.MyPasswordResetCompleteView.as_view(),name="password_reset_complete",),# Success message
-    path("", dashboard_views.dashboard_home, name="dashboard_home"),# Dashboard / Home
+    path("password-reset-complete/",dashboard_views.MyPasswordResetCompleteView.as_view(),name="password_reset_complete",),
+    path("dashboard/", dashboard_views.dashboard_home, name="dashboard_home"),
+    path("dashboard_logout/", dashboard_views.dashboard_logout, name="dashboard_logout"),
     #
     #
     #

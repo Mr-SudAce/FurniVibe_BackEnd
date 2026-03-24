@@ -1,23 +1,64 @@
-from django.contrib.auth.decorators import login_required, user_passes_test
-from django.contrib.auth.views import LoginView
+from django.contrib.auth.decorators import (
+    user_passes_test,
+    login_required,
+    user_passes_test,
+)
+from django.contrib.auth import update_session_auth_hash
+from django.contrib.auth.forms import PasswordChangeForm
+from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework_simplejwt.tokens import AccessToken
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from django.contrib.auth import views as auth_views
 from django.views.generic.edit import CreateView
-from django.urls import reverse_lazy
+from django.contrib.auth.views import LoginView
+from django.views.generic import TemplateView
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.shortcuts import render, redirect
+from rest_framework_simplejwt.tokens import RefreshToken
+from django.contrib.auth import authenticate, login, logout
+from rest_framework.permissions import AllowAny, IsAuthenticated
+from django.urls import reverse_lazy, reverse
+from rest_framework.renderers import TemplateHTMLRenderer, JSONRenderer
+from django.contrib import messages
+from Handler.ViewsHandler import *
+from .serializers import *
 from .models import *
 from .forms import *
-from .serializers import *
-from Handler.ViewsHandler import *
-from django.shortcuts import render, redirect
-from django.contrib import messages
-from django.contrib.auth import update_session_auth_hash
-from django.contrib.auth import views as auth_views
-from django.urls import reverse_lazy
-from django.contrib.auth.forms import PasswordChangeForm
-from django.contrib.auth.decorators import user_passes_test, login_required
 
-
-class DashboardLoginView(LoginView):
+def is_staff_user(user):
+    return user.is_authenticated and (user.is_staff or user.is_superuser)
+class DashboardLoginView(APIView):
+    renderer_classes = [TemplateHTMLRenderer, JSONRenderer]
     template_name = "dashboard/auth/login.html"
+    
+    # This FIXES the "Forbidden" error
+    authentication_classes = []
+    permission_classes = [AllowAny]
 
+    def get(self, request):
+        if is_staff_user(request.user):
+            return redirect("dashboard_home")
+        return render(request, self.template_name)
+
+    def post(self, request):
+        username = request.data.get("username")
+        password = request.data.get("password")
+        user = authenticate(username=username, password=password)
+
+        if user is not None and user.is_staff:
+            login(request, user)  # Creates the Session Cookie
+            refresh = RefreshToken.for_user(user) # Creates the JWT
+            
+            # This FIXES the "undefined" URL error
+            return Response({
+                "access": str(refresh.access_token),
+                "refresh": str(refresh),
+                "redirect_url": reverse("dashboard_home"),
+            }, status=200)
+
+        return Response({"detail": "Invalid credentials or not staff."}, status=401)
 
 class DashboardRegisterView(CreateView):
     template_name = "dashboard/auth/register.html"
@@ -25,8 +66,9 @@ class DashboardRegisterView(CreateView):
     success_url = reverse_lazy("dashboard_login")
 
 
-class AccountProfileView(LoginView):
+class AccountProfileView(LoginRequiredMixin, TemplateView):
     template_name = "dashboard/auth/account_profile.html"
+    login_url = "dashboard_login"
 
 
 defaultPath = "dashboard/Content/"
@@ -81,22 +123,6 @@ def update_pw(request):
     )
 
 
-# Edit Profile
-class UserEditForm(forms.ModelForm):
-    class Meta:
-        model = User
-        fields = ["username", "first_name", "last_name", "email"]
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        for field in self.fields.values():
-            field.widget.attrs.update({"class": "form-control-custom"})
-
-
-def is_dashboard_user(user):
-    return user.is_authenticated and (user.is_staff or user.is_superuser)
-
-
 @login_required
 @user_passes_test(is_dashboard_user)
 def edit_profile(request):
@@ -114,6 +140,8 @@ def edit_profile(request):
     return render(request, "dashboard/auth/edit_profile.html", {"form": form})
 
 
+@login_required(login_url="dashboard_login")
+@user_passes_test(is_staff_user, login_url="dashboard_login")
 def dashboard_home(request):
     total_orders = OrderModel.objects.count()
     pending_orders = OrderModel.objects.filter(status="pending").count()
@@ -130,6 +158,9 @@ def dashboard_home(request):
     }
     return render(request, "dashboard/dashboard.html", context)
 
+def dashboard_logout(request):
+    logout(request)
+    return redirect("dashboard_login")
 
 @login_required(login_url="dashboard_login")
 def account_profile(request):

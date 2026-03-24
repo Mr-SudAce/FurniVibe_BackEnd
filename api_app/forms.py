@@ -1,16 +1,5 @@
 from django import forms
-from django.contrib.auth import get_user_model
-from .models import (
-    ProductModel,
-    CategoryModel,
-    BrandModel,
-    ProductVariantModel,
-    BlogModel,
-    ProductImageModel,
-    OtherDetailModel,
-)
-
-User = get_user_model()
+from .models import *
 
 
 class UserRegisterForm(forms.ModelForm):
@@ -28,7 +17,7 @@ class UserRegisterForm(forms.ModelForm):
     )
 
     class Meta:
-        model = User
+        model = UserModel
         fields = [
             "first_name",
             "last_name",
@@ -56,7 +45,7 @@ class UserRegisterForm(forms.ModelForm):
         )
         username = base_username
         counter = 1
-        while User.objects.filter(username=username).exists():
+        while UserModel.objects.filter(username=username).exists():
             username = f"{base_username}{counter}"
             counter += 1
         user.username = username
@@ -69,6 +58,17 @@ class UserRegisterForm(forms.ModelForm):
         if commit:
             user.save()
         return user
+
+
+class UserEditForm(forms.ModelForm):
+    class Meta:
+        model = UserModel
+        fields = ["username", "first_name", "last_name", "email"]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+            field.widget.attrs.update({"class": "form-control-custom"})
 
 
 class ProductForm(forms.ModelForm):
@@ -207,10 +207,6 @@ class OtherDetailForm(forms.ModelForm):
             "viber": forms.TextInput(attrs={"class": "form-control"}),
         }
     
-    
-
-from django import forms
-from api_app.models import OrderModel
 
 class OrderUpdateForm(forms.ModelForm):
     class Meta:
