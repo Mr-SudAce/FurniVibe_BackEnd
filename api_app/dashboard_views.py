@@ -27,18 +27,17 @@ from .serializers import *
 from .models import *
 from .forms import *
 
-def is_staff_user(user):
-    return user.is_authenticated and (user.is_staff or user.is_superuser)
+
+
+
 class DashboardLoginView(APIView):
     renderer_classes = [TemplateHTMLRenderer, JSONRenderer]
     template_name = "dashboard/auth/login.html"
-    
-    # This FIXES the "Forbidden" error
     authentication_classes = []
     permission_classes = [AllowAny]
 
     def get(self, request):
-        if is_staff_user(request.user):
+        if only_admin_and_super(request.user):
             return redirect("dashboard_home")
         return render(request, self.template_name)
 
@@ -48,10 +47,8 @@ class DashboardLoginView(APIView):
         user = authenticate(username=username, password=password)
 
         if user is not None and user.is_staff:
-            login(request, user)  # Creates the Session Cookie
-            refresh = RefreshToken.for_user(user) # Creates the JWT
-            
-            # This FIXES the "undefined" URL error
+            login(request, user)
+            refresh = RefreshToken.for_user(user) 
             return Response({
                 "access": str(refresh.access_token),
                 "refresh": str(refresh),
@@ -96,12 +93,11 @@ class MyPasswordResetCompleteView(auth_views.PasswordResetCompleteView):
 
 
 # ############################## Update PW ####################################
-def is_dashboard_user(user):
-    return user.is_authenticated and (user.is_staff or user.is_superuser)
+
 
 
 @login_required
-@user_passes_test(is_dashboard_user)
+@only_admin_and_super
 def update_pw(request):
     if request.method == "POST":
         form = PasswordChangeForm(request.user, request.POST)
@@ -124,7 +120,7 @@ def update_pw(request):
 
 
 @login_required
-@user_passes_test(is_dashboard_user)
+@only_admin_and_super
 def edit_profile(request):
     if request.method == "POST":
         form = UserEditForm(request.POST, instance=request.user)
@@ -141,7 +137,7 @@ def edit_profile(request):
 
 
 @login_required(login_url="dashboard_login")
-@user_passes_test(is_staff_user, login_url="dashboard_login")
+@only_admin_and_super
 def dashboard_home(request):
     total_orders = OrderModel.objects.count()
     pending_orders = OrderModel.objects.filter(status="pending").count()
@@ -175,7 +171,7 @@ def account_profile(request):
 
 
 @login_required(login_url="dashboard_login")
-@user_passes_test(is_staff, login_url="dashboard_login")
+@only_admin_and_super
 def product_list(request):
     products = ProductModel.objects.all()
     return render(
@@ -184,7 +180,7 @@ def product_list(request):
 
 
 @login_required(login_url="dashboard_login")
-@user_passes_test(is_staff, login_url="dashboard_login")
+@only_admin_and_super
 def product_create(request):
     return handle_addition(
         request=request,
@@ -200,7 +196,7 @@ def product_create(request):
 
 
 @login_required(login_url="dashboard_login")
-@user_passes_test(is_staff, login_url="dashboard_login")
+@only_admin_and_super
 def product_update(request, pk):
     return handle_update(
         request=request,
@@ -216,7 +212,7 @@ def product_update(request, pk):
 
 
 @login_required(login_url="dashboard_login")
-@user_passes_test(is_staff, login_url="dashboard_login")
+@only_admin_and_super
 def product_delete(request, pk):
     return handle_deletion(
         request, pk, ProductModel, "Product deleted!", "product_list"
@@ -227,7 +223,7 @@ def product_delete(request, pk):
 # CATEGORY VIEWS
 # ---------------------------------------------------
 @login_required(login_url="dashboard_login")
-@user_passes_test(is_staff, login_url="dashboard_login")
+@only_admin_and_super
 def category_list(request):
     categories = CategoryModel.objects.all()
     return render(
@@ -236,7 +232,7 @@ def category_list(request):
 
 
 @login_required(login_url="dashboard_login")
-@user_passes_test(is_staff, login_url="dashboard_login")
+@only_admin_and_super
 def category_create(request):
     return handle_addition(
         request,
@@ -252,7 +248,7 @@ def category_create(request):
 
 
 @login_required(login_url="dashboard_login")
-@user_passes_test(is_staff, login_url="dashboard_login")
+@only_admin_and_super
 def category_update(request, pk):
     return handle_update(
         request,
@@ -268,7 +264,7 @@ def category_update(request, pk):
 
 
 @login_required(login_url="dashboard_login")
-@user_passes_test(is_staff, login_url="dashboard_login")
+@only_admin_and_super
 def category_delete(request, pk):
     return handle_deletion(
         request, pk, CategoryModel, "Category deleted!", "category_list"
@@ -279,14 +275,14 @@ def category_delete(request, pk):
 # BRAND VIEWS
 # ---------------------------------------------------
 @login_required(login_url="dashboard_login")
-@user_passes_test(is_staff, login_url="dashboard_login")
+@only_admin_and_super
 def brand_list(request):
     brands = BrandModel.objects.all()
     return render(request, f"{defaultPath}list/brand_list.html", {"brands": brands})
 
 
 @login_required(login_url="dashboard_login")
-@user_passes_test(is_staff, login_url="dashboard_login")
+@only_admin_and_super
 def brand_create(request):
     return handle_addition(
         request,
@@ -302,7 +298,7 @@ def brand_create(request):
 
 
 @login_required(login_url="dashboard_login")
-@user_passes_test(is_staff, login_url="dashboard_login")
+@only_admin_and_super
 def brand_update(request, pk):
     return handle_update(
         request,
@@ -318,7 +314,7 @@ def brand_update(request, pk):
 
 
 @login_required(login_url="dashboard_login")
-@user_passes_test(is_staff, login_url="dashboard_login")
+@only_admin_and_super
 def brand_delete(request, pk):
     return handle_deletion(request, pk, BrandModel, "Brand deleted!", "brand_list")
 
@@ -327,7 +323,7 @@ def brand_delete(request, pk):
 # VARIANT VIEWS
 # ---------------------------------------------------
 @login_required(login_url="dashboard_login")
-@user_passes_test(is_staff, login_url="dashboard_login")
+@only_admin_and_super
 def variant_list(request):
     variants = ProductVariantModel.objects.all().select_related("product")
     return render(
@@ -336,7 +332,7 @@ def variant_list(request):
 
 
 @login_required(login_url="dashboard_login")
-@user_passes_test(is_staff, login_url="dashboard_login")
+@only_admin_and_super
 def variant_create(request):
     return handle_addition(
         request,
@@ -352,7 +348,7 @@ def variant_create(request):
 
 
 @login_required(login_url="dashboard_login")
-@user_passes_test(is_staff, login_url="dashboard_login")
+@only_admin_and_super
 def variant_update(request, pk):
     return handle_update(
         request,
@@ -368,7 +364,7 @@ def variant_update(request, pk):
 
 
 @login_required(login_url="dashboard_login")
-@user_passes_test(is_staff, login_url="dashboard_login")
+@only_admin_and_super
 def variant_delete(request, pk):
     return handle_deletion(
         request, pk, ProductVariantModel, "Variant deleted!", "variant_list"
@@ -379,14 +375,14 @@ def variant_delete(request, pk):
 # BLOG VIEWS
 # ---------------------------------------------------
 @login_required(login_url="dashboard_login")
-@user_passes_test(is_staff, login_url="dashboard_login")
+@only_admin_and_super
 def blog_list(request):
     blogs = BlogModel.objects.all()
     return render(request, f"{defaultPath}list/blog_list.html", {"blogs": blogs})
 
 
 @login_required(login_url="dashboard_login")
-@user_passes_test(is_staff, login_url="dashboard_login")
+@only_admin_and_super
 def blog_create(request):
     return handle_addition(
         request,
@@ -402,7 +398,7 @@ def blog_create(request):
 
 
 @login_required(login_url="dashboard_login")
-@user_passes_test(is_staff, login_url="dashboard_login")
+@only_admin_and_super
 def blog_update(request, pk):
     return handle_update(
         request,
@@ -418,7 +414,7 @@ def blog_update(request, pk):
 
 
 @login_required(login_url="dashboard_login")
-@user_passes_test(is_staff, login_url="dashboard_login")
+@only_admin_and_super
 def blog_delete(request, pk):
     return handle_deletion(request, pk, BlogModel, "Blog deleted!", "blog_list")
 
@@ -427,7 +423,7 @@ def blog_delete(request, pk):
 # MORE-IMAGES VIEWS
 # ---------------------------------------------------
 @login_required(login_url="dashboard_login")
-@user_passes_test(is_staff, login_url="dashboard_login")
+@only_admin_and_super
 def more_images_list(request):
     images = ProductImageModel.objects.all()
     return render(
@@ -438,7 +434,7 @@ def more_images_list(request):
 
 
 @login_required(login_url="dashboard_login")
-@user_passes_test(is_staff, login_url="dashboard_login")
+@only_admin_and_super
 def more_images_create(request):
     return handle_addition(
         request,
@@ -454,7 +450,7 @@ def more_images_create(request):
 
 
 @login_required(login_url="dashboard_login")
-@user_passes_test(is_staff, login_url="dashboard_login")
+@only_admin_and_super
 def more_images_update(request, pk):
     return handle_update(
         request,
@@ -470,7 +466,7 @@ def more_images_update(request, pk):
 
 
 @login_required(login_url="dashboard_login")
-@user_passes_test(is_staff, login_url="dashboard_login")
+@only_admin_and_super
 def more_image_delete(request, pk):
     return handle_deletion(
         request, pk, ProductImageModel, "Image deleted!", "more_images_list"
@@ -483,7 +479,7 @@ def more_image_delete(request, pk):
 
 
 @login_required(login_url="dashboard_login")
-@user_passes_test(is_staff, login_url="dashboard_login")
+@only_admin_and_super
 def other_detail_list(request):
     details = OtherDetailModel.objects.all()
     return render(
@@ -492,7 +488,7 @@ def other_detail_list(request):
 
 
 @login_required(login_url="dashboard_login")
-@user_passes_test(is_staff, login_url="dashboard_login")
+@only_admin_and_super
 def other_detail_create(request):
     return handle_addition(
         request,
@@ -508,7 +504,7 @@ def other_detail_create(request):
 
 
 @login_required(login_url="dashboard_login")
-@user_passes_test(is_staff, login_url="dashboard_login")
+@only_admin_and_super
 def other_detail_update(request, pk):
     return handle_update(
         request,
@@ -524,7 +520,7 @@ def other_detail_update(request, pk):
 
 
 @login_required(login_url="dashboard_login")
-@user_passes_test(is_staff, login_url="dashboard_login")
+@only_admin_and_super
 def other_detail_delete(request, pk):
     return handle_deletion(
         request, pk, OtherDetailModel, "Other Detail deleted!", "other_detail_list"
@@ -532,7 +528,7 @@ def other_detail_delete(request, pk):
 
 
 @login_required(login_url="dashboard_login")
-@user_passes_test(is_staff, login_url="dashboard_login")
+@only_admin_and_super
 def order_list_view(request):
     orders = OrderModel.objects.all().order_by("-created_at")
     return render(request, f"{defaultPath}list/order_list.html", {"orders": orders})

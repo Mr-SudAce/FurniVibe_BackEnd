@@ -10,22 +10,24 @@ from django.contrib.auth.decorators import user_passes_test
 # -------------------------------
 # PERMISSIONS
 # -------------------------------
-def is_staff(user):
-    return user.is_authenticated and (
-        user.is_staff or user.is_staff or user.is_superuser
-    )
+def admin_and_superuser(user):
+    return user.is_authenticated and (user.is_staff or user.is_superuser)
 
+def is_only_superuser(user):
+    return user.is_authenticated and user.is_superuser
 
-def is_superuser(user):
-    return user.is_authenticated and (user.is_superuser or user.is_superuser)
+def is_only_admin(user):
+    return user.is_authenticated and user.is_staff
 
+# decorators
+def only_admin(view_func):
+    return user_passes_test(is_only_admin, login_url="dashboard_login")(view_func)
 
-def admin_or_super_required(view_func):
-    return user_passes_test(is_staff, login_url="dashboard_login")(view_func)
+def only_admin_and_super(view_func):
+    return user_passes_test(admin_and_superuser, login_url="dashboard_login")(view_func)
 
-
-def web_superadmin_required(view_func):
-    return user_passes_test(is_superuser, login_url="dashboard_login")(view_func)
+def only_superuser(view_func):
+    return user_passes_test(is_only_superuser, login_url="dashboard_login")(view_func)
 
 
 # -------------------------------
@@ -41,7 +43,6 @@ def hash_password_if_present(instance, form):
 # -------------------------------
 # COUNT HANDLER
 # -------------------------------
-@admin_or_super_required
 def handle_count(request, model_class, load_temp="dashboard.html"):
     return model_class.objects.count()
 
@@ -49,7 +50,6 @@ def handle_count(request, model_class, load_temp="dashboard.html"):
 # -------------------------------
 # ADDITION HANDLER
 # -------------------------------
-@admin_or_super_required
 def handle_addition(
     request,
     form_class,
@@ -111,7 +111,6 @@ def handle_addition(
 # -------------------------------
 # UPDATE HANDLER
 # -------------------------------
-@admin_or_super_required
 def handle_update(
     request,
     id,
@@ -160,7 +159,6 @@ def handle_update(
 # -------------------------------
 # DELETION HANDLER
 # -------------------------------
-@web_superadmin_required
 def handle_deletion(
     request,
     id,
