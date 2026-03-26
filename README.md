@@ -6,7 +6,10 @@ FurniVibe is a robust Django-based e-commerce backend designed for furniture ret
 
 ### Core Functionality
 - **Product Management:** Full CRUD for Products, Categories, Brands, and Product Variants (Color/Material).
-- **Order System:** Cart management, Order placement, Order tracking, and History.
+- **Inventory & Variants:** Detailed tracking of dimensions (L/W/H), weight, material, color, and stock levels per variant.
+- **Shopping Cart:** Server-side cart management with real-time stock validation and persistent state.
+- **Order System:** Full order lifecycle (Pending -> Completed), payment status tracking, and order history.
+- **Address Book:** User-specific shipping address management.
 - **Authentication:** 
   - **API:** JWT (JSON Web Token) via `simplejwt` for secure stateless client authentication.
   - **Dashboard:** Session-based authentication for staff access.
@@ -23,12 +26,12 @@ FurniVibe is a robust Django-based e-commerce backend designed for furniture ret
 
 ## 🛠️ Tech Stack
 
-- **Language:** Python 3.x
-- **Framework:** Django 5.x
+- **Language:** Python 3.10+
+- **Framework:** Django 5.1+
 - **API Toolkit:** Django REST Framework (DRF)
 - **Authentication:** SimpleJWT & Django Auth
 - **Documentation:** drf-spectacular
-- **Utilities:** django-filter, django-cors-headers, python-dotenv
+- **Utilities:** django-filter, django-cors-headers, python-dotenv, Pillow
 
 ## 📦 Installation
 
