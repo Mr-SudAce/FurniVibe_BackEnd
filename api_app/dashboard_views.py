@@ -30,6 +30,33 @@ from .forms import *
 
 
 
+# class DashboardLoginView(APIView):
+#     renderer_classes = [TemplateHTMLRenderer, JSONRenderer]
+#     template_name = "dashboard/auth/login.html"
+#     authentication_classes = []
+#     permission_classes = [AllowAny]
+
+#     def get(self, request):
+#         if only_admin_and_super(request.user):
+#             return redirect("dashboard_home")
+#         return render(request, self.template_name)
+
+#     def post(self, request):
+#         username = request.data.get("username")
+#         password = request.data.get("password")
+#         user = authenticate(username=username, password=password)
+
+#         if user is not None and user.is_staff:
+#             login(request, user)
+#             refresh = RefreshToken.for_user(user) 
+#             return Response({
+#                 "access": str(refresh.access_token),
+#                 "refresh": str(refresh),
+#                 "redirect_url": reverse("dashboard_home"),
+#             }, status=200)
+
+#         return Response({"detail": "Invalid credentials or not staff."}, status=401)
+
 class DashboardLoginView(APIView):
     renderer_classes = [TemplateHTMLRenderer, JSONRenderer]
     template_name = "dashboard/auth/login.html"
@@ -37,8 +64,16 @@ class DashboardLoginView(APIView):
     permission_classes = [AllowAny]
 
     def get(self, request):
-        if only_admin_and_super(request.user):
-            return redirect("dashboard_home")
+        # FIX: Check the user's status using the boolean function, NOT the decorator
+        if request.user.is_authenticated:
+            if admin_and_superuser(request.user):
+                return redirect("dashboard_home")
+            else:
+                # If they are logged in but NOT staff, don't let them stay on the login page
+                # Redirect them to your main public site home or a 403 page
+                messages.error(request, "Access denied. Staff only.")
+                return redirect("/") 
+        
         return render(request, self.template_name)
 
     def post(self, request):
@@ -46,7 +81,8 @@ class DashboardLoginView(APIView):
         password = request.data.get("password")
         user = authenticate(username=username, password=password)
 
-        if user is not None and user.is_staff:
+        # FIX: Use your permission handler for consistency
+        if user is not None and admin_and_superuser(user):
             login(request, user)
             refresh = RefreshToken.for_user(user) 
             return Response({
@@ -57,11 +93,12 @@ class DashboardLoginView(APIView):
 
         return Response({"detail": "Invalid credentials or not staff."}, status=401)
 
+
+
 class DashboardRegisterView(CreateView):
     template_name = "dashboard/auth/register.html"
     form_class = UserRegisterForm
     success_url = reverse_lazy("dashboard_login")
-
 
 class AccountProfileView(LoginRequiredMixin, TemplateView):
     template_name = "dashboard/auth/account_profile.html"
@@ -71,8 +108,6 @@ class AccountProfileView(LoginRequiredMixin, TemplateView):
 defaultPath = "dashboard/Content/"
 
 # ############################## Reset  PW ####################################
-
-
 class MyPasswordResetView(auth_views.PasswordResetView):
     template_name = "dashboard/auth/reset_pw.html"
     email_template_name = "dashboard/password_reset_email.html"
