@@ -183,6 +183,9 @@ class OtherDetailForm(forms.ModelForm):
     class Meta:
         model = OtherDetailModel
         fields = [
+            "site_name",
+            "site_logo",
+            "site_tag",
             "facebook",
             "instagram",
             "twitter",
@@ -195,6 +198,9 @@ class OtherDetailForm(forms.ModelForm):
             "viber",
         ]
         widgets = {
+            "site_name": forms.TextInput(attrs={"class": "form-control"}),
+            "site_logo": forms.FileInput(attrs={"class": "form-control"}),
+            "site_tag": forms.TextInput(attrs={"class": "form-control"}),
             "facebook": forms.URLInput(attrs={"class": "form-control"}),
             "instagram": forms.URLInput(attrs={"class": "form-control"}),
             "twitter": forms.URLInput(attrs={"class": "form-control"}),

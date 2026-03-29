@@ -1,5 +1,4 @@
 {% extends 'dashboard/base_list.html' %}
-
 {% load static %}
 
 {% block list_title %}Orders{% endblock %}
@@ -11,42 +10,73 @@
 {% block table_headers %}
 <tr class="text-center">
     <th>ID</th>
-    <th>User</th>
+    <th>User/Customer</th>
+    <th>Recipient</th>
     <th>Total</th>
     <th>Status</th>
     <th>Created</th>
-    <th>Action</th>
+    <th class="text-end pe-4">Actions</th>
 </tr>
 {% endblock %}
 
 {% block table_rows %}
-{% for order in orders %}
+{% for order in recent_orders %}
 <tr class="text-center">
-    <td>{{ order.id }}</td>
+    <td class="fw-bold">#{{ order.id }}</td>
 
     <td>
         {% if order.user %}
-            {{ order.user.username }}
+        {{ order.user.username }}
         {% else %}
-            -
+        <span class="text-muted">Guest</span>
         {% endif %}
     </td>
 
-    <td>Rs. {{ order.total_amount|default:"0.00" }}</td>
+    <td>{{ order.shipping_address.name|default:"-" }}</td>
 
-    <td>{{ order.status|default:"-" }}</td>
-
-    <td>{{ order.created_at|date:"Y-m-d H:i" }}</td>
+    <td class="fw-bold text-primary">
+        Rs. {{ order.total_amount|default:"0.00"}}</td>
 
     <td>
-        <a href="{% url 'order_detail' order.id %}" class="btn btn-sm btn-info">
-            View
-        </a>
+        {% if order.status == 'Delivered' %}
+        <span
+            class="badge rounded-pill bg-success-subtle text-success border border-success px-3">Delivered</span>
+        {% elif order.status == 'Pending' %}
+        <span
+            class="badge rounded-pill bg-warning-subtle text-warning border border-warning px-3">Pending</span>
+        {% elif order.status == 'Cancelled' %}
+        <span
+            class="badge rounded-pill bg-danger-subtle text-danger border border-danger px-3">Cancelled</span>
+        {% else %}
+        <span class="badge rounded-pill bg-light text-dark border px-3">
+            {{order.status }}</span>
+        {% endif %}
+    </td>
+
+    <td class="small text-muted">{{ order.created_at|date:"Y-m-d H:i" }}</td>
+
+    <td class="text-end pe-4">
+        <div class="btn-group">
+            <a href="{% url 'update_order' order.id %}"
+                class="btn btn-sm btn-primary rounded-pill px-3 me-1">
+                Update
+            </a>
+
+            <form action="{% url 'order_delete' order.id %}" method="POST"
+                class="d-inline">
+                {% csrf_token %}
+                <button type="submit"
+                    class="btn btn-sm btn-outline-secondary rounded-pill"
+                    onclick="return confirm('Permanently delete Order #{{ order.id }}?')">
+                    Delete
+                </button>
+            </form>
+        </div>
     </td>
 </tr>
 {% empty %}
 <tr>
-    <td colspan="6" class="text-center text-muted">
+    <td colspan="7" class="text-center py-5 text-muted">
         No orders found.
     </td>
 </tr>

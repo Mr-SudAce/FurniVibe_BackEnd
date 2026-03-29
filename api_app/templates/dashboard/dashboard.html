@@ -181,7 +181,7 @@
                     </div>
                 </div>
             </div>
-
+            <!-- Order details  -->
             <div class="table-card">
                 <div
                     class="p-4 border-bottom d-flex justify-content-between align-items-center">
@@ -194,7 +194,9 @@
                         <thead>
                             <tr>
                                 <th class="ps-4">Order ID</th>
-                                <th>Customer</th>
+                                <th>Product</th>
+                                <th>User/Customer</th>
+                                <th>Recipent</th>
                                 <th>Total</th>
                                 <th>Status</th>
                                 <th class="text-end pe-4">Actions</th>
@@ -204,23 +206,33 @@
                             {% for order in recent_orders %}
                             <tr>
                                 <td class="ps-4 fw-bold">#{{ order.id }}</td>
+                                <td>{{order.items.name}}</td>
                                 <td>{{ order.user.username }}</td>
-                                <td class="fw-bold text-primary">${{
-                                    order.total_amount
-                                    }}</td>
+                                <td>{{ order.shipping_address.name }}</td>
+                                <td class="fw-bold text-primary">
+                                    Rs.{{order.total_amount}}</td>
                                 <td>
                                     <span
-                                        class="badge-status bg-light text-dark">{{
-                                        order.status }}</span>
+                                        class="badge-status bg-light text-dark">
+                                        {{order.status }}</span>
                                 </td>
                                 <td class="text-end pe-4">
                                     <a
-                                        href="{% url 'admin_order_detail' order.id %}"
-                                        class="btn btn-sm btn-light rounded-circle"><i
-                                            class="bi bi-eye"></i></a>
+                                        href="#"
+                                        class="btn btn-sm btn-secondary rounded-pill">View</a>
                                     <a
-                                        href="{% url 'admin_order_update_status' order.id %}"
+                                        href="{% url 'update_order' order.id %}"
                                         class="btn btn-sm btn-primary rounded-pill px-3 ms-1">Update</a>
+                                    <form
+                                        action="{% url 'order_delete' order.id %}"
+                                        method="POST" style="display:inline;">
+                                        {% csrf_token %}
+                                        <button type="submit"
+                                            class="btn btn-sm btn-secondary rounded-pill"
+                                            onclick="return confirm('Are you sure you want to delete this?')">
+                                            Delete
+                                        </button>
+                                    </form>
                                 </td>
                             </tr>
                             {% empty %}
@@ -233,6 +245,7 @@
                     </table>
                 </div>
             </div>
+            <!-- Order details  -->
             {% endif %}
 
             <div class="content-body mt-4">

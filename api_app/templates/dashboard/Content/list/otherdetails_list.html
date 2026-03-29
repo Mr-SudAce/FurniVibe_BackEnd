@@ -13,6 +13,9 @@
 
 {% block table_headers %}
 <tr>
+    <th>Site Logo</th>
+    <th>Site Name</th>
+    <th>Site Tag</th>
     <th>Contact Channels</th>
     <th>WhatsApp & Viber</th>
     <th>Email Address</th>
@@ -25,6 +28,20 @@
 {% block table_rows %}
 {% for detail in details %}
 <tr>
+    <td>
+        {% if detail.site_logo %}
+        <img src="{{ detail.site_logo.url }}" alt="Site Logo" class="logo-thumb" loading="lazy" width="100px">
+        {% else %}
+        <div class="logo-placeholder"><i class="bi bi-image"></i></div>
+        {% endif %}
+    </td>
+    <td>
+        <div class="fw-bold small text-dark">{{ detail.site_name|default:"-" }}</div>
+    </td>
+    <td>
+        <div class="text-muted small">{{ detail.site_tag|default:"-" }}</div>
+    </td>
+
     <td>
         <div class="d-flex align-items-center">
             <div class="contact-icon bg-blue-light text-primary"><i

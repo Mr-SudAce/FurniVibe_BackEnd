@@ -2,14 +2,11 @@ from rest_framework import serializers
 from api_app.models import *
 from rest_framework.validators import UniqueValidator
 from django.db import transaction
-
-from django.contrib.auth.hashers import make_password
 from .models import *
 
 
 class UserSerializer(serializers.ModelSerializer):
     status = serializers.SerializerMethodField()
-    # १. पासवर्ड फिल्ड थप्नुहोस् (यो write_only हुनुपर्छ ताकि कसैले हेर्न नसकोस्)
     password = serializers.CharField(write_only=True, required=True)
 
     class Meta:
@@ -281,13 +278,12 @@ class CartSerializer(serializers.ModelSerializer):
 
 # Read Only Version
 class CartItemReadSerializer(serializers.ModelSerializer):
-    variant = ProductVariantSerializer(read_only=True)
     product = serializers.SerializerMethodField()
     total_price = serializers.SerializerMethodField()
 
     class Meta:
         model = CartItemModel
-        fields = ["id", "product", "variant", "quantity", "price", "total_price"]
+        fields = ["id", "product", "quantity", "price", "total_price"]
 
     def get_product(self, obj):
         return ProductSerializer(obj.variant.product).data
@@ -316,8 +312,8 @@ class ShippingAddressSerializer(serializers.ModelSerializer):
         model = ShippingAddressModel
         fields = [
             "id",
-            "full_name",
-            "phone",
+            "name",
+            "phone_number",
             "address_line",
             "city",
             "state",
@@ -369,6 +365,7 @@ class OrderSerializer(serializers.ModelSerializer):
             "total_amount",
             "shipping_address",
             "items",
+            "payment",
             "created_at",
         ]
 
@@ -461,6 +458,9 @@ class OtherdetailSerializer(serializers.ModelSerializer):
         model = OtherDetailModel
         fields = [
             "id",
+            "site_name",
+            "site_logo",
+            "site_tag",
             "facebook",
             "instagram",
             "twitter",

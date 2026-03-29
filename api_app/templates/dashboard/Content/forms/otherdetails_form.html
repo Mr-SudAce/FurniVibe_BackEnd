@@ -6,6 +6,11 @@
 {% block main_fields %}
 <h6 class="text-primary border-bottom pb-2 mb-3">Contact Information</h6>
 <div class="row g-3 mb-4">
+    <div class="col-md-4"><label><i class="bi bi-text-left me-1"></i> Site Name</label>{{ form.site_name }}</div>
+    <div class="col-md-4"><label><i class="bi bi-whatsapp me-1"></i> Site Logo</label>{{ form.site_logo }}</div>
+    <div class="col-md-4"><label><i class="bi bi-tag me-1"></i> Site Tag</label>{{ form.site_tag }}</div>
+</div>
+<div class="row g-3 mb-4">
     <div class="col-md-4"><label><i class="bi bi-phone me-1"></i> Phone</label>{{ form.contact }}</div>
     <div class="col-md-4"><label><i class="bi bi-whatsapp me-1"></i> WhatsApp</label>{{ form.whatsapp }}</div>
     <div class="col-md-4"><label><i class="bi bi-chat-dots me-1"></i> Viber</label>{{ form.viber }}</div>

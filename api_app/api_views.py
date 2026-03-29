@@ -1,13 +1,11 @@
 from rest_framework.permissions import AllowAny, IsAuthenticated, BasePermission
 from rest_framework_simplejwt.authentication import JWTAuthentication
-from rest_framework.authentication import TokenAuthentication
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework import generics, permissions, status
 from rest_framework.authtoken.models import Token
 from rest_framework import status, permissions
 from django.shortcuts import get_object_or_404
-from rest_framework.permissions import IsAdminUser
 from .permissions import IsStaffOrIsSuperUser
 from rest_framework.response import Response
 from rest_framework.decorators import action
@@ -28,6 +26,11 @@ class IsStaffOrIsSuperUser(BasePermission):
         )
 
 
+class IsAdminUser(BasePermission):
+    def has_permission(self, request, view):
+        return bool(request.user and request.user.is_superuser)
+
+
 # RegisterAPI
 class RegisterAPI(generics.CreateAPIView):
     queryset = UserModel.objects.all()
@@ -43,6 +46,7 @@ class RegisterAPI(generics.CreateAPIView):
             {"message": "User created successfully!", "user": serializer.data},
             status=status.HTTP_201_CREATED,
         )
+
 
 # --- User ViewSet ---
 class UserViewSet(viewsets.ModelViewSet):
@@ -251,83 +255,80 @@ class CustomAuthToken(ObtainAuthToken):
         )
 
 
-# Place Order API
 class PlaceOrderAPI(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request):
+        user = request.user
+
+        # 1. Get the active cart and check if it's empty
+        cart = CartModel.objects.filter(user=user, is_active=True).first()
+        if not cart or not cart.items.exists():
+            return Response({"detail": "Your cart is empty."}, status=400)
+
+        # 2. Get the latest shipping address for this user
+        shipping_address = ShippingAddressModel.objects.filter(user=user).last()
+        if not shipping_address:
+            return Response({"detail": "Shipping address required."}, status=400)
+
         try:
-            # 1. Check for Active Cart
-            cart = CartModel.objects.get(user=request.user, is_active=True)
-            items = cart.items.all()
-
-            if not items.exists():
-                return Response({"detail": "Cart is empty."}, status=400)
-
-            # 2. Check for Shipping Address
-            shipping_address = ShippingAddressModel.objects.filter(
-                user=request.user
-            ).last()
-            if not shipping_address:
-                return Response(
-                    {
-                        "detail": "Shipping address not found. Please add an address first."
-                    },
-                    status=400,
+            with transaction.atomic():
+                # 3. Calculate Total Amount based on CURRENT CartItem prices
+                # (Remember: our UpdateCartItemAPI already refreshed these prices)
+                total_amount = sum(
+                    item.price * item.quantity for item in cart.items.all()
                 )
 
-            total_amount = sum(item.total_price for item in items)
+                # Apply your shipping logic (matches frontend: Free over 5000, else 150)
+                shipping_fee = 0 if total_amount > 5000 else 150
+                final_total = total_amount + shipping_fee
 
-            with transaction.atomic():
-                # 3. Create Order
+                # 4. Create the Order
                 order = OrderModel.objects.create(
-                    user=request.user,
+                    user=user,
                     shipping_address=shipping_address,
-                    total_amount=total_amount,
-                    delivery_type="standard",
+                    total_amount=final_total,
                     status="pending",
                 )
 
-                # 4. Create Order Items & Update Stock
-                for item in items:
-                    variant = item.variant
-                    if not variant.is_made_to_order:
-                        if variant.stock < item.quantity:
-                            raise ValueError(
-                                f"Stock ran out for {variant.product.name}"
+                # 5. Move items from Cart to OrderItems (Snapshoting details)
+                for cart_item in cart.items.all():
+                    # Double check stock one last time before finalizing
+                    if not cart_item.variant.is_made_to_order:
+                        if cart_item.variant.stock < cart_item.quantity:
+                            raise Exception(
+                                f"Item {cart_item.variant.product.name} went out of stock."
                             )
-                        variant.stock -= item.quantity
-                        variant.save()
+
+                        # Deduct stock
+                        cart_item.variant.stock -= cart_item.quantity
+                        cart_item.variant.save()
 
                     OrderItemModel.objects.create(
                         order=order,
-                        product_name=variant.product.name,
-                        variant_details=f"{variant.material} / {variant.color}",
-                        price=item.price,
-                        quantity=item.quantity,
+                        product_name=cart_item.variant.product.name,
+                        variant_details=f"{cart_item.variant.material} - {cart_item.variant.color}",
+                        price=cart_item.price,  # The price at the time of purchase
+                        quantity=cart_item.quantity,
                     )
 
-                # 5. Create Payment record
-                PaymentModel.objects.create(
-                    order=order,
-                    payment_method="cod",
-                    payment_status="pending",
-                )
-
-                # 6. Deactivate Cart
+                # 6. Deactivate the cart so the user starts fresh next time
                 cart.is_active = False
                 cart.save()
 
-            serializer = OrderSerializer(order)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+                return Response(
+                    {
+                        "detail": "Order placed successfully!",
+                        "order_id": order.id,
+                        "total_amount": float(final_total),
+                    },
+                    status=status.HTTP_201_CREATED,
+                )
 
-        except CartModel.DoesNotExist:
-            return Response({"detail": "No active cart found."}, status=404)
-        except ValueError as e:
-            return Response({"detail": str(e)}, status=400)
+        except Exception as e:
+            return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 
-# Shipping Addresss
 class ShippingAddressViewSet(viewsets.ModelViewSet):
     queryset = ShippingAddressModel.objects.all()
     serializer_class = ShippingAddressSerializer
@@ -335,17 +336,14 @@ class ShippingAddressViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        # Users should only see their own addresses
         return self.queryset.filter(user=self.request.user)
 
     def perform_create(self, serializer):
-        # Automatically link the address to the logged-in user
         serializer.save(user=self.request.user)
 
 
-# My Orders API
 class MyOrdersAPI(APIView):
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
     def get(self, request):
         orders = OrderModel.objects.filter(user=request.user).order_by("-created_at")
@@ -353,7 +351,6 @@ class MyOrdersAPI(APIView):
         return Response(serializer.data)
 
 
-# Order Detail API
 class OrderDetailAPI(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
@@ -363,13 +360,13 @@ class OrderDetailAPI(APIView):
         return Response(serializer.data)
 
 
-# Cart View API
 class CartViewAPI(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request):
         cart, _ = CartModel.objects.prefetch_related(
             "items",
+            "items__cart",
             "items__variant",
             "items__variant__product",
             "items__variant__product__images",
@@ -381,102 +378,121 @@ class CartViewAPI(APIView):
         return Response({"cart_items": serializer.data, "total_amount": total_amount})
 
 
-# Add To Cart API
 class AddToCartAPI(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request):
-        # We look for 'variant_id' specifically
-        variant_id = request.data.get("variant_id")
+        product_id = request.data.get("product_id")
         quantity = int(request.data.get("quantity", 1))
 
-        if not variant_id:
-            return Response({"detail": "variant_id is required."}, status=400)
+        if not product_id:
+            return Response({"detail": "product_id is required."}, status=400)
 
-        variant = get_object_or_404(ProductVariantModel, id=variant_id)
+        product = get_object_or_404(ProductModel, id=product_id)
+        variant = product.variants.first()
 
-        # Check Stock
-        if not variant.is_made_to_order and quantity > variant.stock:
+        if not variant:
             return Response(
-                {"detail": f"Only {variant.stock} items available."},
-                status=status.HTTP_400_BAD_REQUEST,
+                {"detail": "No variant found for this product."}, status=404
             )
-
         cart, _ = CartModel.objects.get_or_create(user=request.user, is_active=True)
 
-        # get_or_create handles the price logic via the model's save() method
         cart_item, created = CartItemModel.objects.get_or_create(
             cart=cart,
             variant=variant,
             defaults={
-                "quantity": quantity,
-                "price": variant.product.discounted_price,  # Uses your @property
+                "quantity": 0,
+                "price": product.discounted_price,
             },
         )
+        new_total_quantity = cart_item.quantity + quantity
+        if not variant.is_made_to_order and new_total_quantity > variant.stock:
+            return Response(
+                {"detail": f"Only {variant.stock} items available in total."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
-        if not created:
-            cart_item.quantity += quantity
-            # Re-check stock for combined quantity
-            if not variant.is_made_to_order and cart_item.quantity > variant.stock:
-                return Response(
-                    {"detail": "Not enough stock for this total quantity."}, status=400
-                )
-            cart_item.save()
+        # 3. Update Item
+        cart_item.quantity = new_total_quantity
+        cart_item.price = product.discounted_price
+        cart_item.save()
 
         serializer = CartItemReadSerializer(cart_item)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
-# Update Cart Item API
 class UpdateCartItemAPI(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request):
         item_id = request.data.get("item_id")
-        quantity = int(request.data.get("quantity", 1))
+        quantity = request.data.get("quantity")
 
-        cart = get_object_or_404(CartModel, user=request.user, is_active=True)
-        cart_item = get_object_or_404(CartItemModel, id=item_id, cart=cart)
-
-        if quantity > cart_item.variant.stock:
+        try:
+            quantity = int(quantity)
+        except (TypeError, ValueError):
             return Response(
-                {"detail": "Not enough stock."}, status=status.HTTP_400_BAD_REQUEST
+                {"detail": "Invalid quantity"}, status=status.HTTP_400_BAD_REQUEST
             )
 
-        cart_item.quantity = quantity
-        cart_item.save()
+        if quantity < 1:
+            return Response(
+                {"detail": "Quantity must be at least 1"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
-        return Response({"detail": "Cart updated successfully"})
+        # Ensure we only update items belonging to the logged-in user's active cart
+        cart_item = get_object_or_404(
+            CartItemModel, id=item_id, cart__user=request.user, cart__is_active=True
+        )
+        variant = cart_item.variant
+
+        # Check stock levels
+        if not variant.is_made_to_order and quantity > variant.stock:
+            return Response(
+                {"detail": f"Only {variant.stock} items in stock"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        with transaction.atomic():
+            cart_item.quantity = quantity
+            cart_item.price = variant.product.discounted_price
+            cart_item.save()
+
+            return Response(
+                {
+                    "detail": "Cart updated successfully",
+                    "item_id": cart_item.id,
+                    "quantity": cart_item.quantity,
+                    "unit_price": float(cart_item.price),
+                    "total_price": float(cart_item.price * cart_item.quantity),
+                },
+                status=status.HTTP_200_OK,
+            )
 
 
-# Remove Cart Item API
 class RemoveCartItemAPI(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request):
         item_id = request.data.get("item_id")
-
         cart = get_object_or_404(CartModel, user=request.user, is_active=True)
         cart_item = get_object_or_404(CartItemModel, id=item_id, cart=cart)
-
         cart_item.delete()
+        return Response(
+            {"detail": "Item removed from cart."}, status=status.HTTP_200_OK
+        )
 
-        return Response({"detail": "Item removed from cart."})
 
-
-# Clear Cart API
 class ClearCartAPI(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request):
         cart = get_object_or_404(CartModel, user=request.user, is_active=True)
-
         cart.items.all().delete()
+        return Response({"detail": "Cart cleared."}, status=status.HTTP_200_OK)
 
-        return Response({"detail": "Cart cleared."})
 
-
-# List All Orders
 class AdminOrderListAPI(APIView):
     permission_classes = [IsAuthenticated, IsAdminUser]
 
@@ -486,7 +502,6 @@ class AdminOrderListAPI(APIView):
         return Response(serializer.data)
 
 
-# View Single Order Detail
 class AdminOrderDetailAPI(APIView):
     permission_classes = [IsStaffOrIsSuperUser]
 
@@ -496,7 +511,6 @@ class AdminOrderDetailAPI(APIView):
         return Response(serializer.data)
 
 
-# Update Order Status
 class UpdateOrderStatusAPI(APIView):
     permission_classes = [IsStaffOrIsSuperUser]
 
@@ -514,7 +528,6 @@ class UpdateOrderStatusAPI(APIView):
         )
 
 
-# Update Payment Status
 class UpdatePaymentStatusAPI(APIView):
     permission_classes = [IsStaffOrIsSuperUser]
 

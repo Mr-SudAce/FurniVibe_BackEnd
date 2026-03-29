@@ -15,13 +15,13 @@ class UserManager(BaseUserManager):
     def create_user(self, email, username=None, password=None, **extra_fields):
         if not email:
             raise ValueError("Users must have an email address")
-        
+
         email = self.normalize_email(email)
         user = self.model(email=email, username=username, **extra_fields)
-        
+
         if password:
-            user.set_password(password) 
-            
+            user.set_password(password)
+
         user.save(using=self._db)
         return user
 
@@ -30,6 +30,7 @@ class UserManager(BaseUserManager):
         extra_fields.setdefault("is_superuser", True)
         extra_fields.setdefault("is_active", True)
         return self.create_user(email, username, password, **extra_fields)
+
 
 # User model
 class UserModel(AbstractBaseUser, PermissionsMixin):
@@ -69,18 +70,18 @@ class UserModel(AbstractBaseUser, PermissionsMixin):
 
     USERNAME_FIELD = "username"
     REQUIRED_FIELDS = ["email", "first_name", "last_name", "phone_number"]
-    
+
     def save(self, *args, **kwargs):
         if not self.username:
             base_username = slugify(f"{self.first_name} {self.last_name}")
             if not base_username and self.email:
-                base_username = self.email.split('@')[0]
+                base_username = self.email.split("@")[0]
             unique_username = base_username
             counter = 1
             while UserModel.objects.filter(username=unique_username).exists():
                 unique_username = f"{base_username}-{counter}"
                 counter += 1
-            
+
             self.username = unique_username
         super().save(*args, **kwargs)
 
@@ -116,9 +117,7 @@ class CategoryModel(models.Model):
 class BrandModel(models.Model):
     name = models.CharField(max_length=255, unique=True)
     slug = models.SlugField(unique=True, blank=True)
-    logo = models.ImageField(
-        upload_to="brands/", blank=True, null=True
-    )
+    logo = models.ImageField(upload_to="brands/", blank=True, null=True)
     description = HTMLField(blank=True)
     is_active = models.BooleanField(default=True)
 
@@ -264,8 +263,7 @@ class CartItemModel(models.Model):
     cart = models.ForeignKey(CartModel, related_name="items", on_delete=models.CASCADE)
     variant = models.ForeignKey(ProductVariantModel, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField(default=1)
-
-    price = models.DecimalField(max_digits=10, decimal_places=2, editable=False)
+    price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -275,16 +273,15 @@ class CartItemModel(models.Model):
 
     @property
     def total_price(self):
-        return self.quantity * self.price
+        return self.price * self.quantity
 
     def save(self, *args, **kwargs):
-        if not self.price:
-            # Pulls the property from the ProductModel
+        if self.variant and self.variant.product:
             self.price = self.variant.product.discounted_price
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"{self.variant} x {self.quantity}"
+        return f"{self.variant.product.name} x {self.quantity}"
 
 
 # Blog Model
@@ -315,6 +312,9 @@ class BlogModel(models.Model):
 
 # OtherDetailModel
 class OtherDetailModel(models.Model):
+    site_name = models.CharField(max_length=255, blank=True, default="")
+    site_logo = models.ImageField(upload_to="other_details/", blank=True, null=True)
+    site_tag = models.CharField(max_length=255, blank=True, default="")
     contact = models.CharField(max_length=10, blank=False, default="")
     whatsapp = models.CharField(max_length=10, blank=False, default="")
     viber = models.CharField(max_length=10, blank=False, default="")
@@ -325,7 +325,10 @@ class OtherDetailModel(models.Model):
     youtube = models.CharField(max_length=255, blank=True, default="#")
     email = models.EmailField(max_length=254, blank=False, default="")
     # default location of Nepal
-    location = HTMLField(blank=True, default="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3767838.611094719!2d81.48363299646843!3d28.376722984860947!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3995e8c77d2e68cf%3A0x34a29abcd0cc86de!2sNepal!5e1!3m2!1sen!2snp!4v1773754934762!5m2!1sen!2snp")
+    location = HTMLField(
+        blank=True,
+        default="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3767838.611094719!2d81.48363299646843!3d28.376722984860947!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3995e8c77d2e68cf%3A0x34a29abcd0cc86de!2sNepal!5e1!3m2!1sen!2snp!4v1773754934762!5m2!1sen!2snp",
+    )
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -338,8 +341,8 @@ class OtherDetailModel(models.Model):
 class ShippingAddressModel(models.Model):
     user = models.ForeignKey(UserModel, on_delete=models.CASCADE)
 
-    full_name = models.CharField(max_length=255)
-    phone = models.CharField(max_length=15)
+    name = models.CharField(max_length=255)
+    phone_number = models.CharField(max_length=15)
 
     address_line = models.TextField()
     city = models.CharField(max_length=100)
@@ -350,14 +353,13 @@ class ShippingAddressModel(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"{self.full_name} - {self.city}"
+        return f"{self.name} - {self.city}"
 
 
 # Order Model
 class OrderModel(models.Model):
     user = models.ForeignKey(UserModel, on_delete=models.SET_NULL, null=True)
     shipping_address = models.ForeignKey(ShippingAddressModel, on_delete=models.PROTECT)
-
     total_amount = models.DecimalField(max_digits=10, decimal_places=2)
 
     delivery_type = models.CharField(

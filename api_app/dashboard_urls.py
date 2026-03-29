@@ -63,4 +63,5 @@ urlpatterns = [
     # Order Urls
     path("orders/list/", dashboard_views.order_list_view, name="order_list"),
     path("orders/<int:pk>/update/", dashboard_views.update_order, name="update_order"),
+    path("orders/<int:pk>/delete/", dashboard_views.order_delete, name="order_delete"),
 ]

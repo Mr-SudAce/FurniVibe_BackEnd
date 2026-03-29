@@ -29,34 +29,6 @@ from .forms import *
 
 
 
-
-# class DashboardLoginView(APIView):
-#     renderer_classes = [TemplateHTMLRenderer, JSONRenderer]
-#     template_name = "dashboard/auth/login.html"
-#     authentication_classes = []
-#     permission_classes = [AllowAny]
-
-#     def get(self, request):
-#         if only_admin_and_super(request.user):
-#             return redirect("dashboard_home")
-#         return render(request, self.template_name)
-
-#     def post(self, request):
-#         username = request.data.get("username")
-#         password = request.data.get("password")
-#         user = authenticate(username=username, password=password)
-
-#         if user is not None and user.is_staff:
-#             login(request, user)
-#             refresh = RefreshToken.for_user(user) 
-#             return Response({
-#                 "access": str(refresh.access_token),
-#                 "refresh": str(refresh),
-#                 "redirect_url": reverse("dashboard_home"),
-#             }, status=200)
-
-#         return Response({"detail": "Invalid credentials or not staff."}, status=401)
-
 class DashboardLoginView(APIView):
     renderer_classes = [TemplateHTMLRenderer, JSONRenderer]
     template_name = "dashboard/auth/login.html"
@@ -562,11 +534,12 @@ def other_detail_delete(request, pk):
     )
 
 
+# order
 @login_required(login_url="dashboard_login")
 @only_admin_and_super
 def order_list_view(request):
-    orders = OrderModel.objects.all().order_by("-created_at")
-    return render(request, f"{defaultPath}list/order_list.html", {"orders": orders})
+    recent_orders = OrderModel.objects.all().order_by("-created_at")
+    return render(request, f"{defaultPath}list/order_list.html", {"recent_orders": recent_orders})
 
 
 def update_order(request, pk):
@@ -582,3 +555,12 @@ def update_order(request, pk):
     return render(
         request, f"{defaultPath}forms/order_form.html", {"form": form, "order": order}
     )
+
+@login_required(login_url="dashboard_login")
+@only_admin_and_super
+def order_delete(request, pk):
+    order = get_object_or_404(OrderModel, pk=pk)
+    if request.method == "POST":
+        order.delete()
+        return redirect("order_list")
+    return redirect("order_list")
