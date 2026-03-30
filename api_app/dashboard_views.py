@@ -190,7 +190,7 @@ def account_profile(request):
 @login_required(login_url="dashboard_login")
 @only_admin_and_super
 def product_list(request):
-    products = ProductModel.objects.all()
+    products = ProductModel.objects.all().order_by("-created_at")
     return render(
         request, f"{defaultPath}list/product_list.html", {"products": products}
     )
@@ -242,7 +242,7 @@ def product_delete(request, pk):
 @login_required(login_url="dashboard_login")
 @only_admin_and_super
 def category_list(request):
-    categories = CategoryModel.objects.all()
+    categories = CategoryModel.objects.all().order_by("-created_at")
     return render(
         request, f"{defaultPath}list/category_list.html", {"categories": categories}
     )
@@ -294,7 +294,7 @@ def category_delete(request, pk):
 @login_required(login_url="dashboard_login")
 @only_admin_and_super
 def brand_list(request):
-    brands = BrandModel.objects.all()
+    brands = BrandModel.objects.all().order_by("-created_at")
     return render(request, f"{defaultPath}list/brand_list.html", {"brands": brands})
 
 
@@ -342,7 +342,7 @@ def brand_delete(request, pk):
 @login_required(login_url="dashboard_login")
 @only_admin_and_super
 def variant_list(request):
-    variants = ProductVariantModel.objects.all().select_related("product")
+    variants = ProductVariantModel.objects.all().order_by("-created_at")
     return render(
         request, f"{defaultPath}list/variant_list.html", {"variants": variants}
     )
@@ -394,7 +394,7 @@ def variant_delete(request, pk):
 @login_required(login_url="dashboard_login")
 @only_admin_and_super
 def blog_list(request):
-    blogs = BlogModel.objects.all()
+    blogs = BlogModel.objects.all().order_by("-created_at")
     return render(request, f"{defaultPath}list/blog_list.html", {"blogs": blogs})
 
 
@@ -442,7 +442,7 @@ def blog_delete(request, pk):
 @login_required(login_url="dashboard_login")
 @only_admin_and_super
 def more_images_list(request):
-    images = ProductImageModel.objects.all()
+    images = ProductImageModel.objects.all().order_by("-created_at")
     return render(
         request,
         f"{defaultPath}list/more_images_list.html",
@@ -498,7 +498,7 @@ def more_image_delete(request, pk):
 @login_required(login_url="dashboard_login")
 @only_admin_and_super
 def other_detail_list(request):
-    details = OtherDetailModel.objects.all()
+    details = OtherDetailModel.objects.all().order_by("-created_at")
     return render(
         request, f"{defaultPath}list/otherdetails_list.html", {"details": details}
     )
