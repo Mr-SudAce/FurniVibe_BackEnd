@@ -146,11 +146,22 @@ def edit_profile(request):
 @login_required(login_url="dashboard_login")
 @only_admin_and_super
 def dashboard_home(request):
+    status_filter = request.GET.get('status', 'all')
+    
+    # Base counts for dashboard cards
     total_orders = OrderModel.objects.count()
     pending_orders = OrderModel.objects.filter(status="pending").count()
-    completed_orders = OrderModel.objects.filter(status="completed").count()
+    completed_orders = OrderModel.objects.filter(status="paid").count()
     cancelled_orders = OrderModel.objects.filter(status="cancelled").count()
-    recent_orders = OrderModel.objects.order_by("-created_at")[:9]
+    
+  # Updated View logic to reach all the way to the product name
+    orders_queryset = OrderModel.objects.select_related('user', 'order_detail') \
+                                        .prefetch_related('order_detail__items__product') \
+                                        .all().order_by("-created_at")
+    if status_filter and status_filter != 'all':
+        orders_queryset = orders_queryset.filter(status=status_filter)
+    
+    recent_orders = orders_queryset[:5]
 
     context = {
         "total_orders": total_orders,
@@ -158,7 +169,9 @@ def dashboard_home(request):
         "completed_orders": completed_orders,
         "cancelled_orders": cancelled_orders,
         "recent_orders": recent_orders,
+        "current_filter": status_filter,
     }
+
     return render(request, "dashboard/dashboard.html", context)
 
 def dashboard_logout(request):

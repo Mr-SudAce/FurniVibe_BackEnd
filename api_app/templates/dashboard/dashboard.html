@@ -3,10 +3,10 @@
 <html lang="en">
     <head>
         <script>
-        if (!localStorage.getItem('access_token')) {
-            window.location.href = "{% url 'dashboard_login' %}";
-        }
-    </script>
+            if (!localStorage.getItem('access_token')) {
+                window.location.href = "{% url 'dashboard_login' %}";
+            }
+        </script>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Dashboard | Admin</title>
@@ -55,51 +55,29 @@
             <nav class="flex-grow-1 overflow-auto no-scrollbar">
                 <p class="text-muted small fw-bold text-uppercase mb-1 px-3"
                     style="letter-spacing: 1px; font-size: 0.7rem;">Menu</p>
-
                 <a href="{% url 'dashboard_home' %}"
-                    class="nav-link-custom {% if request.path == '/' %}active{% endif %} transition-all duration-300">
+                    class="nav-link-custom {% if request.resolver_match.url_name == 'dashboard_home' %}active{% endif %}">
                     <i class="bi bi-house-door"></i> <span>Dashboard</span>
                 </a>
-
-                {% url 'product_list' as product_url %}
-                <a href="{{ product_url }}"
-                    class="nav-link-custom {% if request.path == product_url %}active{% endif %} transition-all duration-300">
+                <a href="{% url 'product_list' %}" class="nav-link-custom">
                     <i class="bi bi-box-seam"></i> <span>Products</span>
                 </a>
-
-                {% url 'category_list' as category_url %}
-                <a href="{{ category_url }}"
-                    class="nav-link-custom {% if request.path == category_url %}active{% endif %} transition-all duration-300">
+                <a href="{% url 'category_list' %}" class="nav-link-custom">
                     <i class="bi bi-grid"></i> <span>Categories</span>
                 </a>
-
-                {% url 'brand_list' as brand_url %}
-                <a href="{{ brand_url }}"
-                    class="nav-link-custom {% if request.path == brand_url %}active{% endif %} transition-all duration-300">
+                <a href="{% url 'brand_list' %}" class="nav-link-custom">
                     <i class="bi bi-bookmark-star"></i> <span>Brands</span>
                 </a>
-
-                {% url 'variant_list' as variant_url %}
-                <a href="{{ variant_url }}"
-                    class="nav-link-custom {% if request.path == variant_url %}active{% endif %} transition-all duration-300">
+                <a href="{% url 'variant_list' %}" class="nav-link-custom">
                     <i class="bi bi-layers"></i> <span>Variants</span>
                 </a>
-
-                {% url 'blog_list' as blog_url %}
-                <a href="{{ blog_url }}"
-                    class="nav-link-custom {% if request.path == blog_url %}active{% endif %} transition-all duration-300">
+                <a href="{% url 'blog_list' %}" class="nav-link-custom">
                     <i class="bi bi-chat-left-dots"></i> <span>Blogs</span>
                 </a>
-
-                {% url 'more_images_list' as gallery_url %}
-                <a href="{{ gallery_url }}"
-                    class="nav-link-custom {% if request.path == gallery_url %}active{% endif %} transition-all duration-300">
+                <a href="{% url 'more_images_list' %}" class="nav-link-custom">
                     <i class="bi bi-images"></i> <span>Gallery</span>
                 </a>
-
-                {% url 'other_detail_list' as detail_url %}
-                <a href="{{ detail_url }}"
-                    class="nav-link-custom {% if request.path == detail_url %}active{% endif %} transition-all duration-300">
+                <a href="{% url 'other_detail_list' %}" class="nav-link-custom">
                     <i class="bi bi-info-circle"></i> <span>Details</span>
                 </a>
             </nav>
@@ -122,13 +100,7 @@
             <header
                 class="mb-4 d-flex justify-content-between align-items-center">
                 <h2 class="fw-bold m-0">Main Dashboard</h2>
-                <div class="dropdown">
-                    <button
-                        class="btn btn-white border-0 shadow-sm rounded-pill px-4"
-                        type="button">
-                        <i class="bi bi-calendar3 me-2 text-primary"></i> Today
-                    </button>
-                </div>
+
             </header>
 
             <div class="row g-4 mb-4">
@@ -139,8 +111,7 @@
                         <div>
                             <p class="small text-muted mb-0">Total Orders</p>
                             <h4 class="fw-bold mb-0">
-                                {{ total_orders|default:"0"}}
-                            </h4>
+                                {{total_orders|default:"0"}}</h4>
                         </div>
                     </div>
                 </div>
@@ -151,8 +122,7 @@
                         <div>
                             <p class="small text-muted mb-0">Pending</p>
                             <h4 class="fw-bold mb-0">
-                                {{ pending_orders|default:"0"}}
-                            </h4>
+                                {{pending_orders|default:"0"}}</h4>
                         </div>
                     </div>
                 </div>
@@ -163,8 +133,7 @@
                         <div>
                             <p class="small text-muted mb-0">Completed</p>
                             <h4 class="fw-bold mb-0">
-                                {{ completed_orders|default:"0"}}
-                            </h4>
+                                {{completed_orders|default:"0"}}</h4>
                         </div>
                     </div>
                 </div>
@@ -175,19 +144,54 @@
                         <div>
                             <p class="small text-muted mb-0">Cancelled</p>
                             <h4 class="fw-bold mb-0">
-                                {{ cancelled_orders|default:"0" }}
-                            </h4>
+                                {{cancelled_orders|default:"0" }}</h4>
                         </div>
                     </div>
                 </div>
             </div>
-            <!-- Order details  -->
+
             <div class="table-card">
                 <div
                     class="p-4 border-bottom d-flex justify-content-between align-items-center">
-                    <h5 class="fw-bold m-0">Recent Activity</h5>
-                    <button class="btn btn-sm btn-light rounded-pill px-3">View
-                        All</button>
+                    <h5 class="fw-bold m-0">Recent Activity
+                        {% if current_filter and current_filter != 'all' %}
+                        <span
+                            class="badge bg-primary-subtle text-primary fw-normal rounded-pill ms-2"
+                            style="font-size: 0.8rem;">
+                            Showing: {{ current_filter|title }}
+                        </span>
+                        {% endif %}
+                    </h5>
+                    <div class="dropdown">
+                        <button
+                            class="btn btn-white border shadow-sm rounded-pill px-4 dropdown-toggle"
+                            type="button" data-bs-toggle="dropdown">
+                            <i class="bi bi-funnel me-2 text-primary"></i>
+                            Filter:
+                            {% if current_filter == 'paid' %}
+                            Completed
+                            {%else %}
+                            {{ current_filter|default:"All"|title }}
+                            {%endif %}
+                        </button>
+                        <ul
+                            class="dropdown-menu dropdown-menu-end shadow border-0">
+                            <li><a class="dropdown-item" href="?status=all">All
+                                    Orders</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item"
+                                    href="?status=pending">Pending</a></li>
+                            <li><a class="dropdown-item"
+                                    href="?status=paid">Completed</a></li>
+                            <li><a class="dropdown-item"
+                                    href="?status=cancelled">Cancelled</a></li>
+                        </ul>
+                    </div>
+                    <a href="{% url 'order_list' %}">
+                        <button
+                            class="btn btn-sm btn-light rounded-pill px-3">View
+                            All</button>
+                    </a>
                 </div>
                 <div class="table-responsive">
                     <table class="table align-middle mb-0">
@@ -196,10 +200,9 @@
                                 <th class="ps-4">Order ID</th>
                                 <th>Product</th>
                                 <th>User/Customer</th>
-                                <th>Recipent</th>
+                                <th>Recipient</th>
                                 <th>Total</th>
                                 <th>Status</th>
-                                <th class="text-end pe-4">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -210,42 +213,36 @@
                                 <td>{{ order.user.username }}</td>
                                 <td>{{ order.shipping_address.name }}</td>
                                 <td class="fw-bold text-primary">
-                                    Rs.{{order.total_amount}}</td>
+                                    Rs.{{order.total_amount }}</td>
                                 <td>
+                                    {% if order.status == "paid" %}
                                     <span
-                                        class="badge-status bg-light text-dark">
-                                        {{order.status }}</span>
+                                        class="badge rounded-pill bg-success-subtle text-success border border-success">Completed</span>
+                                    {% elif order.status == "pending" %}
+                                    <span
+                                        class="badge rounded-pill bg-warning-subtle text-warning-emphasis border border-warning">Pending</span>
+                                    {% elif order.status == "cancelled" %}
+                                    <span
+                                        class="badge rounded-pill bg-danger-subtle text-danger border border-danger">Cancelled</span>
+                                    {% else %}
+                                    <span
+                                        class="badge rounded-pill bg-light text-dark border">
+                                        {{order.status|title }}</span>
+                                    {% endif %}
                                 </td>
-                                <td class="text-end pe-4">
-                                    <a
-                                        href="#"
-                                        class="btn btn-sm btn-secondary rounded-pill">View</a>
-                                    <a
-                                        href="{% url 'update_order' order.id %}"
-                                        class="btn btn-sm btn-primary rounded-pill px-3 ms-1">Update</a>
-                                    <form
-                                        action="{% url 'order_delete' order.id %}"
-                                        method="POST" style="display:inline;">
-                                        {% csrf_token %}
-                                        <button type="submit"
-                                            class="btn btn-sm btn-secondary rounded-pill"
-                                            onclick="return confirm('Are you sure you want to delete this?')">
-                                            Delete
-                                        </button>
-                                    </form>
-                                </td>
+
                             </tr>
                             {% empty %}
                             <tr>
-                                <td colspan="5" class="text-center py-5">No
-                                    orders found.</td>
+                                <td colspan="7"
+                                    class="text-center py-5 text-muted">No
+                                    orders found matching this filter.</td>
                             </tr>
                             {% endfor %}
                         </tbody>
                     </table>
                 </div>
             </div>
-            <!-- Order details  -->
             {% endif %}
 
             <div class="content-body mt-4">
@@ -254,19 +251,17 @@
         </main>
 
         <script>
-        function toggleSidebar() {
-            document.getElementById('sidebar').classList.toggle('active');
-        }
+            function toggleSidebar() {
+                document.getElementById('sidebar').classList.toggle('active');
+            }
 
-        // Logout Cleanup
-        document.getElementById('logoutForm').addEventListener('submit', function(e) {
-            localStorage.removeItem('access_token');
-            localStorage.removeItem('refresh_token');
-            localStorage.clear(); 
-        });
-    </script>
+            document.getElementById('logoutForm').addEventListener('submit', function(e) {
+                localStorage.removeItem('access_token');
+                localStorage.removeItem('refresh_token');
+                localStorage.clear(); 
+            });
+        </script>
         <script
             src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
     </body>
 </html>
