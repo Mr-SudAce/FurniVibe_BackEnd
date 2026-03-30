@@ -1,35 +1,117 @@
 {% extends 'dashboard/base_form.html' %}
+{% load static %}
 
 {% block form_title %}
-    {% if form.instance.pk %}Update Post{% else %}Write New Article{% endif %}
+    {% if form.instance.pk %}
+        <i class="bi bi-journal-text me-2 text-primary"></i>Edit Article: {{ form.instance.title|truncatechars:30 }}
+    {% else %}
+        <i class="bi bi-pencil-square me-2 text-primary"></i>Write New Article
+    {% endif %}
 {% endblock %}
 
 {% block back_url %}{% url 'blog_list' %}{% endblock %}
 
 {% block main_fields %}
-<div class="mb-4">
-    <label>Article Title</label>
-    {{ form.title }}
-</div>
-<div class="mb-3">
-    <label>Body Content</label>
-    {{ form.content }}
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body p-4">
+        <div class="mb-4">
+            <label class="form-label fw-bold text-dark">Article Title</label>
+            {{ form.title }}
+            <div class="form-text mt-2 d-flex align-items-center">
+                <span class="badge bg-light text-muted border me-2">Permalink Preview</span>
+                <code class="text-primary small" id="slug-preview">/blog/your-title-here</code>
+            </div>
+            {% if form.title.errors %}<div class="text-danger small mt-1">{{ form.title.errors }}</div>{% endif %}
+        </div>
+
+        <div class="mb-0">
+            <label class="form-label fw-bold text-dark d-flex justify-content-between">
+                <span>Body Content</span>
+                <span class="badge bg-primary-subtle text-primary smaller">Rich Text Enabled</span>
+            </label>
+            <div class="content-editor-wrapper">
+                {{ form.content }}
+            </div>
+            <div class="form-text mt-2 small">
+                <i class="bi bi-info-circle me-1"></i> Use clear headings and short paragraphs for better SEO.
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}
 
 {% block side_fields %}
-<div class="card border mb-3">
-    <div class="card-header small fw-bold">Cover Photo</div>
-    <div class="card-body text-center">
-        {% if form.instance.image %}
-            <img src="{{ form.instance.image.url }}" class="preview-img mb-2">
-        {% endif %}
-        {{ form.image }}
+<div class="card border shadow-sm mb-4">
+    <div class="card-header bg-white py-3">
+        <h6 class="m-0 fw-bold text-dark small text-uppercase" style="letter-spacing: 0.5px;">Article Cover</h6>
+    </div>
+    <div class="card-body text-center bg-light-subtle">
+        <div id="blog-image-preview-container" class="mb-3">
+            {% if form.instance.image %}
+                <img src="{{ form.instance.image.url }}" id="blog-preview-img" class="img-fluid rounded border shadow-sm" style="max-height: 200px; width: 100%; object-fit: cover;">
+            {% else %}
+                <div id="blog-placeholder" class="py-5 border border-2 border-dashed rounded bg-white text-muted">
+                    <i class="bi bi-card-image display-6 d-block mb-2"></i>
+                    <span class="smaller">No cover image selected</span>
+                </div>
+            {% endif %}
+        </div>
+        
+        <div class="text-start">
+            <label class="form-label fw-bold small">Upload Cover Image</label>
+            <div class="custom-blog-upload">
+                {{ form.image }}
+            </div>
+            <div class="text-muted mt-2" style="font-size: 0.7rem;">Recommended: 1200x630px (16:9 ratio)</div>
+        </div>
     </div>
 </div>
 
-<div class="form-check mt-3">
-    {{ form.is_active }}
-    <label class="form-check-label fw-bold">Publish Immediately</label>
+<div class="card border shadow-sm bg-white">
+    <div class="card-body">
+        <h6 class="small fw-bold mb-3 text-muted border-bottom pb-2">PUBLISHING</h6>
+        <div class="form-check form-switch mb-2">
+            {{ form.is_active }}
+            <label class="form-check-label fw-bold text-dark" for="{{ form.is_active.id_for_label }}">Publish Immediately</label>
+        </div>
+        <p class="text-muted mb-0" style="font-size: 0.75rem;">
+            When off, this article remains a <strong>Draft</strong> and won't be visible to readers.
+        </p>
+    </div>
+</div>
+
+<script>
+    // Live Image Preview
+    document.querySelector('input[type="file"]').addEventListener('change', function() {
+        const file = this.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const container = document.getElementById('blog-image-preview-container');
+                container.innerHTML = `<img src="${e.target.result}" class="img-fluid rounded border shadow-sm" style="max-height: 200px; width: 100%; object-fit: cover;">`;
+            }
+            reader.readAsDataURL(file);
+        }
+    });
+
+    // Live Slug Preview
+    const titleInput = document.querySelector('input[name="title"]');
+    const slugPreview = document.getElementById('slug-preview');
+    
+    titleInput.addEventListener('input', function() {
+        const slug = this.value
+            .toLowerCase()
+            .replace(/[^\w ]+/g, '')
+            .replace(/ +/g, '-');
+        slugPreview.innerText = slug ? `/blog/${slug}` : '/blog/your-title-here';
+    });
+</script>
+{% endblock %}
+
+{% block form_actions %}
+<div class="d-flex gap-2">
+    <button type="submit" class="btn btn-primary btn-lg px-5 shadow-sm rounded-pill fw-bold">
+        <i class="bi bi-cloud-arrow-up me-2"></i> Save Article
+    </button>
 </div>
 {% endblock %}

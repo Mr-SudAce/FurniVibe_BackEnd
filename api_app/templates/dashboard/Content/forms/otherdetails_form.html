@@ -1,39 +1,183 @@
 {% extends 'dashboard/base_form.html' %}
+{% load static %}
 
-{% block form_title %}Company Settings{% endblock %}
+{% block form_title %}
+    {% if form.instance.pk %}
+        <i class="bi bi-sliders me-2 text-primary"></i>Update Company Settings
+    {% else %}
+        <i class="bi bi-gear-fill me-2 text-primary"></i>Initialize Site Details
+    {% endif %}
+{% endblock %}
+
 {% block back_url %}{% url 'other_detail_list' %}{% endblock %}
 
 {% block main_fields %}
-<h6 class="text-primary border-bottom pb-2 mb-3">Contact Information</h6>
-<div class="row g-3 mb-4">
-    <div class="col-md-4"><label><i class="bi bi-text-left me-1"></i> Site Name</label>{{ form.site_name }}</div>
-    <div class="col-md-4"><label><i class="bi bi-whatsapp me-1"></i> Site Logo</label>{{ form.site_logo }}</div>
-    <div class="col-md-4"><label><i class="bi bi-tag me-1"></i> Site Tag</label>{{ form.site_tag }}</div>
-</div>
-<div class="row g-3 mb-4">
-    <div class="col-md-4"><label><i class="bi bi-phone me-1"></i> Phone</label>{{ form.contact }}</div>
-    <div class="col-md-4"><label><i class="bi bi-whatsapp me-1"></i> WhatsApp</label>{{ form.whatsapp }}</div>
-    <div class="col-md-4"><label><i class="bi bi-chat-dots me-1"></i> Viber</label>{{ form.viber }}</div>
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body p-4">
+        <h6 class="fw-bold text-primary mb-3 d-flex align-items-center">
+            <i class="bi bi-building-gear me-2"></i> Brand Identity
+        </h6>
+        <div class="row g-3 mb-4 p-3 bg-light rounded-3 border mx-0">
+            <div class="col-md-6">
+                <label class="form-label fw-bold small">Site Name</label>
+                {{ form.site_name }}
+                <div class="form-text smaller">Appears in browser tabs and footer.</div>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label fw-bold small">Site Tagline</label>
+                {{ form.site_tag }}
+                <div class="form-text smaller">Briefly describe your business.</div>
+            </div>
+        </div>
+
+        <h6 class="fw-bold text-primary mb-3 d-flex align-items-center">
+            <i class="bi bi-telephone-outbound me-2"></i> Communication Channels
+        </h6>
+        <div class="row g-3 mb-4">
+            <div class="col-md-4">
+                <label class="form-label fw-bold small"><i class="bi bi-phone me-1 text-muted"></i> Primary Phone</label>
+                {{ form.contact }}
+            </div>
+            <div class="col-md-4">
+                <label class="form-label fw-bold small"><i class="bi bi-whatsapp me-1 text-success"></i> WhatsApp</label>
+                {{ form.whatsapp }}
+            </div>
+            <div class="col-md-4">
+                <label class="form-label fw-bold small"><i class="bi bi-chat-dots me-1 text-info"></i> Viber</label>
+                {{ form.viber }}
+            </div>
+            <div class="col-md-12">
+                <label class="form-label fw-bold small"><i class="bi bi-envelope-at me-1 text-danger"></i> Official Support Email</label>
+                {{ form.email }}
+            </div>
+        </div>
+
+        <h6 class="fw-bold text-primary mb-3 d-flex align-items-center">
+            <i class="bi bi-geo-alt me-2"></i> Location & Maps
+        </h6>
+        <div class="row g-3 mb-0">
+            <div class="col-12">
+                <label class="form-label fw-bold small">Google Maps Embed URL</label>
+                {{ form.location }}
+                <div class="form-text smaller mb-3">Paste the <code>src</code> attribute from the Google Maps "Embed a map" share option.</div>
+                
+                <div id="map-preview-container" class="rounded border bg-light d-flex align-items-center justify-content-center overflow-hidden" style="height: 200px;">
+                    {% if form.instance.location %}
+                        <iframe src="{{ form.instance.location }}" width="100%" height="200" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
+                    {% else %}
+                        <div class="text-center opacity-50">
+                            <i class="bi bi-map display-6 d-block"></i>
+                            <span class="smaller">Map preview will appear here</span>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
-<div class="row g-3 mb-4">
-    <div class="col-md-6"><label>Official Email</label>{{ form.email }}</div>
-    <div class="col-md-6"><label>Maps Embed URL</label>{{ form.location }}</div>
-</div>
-
-<h6 class="text-primary border-bottom pb-2 mb-3">Social Presence</h6>
-<div class="row g-3">
-    <div class="col-md-4"><label>Facebook</label>{{ form.facebook }}</div>
-    <div class="col-md-4"><label>Instagram</label>{{ form.instagram }}</div>
-    <div class="col-md-4"><label>Twitter/X</label>{{ form.twitter }}</div>
-    <div class="col-md-4"><label>TikTok</label>{{ form.tiktok }}</div>
-    <div class="col-md-4"><label>YouTube</label>{{ form.youtube }}</div>
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body p-4">
+        <h6 class="fw-bold text-primary mb-4 d-flex align-items-center">
+            <i class="bi bi-share me-2"></i> Social Media Links
+        </h6>
+        <div class="row g-3">
+            <div class="col-md-6">
+                <div class="input-group">
+                    <span class="input-group-text bg-white" style="border-left: 4px solid #1877F2;"><i class="bi bi-facebook text-primary"></i></span>
+                    {{ form.facebook }}
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="input-group">
+                    <span class="input-group-text bg-white" style="border-left: 4px solid #E4405F;"><i class="bi bi-instagram text-danger"></i></span>
+                    {{ form.instagram }}
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="input-group">
+                    <span class="input-group-text bg-white" style="border-left: 4px solid #000;"><i class="bi bi-tiktok text-dark"></i></span>
+                    {{ form.tiktok }}
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="input-group">
+                    <span class="input-group-text bg-white" style="border-left: 4px solid #FF0000;"><i class="bi bi-youtube text-danger"></i></span>
+                    {{ form.youtube }}
+                </div>
+            </div>
+            <div class="col-12">
+                <div class="input-group">
+                    <span class="input-group-text bg-white" style="border-left: 4px solid #1DA1F2;"><i class="bi bi-twitter"></i></span>
+                    {{ form.twitter }}
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}
 
 {% block side_fields %}
-<div class="text-center p-3 border rounded bg-white">
-    <i class="bi bi-gear-wide-connected fs-1 text-muted opacity-25"></i>
-    <p class="mt-2 text-muted small">These details populate the footer and contact pages of your public website.</p>
+<div class="card border shadow-sm mb-4">
+    <div class="card-header bg-white py-3">
+        <h6 class="m-0 fw-bold text-dark small text-uppercase" style="letter-spacing: 0.5px;">Site Logo Asset</h6>
+    </div>
+    <div class="card-body text-center bg-light-subtle">
+        <div class="logo-preview-box border rounded-3 p-3 bg-white mb-3 shadow-sm d-inline-block w-100">
+            {% if form.instance.site_logo %}
+                <img src="{{ form.instance.site_logo.url }}" id="logo-preview-img" class="img-fluid" style="max-height: 80px; object-fit: contain;">
+            {% else %}
+                <div id="logo-placeholder" class="py-3 text-muted">
+                    <i class="bi bi-image fs-1 opacity-25"></i>
+                    <p class="smaller mt-2">No logo uploaded</p>
+                </div>
+            {% endif %}
+            <img id="logo-new-preview" class="img-fluid d-none" style="max-height: 80px; object-fit: contain;">
+        </div>
+        <div class="text-start">
+            {{ form.site_logo }}
+            <div class="smaller text-muted mt-2">Recommended: Transparent PNG (max 500kb).</div>
+        </div>
+    </div>
+</div>
+
+<div class="card border-0 bg-primary-subtle shadow-none">
+    <div class="card-body p-3">
+        <div class="d-flex align-items-start">
+            <i class="bi bi-info-circle-fill text-primary me-2 mt-1"></i>
+            <div>
+                <h6 class="smaller fw-bold text-primary mb-1">Public Display Info</h6>
+                <p class="smaller text-primary-emphasis mb-0">These details are synced across your website's header, footer, and contact pages.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.querySelector('input[type="file"]').addEventListener('change', function() {
+        const file = this.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const preview = document.getElementById('logo-new-preview');
+                const oldImg = document.getElementById('logo-preview-img');
+                const placeholder = document.getElementById('logo-placeholder');
+                
+                preview.src = e.target.result;
+                preview.classList.remove('d-none');
+                if(oldImg) oldImg.classList.add('d-none');
+                if(placeholder) placeholder.classList.add('d-none');
+            }
+            reader.readAsDataURL(file);
+        }
+    });
+</script>
+{% endblock %}
+
+{% block form_actions %}
+<div class="d-grid d-md-block">
+    <button type="submit" class="btn btn-primary btn-lg px-5 shadow-sm rounded-pill fw-bold">
+        <i class="bi bi-check2-all me-2"></i> Save Site Configuration
+    </button>
 </div>
 {% endblock %}

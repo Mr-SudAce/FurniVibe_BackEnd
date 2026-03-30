@@ -2,73 +2,69 @@
 {% load static %}
 
 {% block list_title %}Orders{% endblock %}
-{% block table_title %}All Orders{% endblock %}
-
-{% block add_url %}#{% endblock %}
-{% block add_new_name %}{% endblock %}
+{% block table_title %}Order Management{% endblock %}
 
 {% block table_headers %}
-<tr class="text-center">
-    <th>ID</th>
-    <th>User/Customer</th>
+<tr class="bg-light text-muted text-uppercase small">
+    <th class="ps-4" style="width: 100px;">ID</th>
+    <th>Customer</th>
     <th>Recipient</th>
-    <th>Total</th>
-    <th>Status</th>
-    <th>Created</th>
+    <th>Product Details</th>
+    <th class="text-center">Amount</th>
+    <th class="text-center">Status</th>
     <th class="text-end pe-4">Actions</th>
 </tr>
 {% endblock %}
 
 {% block table_rows %}
-{% for order in recent_orders %}
-<tr class="text-center">
-    <td class="fw-bold">#{{ order.id }}</td>
-
-    <td>
-        {% if order.user %}
-        {{ order.user.username }}
-        {% else %}
-        <span class="text-muted">Guest</span>
-        {% endif %}
+{% for item in recent_orders %}
+<tr class="align-middle border-bottom">
+    <td class="ps-4">
+        <span class="badge bg-secondary-subtle text-dark fw-bolder">#{{ item.order.id }}</span>
     </td>
 
-    <td>{{ order.shipping_address.name|default:"-" }}</td>
-
-    <td class="fw-bold text-primary">
-        Rs. {{ order.total_amount|default:"0.00"}}</td>
-
     <td>
-        {% if order.status == 'Delivered' %}
-        <span
-            class="badge rounded-pill bg-success-subtle text-success border border-success px-3">Delivered</span>
-        {% elif order.status == 'Pending' %}
-        <span
-            class="badge rounded-pill bg-warning-subtle text-warning border border-warning px-3">Pending</span>
-        {% elif order.status == 'Cancelled' %}
-        <span
-            class="badge rounded-pill bg-danger-subtle text-danger border border-danger px-3">Cancelled</span>
-        {% else %}
-        <span class="badge rounded-pill bg-light text-dark border px-3">
-            {{order.status }}</span>
-        {% endif %}
+        <div class="fw-bold text-dark">{{ item.order.user.first_name|default:"Guest" }} {{ item.order.user.last_name|default:"" }}</div>
+        <div class="small text-muted">@{{ item.order.user.username|default:"guest_user" }}</div>
     </td>
 
-    <td class="small text-muted">{{ order.created_at|date:"Y-m-d H:i" }}</td>
+    <td>
+        <div class="fw-bold text-dark">{{ item.order.shipping_address.name }}</div>
+        <div class="small text-muted"><i class="bi bi-telephone"></i> {{ item.order.shipping_address.phone_number }}</div>
+    </td>
+
+    <td>
+        <div class="text-dark fw-medium">{{ item.product_name }}</div>
+        <div class="smaller text-muted">Qty: {{ item.quantity }} × Rs. {{ item.price }}</div>
+    </td>
+
+    <td class="text-center">
+        <span class="fw-bold text-primary">Rs. {{ item.order.total_amount }}</span>
+    </td>
+
+    <td class="text-center">
+        {% with status=item.order.status|lower %}
+            {% if status == 'delivered' or status == 'paid' %}
+                <span class="badge rounded-pill bg-success-subtle text-success border border-success px-3">Completed</span>
+            {% elif status == 'pending' %}
+                <span class="badge rounded-pill bg-warning-subtle text-warning-emphasis border border-warning px-3">Pending</span>
+            {% elif status == 'cancelled' %}
+                <span class="badge rounded-pill bg-danger-subtle text-danger border border-danger px-3">Cancelled</span>
+            {% else %}
+                <span class="badge rounded-pill bg-light text-dark border px-3">{{ item.order.status|title }}</span>
+            {% endif %}
+        {% endwith %}
+    </td>
 
     <td class="text-end pe-4">
-        <div class="btn-group">
-            <a href="{% url 'update_order' order.id %}"
-                class="btn btn-sm btn-primary rounded-pill px-3 me-1">
-                Update
+        <div class="d-flex justify-content-end gap-2">
+            <a href="{% url 'update_order' item.order.id %}" class="btn btn-sm btn-outline-primary rounded-pill px-3 shadow-sm">
+               Edit
             </a>
-
-            <form action="{% url 'order_delete' order.id %}" method="POST"
-                class="d-inline">
+            <form action="{% url 'order_delete' item.order.id %}" method="POST" class="d-inline">
                 {% csrf_token %}
-                <button type="submit"
-                    class="btn btn-sm btn-outline-secondary rounded-pill"
-                    onclick="return confirm('Permanently delete Order #{{ order.id }}?')">
-                    Delete
+                <button type="submit" class="btn btn-sm btn-link text-danger p-0" onclick="return confirm('Delete Order #{{ item.order.id }}?')">
+                    <i class="bi bi-trash"></i>
                 </button>
             </form>
         </div>
@@ -76,8 +72,8 @@
 </tr>
 {% empty %}
 <tr>
-    <td colspan="7" class="text-center py-5 text-muted">
-        No orders found.
+    <td colspan="7" class="text-center py-5">
+        <p class="text-muted mb-0">No records found for this selection.</p>
     </td>
 </tr>
 {% endfor %}

@@ -2,57 +2,109 @@
 {% load static %}
 
 {% block form_title %}
-    {% if form.instance.pk %}Manage Brand: {{ form.instance.name }}{% else %}Register New Brand{% endif %}
+    {% if form.instance.pk %}
+        <i class="bi bi-award me-2"></i>Manage Brand: {{ form.instance.name }}
+    {% else %}
+        <i class="bi bi-patch-plus me-2"></i>Register New Brand
+    {% endif %}
 {% endblock %}
 
 {% block back_url %}{% url 'brand_list' %}{% endblock %}
 
 {% block main_fields %}
-<div class="form-group mb-4">
-    <label class="fw-bold"><i class="bi bi-award me-1 text-primary"></i> Official Brand Name</label>
-    {{ form.name }}
-    <div class="text-muted tiny-text mt-1">Example: Samsung, Apple, Nike</div>
-</div>
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body p-4">
+        <div class="form-group mb-4">
+            <label class="form-label fw-bold text-dark">
+                <i class="bi bi-award me-1 text-primary"></i> Official Brand Name
+            </label>
+            {{ form.name }}
+            <div class="form-text mt-1 small text-muted">Example: Samsung, Apple, Nike. This will be used for product filtering.</div>
+            {% if form.name.errors %}
+                <div class="text-danger small mt-1">{{ form.name.errors }}</div>
+            {% endif %}
+        </div>
 
-<div class="form-group mb-3">
-    <label class="fw-bold"><i class="bi bi-info-circle me-1 text-primary"></i> Brand Story / Bio</label>
-    {{ form.description }}
+        <div class="form-group mb-0 p-3 bg-light rounded-3 border">
+            <label class="form-label fw-bold text-dark">
+                <i class="bi bi-info-circle me-1 text-primary"></i> Brand Story / Bio
+            </label>
+            {{ form.description }}
+            <div class="form-text mt-1 small">A brief history or value proposition of the brand.</div>
+            {% if form.description.errors %}
+                <div class="text-danger small mt-1">{{ form.description.errors }}</div>
+            {% endif %}
+        </div>
+    </div>
 </div>
 {% endblock %}
 
 {% block side_fields %}
-<div class="card mb-4 border shadow-none">
-    <div class="card-header bg-light small fw-bold text-uppercase py-2" style="font-size: 10px; letter-spacing: 1px;">
-        Brand Logo Assets
+<div class="card border shadow-sm mb-4">
+    <div class="card-header bg-white py-3">
+        <h6 class="m-0 fw-bold text-dark small text-uppercase" style="letter-spacing: 0.5px;">Brand Logo Assets</h6>
     </div>
-    <div class="card-body text-center bg-white p-4">
-        <div class="logo-preview-box border rounded p-3 bg-light mb-3 d-inline-block">
-            {% if form.instance.logo %}
-                <img src="{{ form.instance.logo.url }}" class="img-fluid" style="max-height: 80px; object-fit: contain;">
-            {% else %}
-                <i class="bi bi-shield-check text-muted fs-1 opacity-50"></i>
-            {% endif %}
+    <div class="card-body text-center bg-light-subtle py-4">
+        <div class="logo-preview-box border rounded-3 p-3 bg-white mb-3 d-inline-block shadow-sm" style="min-width: 120px;">
+            <div id="image-preview-container">
+                {% if form.instance.logo %}
+                    <img src="{{ form.instance.logo.url }}" class="img-fluid" id="brand-logo-preview" style="max-height: 80px; object-fit: contain;">
+                {% else %}
+                    <div id="placeholder-icon">
+                        <i class="bi bi-shield-check text-muted fs-1 opacity-25"></i>
+                    </div>
+                {% endif %}
+            </div>
+            <img id="new-logo-preview" class="img-fluid d-none" style="max-height: 80px; object-fit: contain;">
         </div>
-        <div class="mt-2 small">
+        
+        <div class="text-start mt-2">
+            <label class="form-label fw-bold small">Upload Logo</label>
             {{ form.logo }}
         </div>
-        <div class="tiny-text text-muted mt-2">Transparent PNG or SVG preferred.</div>
+        <div class="small text-muted mt-2" style="font-size: 0.7rem;">Transparent PNG or SVG (min 400x400px) preferred.</div>
     </div>
 </div>
 
-<div class="card border shadow-none bg-white">
+<div class="card border shadow-sm bg-white">
     <div class="card-body">
+        <h6 class="small fw-bold mb-3 text-muted border-bottom pb-2">PARTNERSHIP STATUS</h6>
         <div class="form-check form-switch">
             {{ form.is_active }}
-            <label class="form-check-label fw-bold">Active Partner</label>
+            <label class="form-check-label fw-bold text-dark" for="{{ form.is_active.id_for_label }}">Active Partner</label>
         </div>
-        <p class="text-muted tiny-text mb-0 mt-1">Deactivating a brand will hide all associated products from search.</p>
+        <p class="text-muted mt-2 mb-0" style="font-size: 0.75rem;">
+            <i class="bi bi-exclamation-triangle me-1"></i> Deactivating a brand will hide its products from the shopfront.
+        </p>
     </div>
 </div>
+
+<script>
+    document.querySelector('input[type="file"]').addEventListener('change', function() {
+        const file = this.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const preview = document.getElementById('new-logo-preview');
+                const oldPreview = document.getElementById('brand-logo-preview');
+                const placeholder = document.getElementById('placeholder-icon');
+                
+                preview.src = e.target.result;
+                preview.classList.remove('d-none');
+                
+                if(oldPreview) oldPreview.classList.add('d-none');
+                if(placeholder) placeholder.classList.add('d-none');
+            }
+            reader.readAsDataURL(file);
+        }
+    });
+</script>
 {% endblock %}
 
 {% block form_actions %}
-<button type="submit" class="btn btn-primary btn-lg px-5 shadow-sm rounded-pill">
-    <i class="bi bi-shield-fill-check me-2"></i> Register Brand
-</button>
+<div class="d-grid d-md-block">
+    <button type="submit" class="btn btn-primary btn-lg px-5 shadow-sm rounded-pill fw-bold">
+        <i class="bi bi-shield-fill-check me-2"></i> Register Brand
+    </button>
+</div>
 {% endblock %}

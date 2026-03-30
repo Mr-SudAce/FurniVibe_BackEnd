@@ -4,6 +4,23 @@
 {% block extra_css %}
 {{ block.super }}
 <link rel="stylesheet" href="{% static 'CSS/list.css' %}">
+<style>
+    /* Consistent Thumbnail Style */
+    .brand-logo-container {
+        width: 60px;
+        height: 60px;
+        object-fit: contain; /* Brands look better with 'contain' to avoid cropping logos */
+        border-radius: 8px;
+        padding: 4px;
+        border: 1px solid #f0f0f0;
+        background: #ffffff;
+    }
+    .brand-logo {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+    }
+</style>
 {% endblock %}
 
 {% block list_title %}Brands{% endblock %}
@@ -13,57 +30,64 @@
 
 {% block table_headers %}
 <tr>
-    <th class="text-center" style="width: 120px;">Logo</th>
+    <th class="text-center" style="width: 100px;">Logo</th>
     <th>Brand Details</th>
-    <th>Bio / Description</th>
-    <th>Status</th>
-    <th class="text-end">Actions</th>
+    <th class="d-none d-md-table-cell">Bio / Description</th>
+    <th class="text-center">Status</th>
+    <th class="text-end pe-4">Actions</th>
 </tr>
 {% endblock %}
 
 {% block table_rows %}
 {% for brand in brands %}
-<tr>
+<tr class="align-middle">
     <td class="text-center">
-        <div class="brand-logo-container">
+        <div class="brand-logo-container mx-auto shadow-sm">
             {% if brand.logo %}
-            <img src="{{ brand.logo.url}}" alt="{{ brand.name }}"
-                class="brand-logo" width="100px">
+                <img src="{{ brand.logo.url }}" alt="{{ brand.name }}" class="brand-logo">
             {% else %}
-            <img src="{% static 'images/default_img.png' %}"
-                alt="{{ brand.name }}" class="brand-logo" width="100px">
+                <div class="d-flex align-items-center justify-content-center h-100 bg-light-subtle">
+                    <i class="bi bi-shield-shaded text-muted opacity-50"></i>
+                </div>
             {% endif %}
         </div>
     </td>
 
     <td>
-        <div class="fw-bold text-dark">{{ brand.name }}</div>
-        <div class="small text-primary fw-medium">Official Partner</div>
+        <div class="fw-bold text-dark fs-6">{{ brand.name }}</div>
+        <div class="small">
+            <span class="badge bg-primary-subtle text-primary border border-primary-subtle" style="font-size: 0.65rem;">Official Partner</span>
+        </div>
     </td>
 
-    <td class="text-muted small w-25">
-        {{brand.description|striptags|default:"No description available."|truncatechars:65}}
+    <td class="text-muted small d-none d-md-table-cell" style="max-width: 250px;">
+        {{ brand.description|striptags|default:"No description available."|truncatechars:70 }}
     </td>
 
-    <td>
+    <td class="text-center">
         {% if brand.is_active %}
-        <span class="status-pill-active">Active</span>
+            <span class="badge rounded-pill bg-success-subtle text-success border border-success px-3">
+                <i class="bi bi-check-circle-fill me-1"></i> Active
+            </span>
         {% else %}
-        <span class="status-pill-inactive">Inactive</span>
+            <span class="badge rounded-pill bg-light text-muted border px-3">
+                <i class="bi bi-dash-circle me-1"></i> Inactive
+            </span>
         {% endif %}
     </td>
 
-    <td>
-        <div class="d-flex justify-content-end gap-2">
-            <a href="{% url 'brand_update' brand.pk %}" class="btn-action-edit"
-                title="Edit Brand">
-                <i class="bi bi-pencil"></i>
+    <td class="text-end pe-4">
+        <div class="d-flex justify-content-end gap-1">
+            <a href="{% url 'brand_update' brand.pk %}" 
+               class="btn btn-sm btn-outline-primary border-0" 
+               title="Edit Brand">
+                <i class="bi bi-pencil-square fs-5"></i>
             </a>
-            <a href="{% url 'brand_delete' brand.pk %}"
-                class="btn-action-delete"
-                onclick="return confirm('Deleting this brand may affect associated products. Proceed?');"
-                title="Delete Brand">
-                <i class="bi bi-trash"></i>
+            <a href="{% url 'brand_delete' brand.pk %}" 
+               class="btn btn-sm btn-outline-danger border-0"
+               onclick="return confirm('Deleting this brand may affect associated products. Proceed?');"
+               title="Delete Brand">
+                <i class="bi bi-trash3 fs-5"></i>
             </a>
         </div>
     </td>
@@ -71,7 +95,12 @@
 {% empty %}
 <tr>
     <td colspan="5" class="text-center py-5">
-        <p class="text-muted">No Brands Found.</p>
+        <div class="py-4">
+            <i class="bi bi-building display-4 text-muted opacity-25 d-block mb-3"></i>
+            <h5 class="text-muted">No Brands Found</h5>
+            <p class="small text-secondary">Start adding brands to link with your products.</p>
+            <a href="{% url 'brand_create' %}" class="btn btn-sm btn-primary rounded-pill px-4">Add Brand</a>
+        </div>
     </td>
 </tr>
 {% endfor %}

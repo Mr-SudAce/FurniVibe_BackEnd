@@ -4,6 +4,46 @@
 {% block extra_css %}
 {{ block.super }}
 <link rel="stylesheet" href="{% static 'CSS/list.css' %}">
+<style>
+    /* Gallery Specific Styles */
+    .gallery-thumb-wrapper {
+        position: relative;
+        width: 80px;
+        height: 60px;
+        border-radius: 8px;
+        overflow: hidden;
+        border: 1px solid #eee;
+    }
+    .gallery-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    .view-overlay {
+        position: absolute;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0,0,0,0.4);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        opacity: 0;
+        transition: opacity 0.2s ease;
+        text-decoration: none;
+    }
+    .gallery-thumb-wrapper:hover .view-overlay {
+        opacity: 1;
+    }
+    .badge-file-type {
+        font-size: 0.65rem;
+        background: #f8f9fa;
+        color: #6c757d;
+        border: 1px solid #dee2e6;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-family: monospace;
+    }
+</style>
 {% endblock %}
 
 {% block list_title %}Product Gallery{% endblock %}
@@ -13,55 +53,63 @@
 
 {% block table_headers %}
 <tr>
-    <th style="width: 150px;">Preview</th>
+    <th class="ps-4" style="width: 120px;">Preview</th>
     <th>Linked Product</th>
-    <th>File Info</th>
-    <th class="text-end">Actions</th>
+    <th class="d-none d-md-table-cell">Asset Path</th>
+    <th class="text-center">Type</th>
+    <th class="text-end pe-4">Actions</th>
 </tr>
 {% endblock %}
 
 {% block table_rows %}
 {% for image in images %}
-<tr>
-    <td>
-        <div class="gallery-thumb">
+<tr class="align-middle">
+    <td class="ps-4">
+        <div class="gallery-thumb-wrapper shadow-sm">
             {% if image.image %}
-            <img src="{{ image.image.url }}" alt="Gallery Asset" width="100px">
-            <a href="{{ image.image.url }}" target="_blank"
-                class="view-overlay">
-                <i class="bi bi-zoom-in"></i>
-            </a>
+                <img src="{{ image.image.url }}" alt="Gallery Asset" class="gallery-img" width="100px" height="100px">
+                <a href="{{ image.image.url }}" target="_blank" class="view-overlay">
+                    <i class="bi bi-zoom-in fs-5"></i>
+                </a>
             {% else %}
-            <img src="{% static 'images/default_img.png' %}" alt="Gallery Asset"
-            width="100px">
+                <img src="{% static 'images/default_img.png' %}" alt="Default" class="gallery-img">
             {% endif %}
         </div>
     </td>
 
     <td>
         <div class="fw-bold text-dark">{{ image.product.name }}</div>
-        <div class="text-muted small">Category: {{
-            image.product.category.name|default:"General" }}</div>
+        <div class="small text-primary">
+            <i class="bi bi-folder2 me-1"></i>{{ image.product.category.name|default:"General" }}
+        </div>
     </td>
 
-    <td>
-        <span class="badge-file-type">JPG/PNG</span>
-        <div class="tiny-text text-muted mt-1">Uploaded to:
-            /media/products/</div>
+    <td class="d-none d-md-table-cell">
+        <div class="text-muted font-monospace smaller" style="font-size: 0.75rem;">
+            .../media/products/{{ image.image.name|truncatechars:50 }}
+        </div>
     </td>
 
-    <td>
-        <div class="d-flex justify-content-end gap-2">
-            <a href="{% url 'more_images_update' image.pk %}"
-                class="btn-action-edit" title="Replace Image">
-                <i class="bi bi-pencil"></i>
+    <td class="text-center">
+        <span class="badge-file-type text-uppercase">
+            {{ image.image.name|slice:"-3:" }}
+        </span>
+    </td>
+
+    <td class="text-end pe-4">
+        <div class="d-flex justify-content-end gap-1">
+            <a href="{% url 'more_images_update' image.pk %}" 
+               class="btn btn-sm btn-outline-primary border-0" 
+               title="Replace Image">
+                <i class="bi bi-pencil-square fs-5"></i>
             </a>
-            <form action="{% url 'more_images_delete' image.pk %}" method="POST"
-                class="d-inline">
+            <form action="{% url 'more_images_delete' image.pk %}" method="POST" class="d-inline">
                 {% csrf_token %}
-                <button type="submit" class="btn-action-delete border-0"
-                    onclick="return confirm('Delete this gallery image?');">
-                    <i class="bi bi-trash"></i>
+                <button type="submit" 
+                        class="btn btn-sm btn-outline-danger border-0"
+                        onclick="return confirm('Delete this gallery image?');"
+                        title="Delete">
+                    <i class="bi bi-trash3 fs-5"></i>
                 </button>
             </form>
         </div>
@@ -69,8 +117,13 @@
 </tr>
 {% empty %}
 <tr>
-    <td colspan="4" class="text-center py-5">
-        <p class="text-muted">No additional images have been uploaded.</p>
+    <td colspan="5" class="text-center py-5">
+        <div class="py-4">
+            <i class="bi bi-images display-4 text-muted opacity-25 d-block mb-3"></i>
+            <h5 class="text-muted">No Additional Images</h5>
+            <p class="small text-secondary">Enhance your product pages by adding multiple gallery views.</p>
+            <a href="{% url 'more_images_create' %}" class="btn btn-sm btn-primary rounded-pill px-4">Upload Images</a>
+        </div>
     </td>
 </tr>
 {% endfor %}

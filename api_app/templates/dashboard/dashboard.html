@@ -10,14 +10,9 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Dashboard | Admin</title>
-        <link
-            href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
-            rel="stylesheet">
-        <link
-            href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
-            rel="stylesheet">
-        <link rel="stylesheet"
-            href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
         <link rel="stylesheet" href="{% static 'CSS/main.css' %}">
     </head>
     <body>
@@ -32,64 +27,37 @@
         </header>
 
         <aside class="sidebar" id="sidebar">
-            <div
-                class="sidebar-user-section text-center mb-2 pb-3 border-bottom mx-2">
+            <div class="sidebar-user-section text-center mb-2 pb-3 border-bottom mx-2">
                 <div class="sidebar-avatar mx-auto mb-2">
                     {{ user.first_name|first }}{{ user.last_name|first }}
                 </div>
-                <h6 class="fw-bold text-dark mb-0 text-uppercase">
-                    {{ user.first_name }} {{ user.last_name }}</h6>
-                <p class="text-primary small fw-bold mb-2"
-                    style="font-size: 0.65rem;">
+                <h6 class="fw-bold text-dark mb-0 text-uppercase">{{ user.first_name }} {{ user.last_name }}</h6>
+                <p class="text-primary small fw-bold mb-2" style="font-size: 0.65rem;">
                     <i class="bi bi-shield-check me-1"></i>
-                    {% if user.is_superuser %}SUPER ADMIN{% else %}STORE
-                    MANAGER{% endif %}
+                    {% if user.is_superuser %}SUPER ADMIN{% else %}STORE MANAGER{% endif %}
                 </p>
-                <a href="{% url 'accProfile' %}"
-                    class="btn btn-sm btn-light rounded-pill px-3 py-1 fw-bold text-muted"
-                    style="font-size: 0.7rem;">
-                    VIEW PROFILE
-                </a>
+                <a href="{% url 'accProfile' %}" class="btn btn-sm btn-light rounded-pill px-3 py-1 fw-bold text-muted" style="font-size: 0.7rem;">VIEW PROFILE</a>
             </div>
 
             <nav class="flex-grow-1 overflow-auto no-scrollbar">
-                <p class="text-muted small fw-bold text-uppercase mb-1 px-3"
-                    style="letter-spacing: 1px; font-size: 0.7rem;">Menu</p>
-                <a href="{% url 'dashboard_home' %}"
-                    class="nav-link-custom {% if request.resolver_match.url_name == 'dashboard_home' %}active{% endif %}">
+                <p class="text-muted small fw-bold text-uppercase mb-1 px-3" style="letter-spacing: 1px; font-size: 0.7rem;">Menu</p>
+                <a href="{% url 'dashboard_home' %}" class="nav-link-custom {% if request.resolver_match.url_name == 'dashboard_home' %}active{% endif %}">
                     <i class="bi bi-house-door"></i> <span>Dashboard</span>
                 </a>
-                <a href="{% url 'product_list' %}" class="nav-link-custom">
-                    <i class="bi bi-box-seam"></i> <span>Products</span>
-                </a>
-                <a href="{% url 'category_list' %}" class="nav-link-custom">
-                    <i class="bi bi-grid"></i> <span>Categories</span>
-                </a>
-                <a href="{% url 'brand_list' %}" class="nav-link-custom">
-                    <i class="bi bi-bookmark-star"></i> <span>Brands</span>
-                </a>
-                <a href="{% url 'variant_list' %}" class="nav-link-custom">
-                    <i class="bi bi-layers"></i> <span>Variants</span>
-                </a>
-                <a href="{% url 'blog_list' %}" class="nav-link-custom">
-                    <i class="bi bi-chat-left-dots"></i> <span>Blogs</span>
-                </a>
-                <a href="{% url 'more_images_list' %}" class="nav-link-custom">
-                    <i class="bi bi-images"></i> <span>Gallery</span>
-                </a>
-                <a href="{% url 'other_detail_list' %}" class="nav-link-custom">
-                    <i class="bi bi-info-circle"></i> <span>Details</span>
-                </a>
+                <a href="{% url 'product_list' %}" class="nav-link-custom"><i class="bi bi-box-seam"></i> <span>Products</span></a>
+                <a href="{% url 'category_list' %}" class="nav-link-custom"><i class="bi bi-grid"></i> <span>Categories</span></a>
+                <a href="{% url 'brand_list' %}" class="nav-link-custom"><i class="bi bi-bookmark-star"></i> <span>Brands</span></a>
+                <a href="{% url 'variant_list' %}" class="nav-link-custom"><i class="bi bi-layers"></i> <span>Variants</span></a>
+                <a href="{% url 'blog_list' %}" class="nav-link-custom"><i class="bi bi-chat-left-dots"></i> <span>Blogs</span></a>
+                <a href="{% url 'more_images_list' %}" class="nav-link-custom"><i class="bi bi-images"></i> <span>Gallery</span></a>
+                <a href="{% url 'other_detail_list' %}" class="nav-link-custom"><i class="bi bi-info-circle"></i> <span>Details</span></a>
             </nav>
 
             <div class="mt-auto pt-4 border-top">
-                <form id="logoutForm" action="{% url 'dashboard_logout' %}"
-                    method="post">
+                <form id="logoutForm" action="{% url 'dashboard_logout' %}" method="post">
                     {% csrf_token %}
-                    <button type="submit"
-                        class="nav-link-custom text-danger w-100 border-0 bg-transparent text-start">
-                        <i class="bi bi-box-arrow-right"></i>
-                        <span>Logout</span>
+                    <button type="submit" class="nav-link-custom text-danger w-100 border-0 bg-transparent text-start">
+                        <i class="bi bi-box-arrow-right"></i> <span>Logout</span>
                     </button>
                 </form>
             </div>
@@ -97,146 +65,106 @@
 
         <main class="main-wrapper">
             {% if request.resolver_match.url_name == 'dashboard_home' %}
-            <header
-                class="mb-4 d-flex justify-content-between align-items-center">
+            <header class="mb-4 d-flex justify-content-between align-items-center">
                 <h2 class="fw-bold m-0">Main Dashboard</h2>
-
             </header>
 
             <div class="row g-4 mb-4">
                 <div class="col-md-3">
-                    <div class="stat-card">
-                        <div class="icon-circle text-primary"><i
-                                class="bi bi-bar-chart-fill"></i></div>
+                    <div class="stat-card p-3 shadow-sm border rounded bg-white d-flex align-items-center">
+                        <div class="icon-circle text-primary bg-primary-subtle rounded-circle p-3 me-3"><i class="bi bi-bar-chart-fill fs-4"></i></div>
                         <div>
                             <p class="small text-muted mb-0">Total Orders</p>
-                            <h4 class="fw-bold mb-0">
-                                {{total_orders|default:"0"}}</h4>
+                            <h4 class="fw-bold mb-0">{{total_orders|default:"0"}}</h4>
                         </div>
                     </div>
                 </div>
                 <div class="col-md-3">
-                    <div class="stat-card">
-                        <div class="icon-circle text-warning"><i
-                                class="bi bi-clock-fill"></i></div>
-                        <div>
-                            <p class="small text-muted mb-0">Pending</p>
-                            <h4 class="fw-bold mb-0">
-                                {{pending_orders|default:"0"}}</h4>
-                        </div>
+                    <div class="stat-card p-3 shadow-sm border rounded bg-white d-flex align-items-center">
+                        <div class="icon-circle text-warning bg-warning-subtle rounded-circle p-3 me-3"><i class="bi bi-clock-fill fs-4"></i></div>
+                        <div><p class="small text-muted mb-0">Pending</p><h4 class="fw-bold mb-0">{{pending_orders|default:"0"}}</h4></div>
                     </div>
                 </div>
                 <div class="col-md-3">
-                    <div class="stat-card">
-                        <div class="icon-circle text-success"><i
-                                class="bi bi-check-lg"></i></div>
-                        <div>
-                            <p class="small text-muted mb-0">Completed</p>
-                            <h4 class="fw-bold mb-0">
-                                {{completed_orders|default:"0"}}</h4>
-                        </div>
+                    <div class="stat-card p-3 shadow-sm border rounded bg-white d-flex align-items-center">
+                        <div class="icon-circle text-success bg-success-subtle rounded-circle p-3 me-3"><i class="bi bi-check-lg fs-4"></i></div>
+                        <div><p class="small text-muted mb-0">Completed</p><h4 class="fw-bold mb-0">{{completed_orders|default:"0"}}</h4></div>
                     </div>
                 </div>
                 <div class="col-md-3">
-                    <div class="stat-card">
-                        <div class="icon-circle text-danger"><i
-                                class="bi bi-x-lg"></i></div>
-                        <div>
-                            <p class="small text-muted mb-0">Cancelled</p>
-                            <h4 class="fw-bold mb-0">
-                                {{cancelled_orders|default:"0" }}</h4>
-                        </div>
+                    <div class="stat-card p-3 shadow-sm border rounded bg-white d-flex align-items-center">
+                        <div class="icon-circle text-danger bg-danger-subtle rounded-circle p-3 me-3"><i class="bi bi-x-lg fs-4"></i></div>
+                        <div><p class="small text-muted mb-0">Cancelled</p><h4 class="fw-bold mb-0">{{cancelled_orders|default:"0" }}</h4></div>
                     </div>
                 </div>
             </div>
 
-            <div class="table-card">
-                <div
-                    class="p-4 border-bottom d-flex justify-content-between align-items-center">
-                    <h5 class="fw-bold m-0">Recent Activity
-                        {% if current_filter and current_filter != 'all' %}
-                        <span
-                            class="badge bg-primary-subtle text-primary fw-normal rounded-pill ms-2"
-                            style="font-size: 0.8rem;">
-                            Showing: {{ current_filter|title }}
-                        </span>
-                        {% endif %}
-                    </h5>
-                    <div class="dropdown">
-                        <button
-                            class="btn btn-white border shadow-sm rounded-pill px-4 dropdown-toggle"
-                            type="button" data-bs-toggle="dropdown">
-                            <i class="bi bi-funnel me-2 text-primary"></i>
-                            Filter:
-                            {% if current_filter == 'paid' %}
-                            Completed
-                            {%else %}
-                            {{ current_filter|default:"All"|title }}
-                            {%endif %}
-                        </button>
-                        <ul
-                            class="dropdown-menu dropdown-menu-end shadow border-0">
-                            <li><a class="dropdown-item" href="?status=all">All
-                                    Orders</a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item"
-                                    href="?status=pending">Pending</a></li>
-                            <li><a class="dropdown-item"
-                                    href="?status=paid">Completed</a></li>
-                            <li><a class="dropdown-item"
-                                    href="?status=cancelled">Cancelled</a></li>
-                        </ul>
-                    </div>
-                    <a href="{% url 'order_list' %}">
-                        <button
-                            class="btn btn-sm btn-light rounded-pill px-3">View
-                            All</button>
-                    </a>
+            <div class="table-card bg-white border rounded shadow-sm">
+                <div class="p-4 border-bottom d-flex justify-content-between align-items-center">
+                    <h5 class="fw-bold m-0">Recent Activity</h5>
+                    <a href="{% url 'order_list' %}" class="btn btn-sm btn-light border rounded-pill px-3">View All</a>
                 </div>
+
                 <div class="table-responsive">
                     <table class="table align-middle mb-0">
-                        <thead>
-                            <tr>
-                                <th class="ps-4">Order ID</th>
-                                <th>Product</th>
-                                <th>User/Customer</th>
+                        <thead class="bg-light">
+                            <tr class="text-muted small text-uppercase">
+                                <th class="ps-4">ID</th>
+                                <th>Customer</th>
                                 <th>Recipient</th>
+                                <th>Product Details</th>
                                 <th>Total</th>
-                                <th>Status</th>
+                                <th class="text-center">Status</th>
+                                <th class="text-end pe-4">Action</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {% for order in recent_orders %}
-                            <tr>
-                                <td class="ps-4 fw-bold">#{{ order.id }}</td>
-                                <td>{{order.items.name}}</td>
-                                <td>{{ order.user.username }}</td>
-                                <td>{{ order.shipping_address.name }}</td>
-                                <td class="fw-bold text-primary">
-                                    Rs.{{order.total_amount }}</td>
-                                <td>
-                                    {% if order.status == "paid" %}
-                                    <span
-                                        class="badge rounded-pill bg-success-subtle text-success border border-success">Completed</span>
-                                    {% elif order.status == "pending" %}
-                                    <span
-                                        class="badge rounded-pill bg-warning-subtle text-warning-emphasis border border-warning">Pending</span>
-                                    {% elif order.status == "cancelled" %}
-                                    <span
-                                        class="badge rounded-pill bg-danger-subtle text-danger border border-danger">Cancelled</span>
-                                    {% else %}
-                                    <span
-                                        class="badge rounded-pill bg-light text-dark border">
-                                        {{order.status|title }}</span>
-                                    {% endif %}
+                            {% for orders in recent_orders %}
+                            <tr class="border-bottom">
+                                <td class="ps-4">
+                                    <span class="badge bg-secondary-subtle text-dark fw-bolder">#{{ orders.order.id }}</span>
                                 </td>
-
+                                <td>
+                                    <div class="fw-bold text-dark">{{ orders.order.user.first_name|default:"Guest" }} {{ orders.order.user.last_name|default:"" }}</div>
+                                    <div class="small text-muted">@{{ orders.order.user.username|default:"guest_user" }}</div>
+                                </td>
+                                <td>
+                                    <div class="fw-bold text-dark">{{ orders.order.shipping_address.name }}</div>
+                                    <div class="small text-muted"><i class="bi bi-telephone"></i> {{ orders.order.shipping_address.phone_number }}</div>
+                                </td>
+                                <td>
+                                    <div class="text-dark fw-medium">{{ orders.product_name }}</div>
+                                    <div class="smaller text-muted">Qty: {{ orders.quantity }} × Rs. {{ orders.price }}</div>
+                                </td>
+                                <td class="text-left fw-bold text-success">Rs. {{ orders.order.total_amount }}</td>
+                                <td class="text-center">
+                                    {% with status=orders.order.status|lower %}
+                                        {% if status == 'delivered' or status == 'paid' %}
+                                            <span class="badge rounded-pill bg-success-subtle text-success border border-success px-3">Completed</span>
+                                        {% elif status == 'pending' %}
+                                            <span class="badge rounded-pill bg-warning-subtle text-warning-emphasis border border-warning px-3">Pending</span>
+                                        {% elif status == 'cancelled' %}
+                                            <span class="badge rounded-pill bg-danger-subtle text-danger border border-danger px-3">Cancelled</span>
+                                        {% else %}
+                                            <span class="badge rounded-pill bg-light text-dark border px-3">{{ status|title }}</span>
+                                        {% endif %}
+                                    {% endwith %}
+                                </td>
+                                <td class="text-end pe-4">
+                                    <div class="d-flex justify-content-end gap-2">
+                                        <a href="{% url 'update_order' orders.order.id %}" class="btn btn-sm btn-outline-primary rounded-pill px-3 shadow-sm">Edit</a>
+                                        <form action="{% url 'order_delete' orders.order.id %}" method="POST" class="d-inline">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-sm btn-link text-danger p-0" onclick="return confirm('Delete Order #{{ orders.order.id }}?')">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
                             </tr>
                             {% empty %}
                             <tr>
-                                <td colspan="7"
-                                    class="text-center py-5 text-muted">No
-                                    orders found matching this filter.</td>
+                                <td colspan="7" class="text-center py-5 text-muted">No recent orders found.</td>
                             </tr>
                             {% endfor %}
                         </tbody>
@@ -254,14 +182,12 @@
             function toggleSidebar() {
                 document.getElementById('sidebar').classList.toggle('active');
             }
-
             document.getElementById('logoutForm').addEventListener('submit', function(e) {
                 localStorage.removeItem('access_token');
                 localStorage.removeItem('refresh_token');
                 localStorage.clear(); 
             });
         </script>
-        <script
-            src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     </body>
 </html>

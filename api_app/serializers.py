@@ -355,6 +355,7 @@ class OrderSerializer(serializers.ModelSerializer):
     items = OrderItemSerializer(many=True, read_only=True)
     payment = PaymentSerializer(source="paymentmodel", read_only=True)
     shipping_address = ShippingAddressSerializer(read_only=True)
+    
 
     class Meta:
         model = OrderModel

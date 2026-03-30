@@ -2,69 +2,111 @@
 {% load static %}
 
 {% block form_title %}
-    {% if form.instance.pk %}Edit Category: {{ form.instance.name }}{% else %}Create New Category{% endif %}
+    {% if form.instance.pk %}
+        <i class="bi bi-pencil-square me-2"></i>Edit Category: {{ form.instance.name }}
+    {% else %}
+        <i class="bi bi-folder-plus me-2"></i>Create New Category
+    {% endif %}
 {% endblock %}
 
 {% block back_url %}{% url 'category_list' %}{% endblock %}
 
 {% block main_fields %}
-<div class="form-group mb-4">
-    <label for="{{ form.name.id_for_label }}">
-        <i class="bi bi-tag-fill me-1 text-primary"></i> Category Name
-    </label>
-    {{ form.name }}
-    <small class="text-muted d-block mt-1">This name will appear in your main navigation and filters.</small>
-    {% if form.name.errors %}
-        <div class="text-danger small">{{ form.name.errors }}</div>
-    {% endif %}
-</div>
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body p-4">
+        <div class="form-group mb-4">
+            <label class="form-label fw-bold text-dark" for="{{ form.name.id_for_label }}">
+                <i class="bi bi-tag-fill me-1 text-primary"></i> Category Name
+            </label>
+            {{ form.name }}
+            <div class="form-text mt-1 text-muted">This name will appear in your main navigation and filters.</div>
+            {% if form.name.errors %}
+                <div class="text-danger small mt-1">{{ form.name.errors }}</div>
+            {% endif %}
+        </div>
 
-<div class="form-group mb-3">
-    <label for="{{ form.description.id_for_label }}">
-        <i class="bi bi-card-text me-1 text-primary"></i> Description
-    </label>
-    {{ form.description }}
-    {% if form.description.errors %}
-        <div class="text-danger small">{{ form.description.errors }}</div>
-    {% endif %}
+        <div class="form-group mb-0">
+            <label class="form-label fw-bold text-dark" for="{{ form.description.id_for_label }}">
+                <i class="bi bi-card-text me-1 text-primary"></i> Description
+            </label>
+            {{ form.description }}
+            <div class="form-text mt-1">Briefly describe the types of products found in this category.</div>
+            {% if form.description.errors %}
+                <div class="text-danger small mt-1">{{ form.description.errors }}</div>
+            {% endif %}
+        </div>
+    </div>
 </div>
 {% endblock %}
 
 {% block side_fields %}
-<div class="card mb-4 border bg-white shadow-none">
-    <div class="card-header bg-light small fw-bold text-uppercase py-2" style="font-size: 10px; letter-spacing: 1px;">
-        Category Icon / Image
+<div class="card border shadow-sm mb-4">
+    <div class="card-header bg-white py-3">
+        <h6 class="m-0 fw-bold text-dark small text-uppercase" style="letter-spacing: 0.5px;">Category Icon</h6>
     </div>
-    <div class="card-body text-center py-4">
+    <div class="card-body text-center bg-light-subtle py-4">
         <div class="icon-upload-zone mb-3">
-            {% if form.instance.image %}
-                <img src="{{ form.instance.image.url }}" class="preview-img-small shadow-sm border" id="category-preview" style="width: 100px; height: 100px;">
-            {% else %}
-                <div class="icon-placeholder-large bg-light rounded-circle d-inline-flex align-items-center justify-content-center border" style="width: 100px; height: 100px;">
-                    <i class="bi bi-folder2-open text-muted fs-2"></i>
-                </div>
-                <p class="text-muted tiny-text mt-2">No icon selected</p>
-            {% endif %}
+            <div id="image-preview-container">
+                {% if form.instance.image %}
+                    <img src="{{ form.instance.image.url }}" class="shadow-sm border rounded-3" id="category-preview" style="width: 100px; height: 100px; object-fit: cover;">
+                {% else %}
+                    <div class="icon-placeholder-large bg-white rounded-3 d-inline-flex align-items-center justify-content-center border" id="placeholder-box" style="width: 100px; height: 100px;">
+                        <i class="bi bi-image text-muted fs-2"></i>
+                    </div>
+                {% endif %}
+            </div>
+            <img id="new-preview" class="shadow-sm border rounded-3 d-none" style="width: 100px; height: 100px; object-fit: cover;">
         </div>
-        <div class="small">
+
+        <div class="small text-start">
+            <label class="form-label fw-bold small">Choose File</label>
             {{ form.image }}
         </div>
-        <div class="tiny-text text-muted mt-2">Recommended: SVG or PNG (256x256px)</div>
+        <div class="small text-muted mt-2" style="font-size: 0.7rem;">Recommended: Square PNG/SVG (256x256)</div>
     </div>
 </div>
 
-<div class="p-3 border rounded bg-white">
-    <h6 class="small fw-bold mb-3 border-bottom pb-2">VISIBILITY</h6>
-    <div class="form-check form-switch mb-0">
-        {{ form.is_active }}
-        <label class="form-check-label fw-bold" for="{{ form.is_active.id_for_label }}">Active Category</label>
+<div class="card border shadow-sm">
+    <div class="card-body">
+        <h6 class="small fw-bold mb-3 text-muted border-bottom pb-2">VISIBILITY</h6>
+        <div class="form-check form-switch mb-2">
+            {{ form.is_active }}
+            <label class="form-check-label fw-bold text-dark" for="{{ form.is_active.id_for_label }}">Active Category</label>
+        </div>
+        <p class="text-muted mb-0" style="font-size: 0.75rem;">
+            Hidden categories won't show in the shop menu or filters.
+        </p>
     </div>
-    <small class="text-muted tiny-text">Hidden categories won't show in the shop menu.</small>
 </div>
+
+<script>
+    document.querySelector('input[type="file"]').addEventListener('change', function() {
+        const file = this.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const preview = document.getElementById('new-preview');
+                const oldPreview = document.getElementById('category-preview');
+                const placeholder = document.getElementById('placeholder-box');
+                
+                // Show new preview
+                preview.src = e.target.result;
+                preview.classList.remove('d-none');
+                
+                // Hide old elements
+                if(oldPreview) oldPreview.classList.add('d-none');
+                if(placeholder) placeholder.classList.add('d-none');
+            }
+            reader.readAsDataURL(file);
+        }
+    });
+</script>
 {% endblock %}
 
 {% block form_actions %}
-<button type="submit" class="btn btn-primary btn-lg px-5 shadow-sm rounded-pill">
-    <i class="bi bi-check2-circle me-2"></i> Save Category
-</button>
+<div class="d-grid d-md-block">
+    <button type="submit" class="btn btn-primary btn-lg px-5 shadow-sm rounded-pill fw-bold">
+        <i class="bi bi-check2-circle me-2"></i> Save Category
+    </button>
+</div>
 {% endblock %}

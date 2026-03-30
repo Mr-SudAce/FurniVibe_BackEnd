@@ -359,7 +359,6 @@ class ShippingAddressModel(models.Model):
 # Order Model
 class OrderModel(models.Model):
     user = models.ForeignKey(UserModel, on_delete=models.SET_NULL, null=True)
-    order_detail = models.ForeignKey(CartModel, on_delete=models.SET_NULL, null=True)
     shipping_address = models.ForeignKey(ShippingAddressModel, on_delete=models.PROTECT)
     total_amount = models.DecimalField(max_digits=10, decimal_places=2)
 

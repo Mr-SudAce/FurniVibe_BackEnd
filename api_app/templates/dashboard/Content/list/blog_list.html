@@ -2,8 +2,44 @@
 {% load static %}
 
 {% block extra_css %}
-    {{ block.super }}
-    <link rel="stylesheet" href="{% static 'CSS/list.css' %}">
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'CSS/list.css' %}">
+<style>
+    /* Content-specific styles */
+    .blog-thumbnail-container {
+        width: 100px;
+        height: 60px;
+        overflow: hidden;
+        border-radius: 8px;
+        border: 1px solid #eee;
+        background-color: #f8f9fa;
+    }
+    .blog-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+    }
+    .blog-img:hover {
+        transform: scale(1.1);
+    }
+    .blog-img-placeholder {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        color: #adb5bd;
+        font-size: 1.5rem;
+    }
+    .slug-preview {
+        font-family: 'SFMono-Regular', Consolas, monospace;
+        font-size: 0.7rem;
+        color: #6c757d;
+        background: #f1f3f5;
+        padding: 2px 6px;
+        border-radius: 4px;
+    }
+</style>
 {% endblock %}
 
 {% block list_title %}Blog Posts{% endblock %}
@@ -13,55 +49,78 @@
 
 {% block table_headers %}
 <tr>
-    <th>Cover Image</th>
+    <th class="ps-4" style="width: 120px;">Cover</th>
     <th>Article Details</th>
-    <th>Status</th>
-    <th>Author/Date</th>
-    <th class="text-end">Actions</th>
+    <th class="text-center">Status</th>
+    <th class="d-none d-md-table-cell">Author & Date</th>
+    <th class="text-end pe-4">Actions</th>
 </tr>
 {% endblock %}
 
 {% block table_rows %}
 {% for blog in blogs %}
-<tr>
-    <td>
-        <div class="blog-thumbnail-container">
+<tr class="align-middle">
+    <td class="ps-4">
+        <div class="blog-thumbnail-container shadow-sm">
             {% if blog.image %}
-                <img src="{{ blog.image.url }}" alt="{{ blog.title }}" class="blog-img">
+            <img src="{{ blog.image.url }}" alt="{{ blog.title }}" width="100px" height="100px"
+                class="blog-img object-fit-contain">
             {% else %}
-                <div class="blog-img-placeholder"><i class="bi bi-card-text"></i></div>
+            <div class="blog-img-placeholder"><i class="bi bi-image"></i></div>
             {% endif %}
         </div>
     </td>
 
-    <td class="w-50">
-        <div class="fw-bold text-dark h6 mb-1">{{ blog.title }}</div>
-        <div class="text-muted small">
-            <i class="bi bi-link-45deg"></i> /blog/{{ blog.title|slugify|truncatechars:30 }}
+    <td class="w-40">
+        <div class="fw-bold text-dark mb-1 text-truncate"
+            style="max-width: 300px;">{{ blog.title }}</div>
+        <div class="small d-flex align-items-center gap-1">
+            <i class="bi bi-link-45deg text-primary"></i>
+            <span class="slug-preview">
+                /blog/{{blog.title|slugify|truncatechars:25 }}</span>
         </div>
     </td>
 
-    <td>
+    <td class="text-center">
         {% if blog.is_active %}
-            <span class="status-pill-active">Published</span>
+        <span
+            class="badge rounded-pill bg-success-subtle text-success border border-success px-3">
+            <i class="bi bi-globe2 me-1"></i> Published
+        </span>
         {% else %}
-            <span class="status-pill-inactive">Draft</span>
+        <span
+            class="badge rounded-pill bg-warning-subtle text-warning-emphasis border border-warning px-3">
+            <i class="bi bi-pencil-fill me-1"></i> Draft
+        </span>
         {% endif %}
     </td>
 
-    <td>
-        <div class="small text-dark fw-medium">Admin</div>
-        <div class="text-muted tiny-text">{{ blog.created_at|date:"M d, Y"|default:"Recently" }}</div>
+    <td class="d-none d-md-table-cell">
+        <div class="d-flex align-items-center">
+            <div
+                class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-2"
+                style="width: 24px; height: 24px; font-size: 0.6rem;">
+                AD
+            </div>
+            <div>
+                <div class="small fw-bold text-dark">Admin</div>
+                <div class="text-muted" style="font-size: 0.7rem;">
+                    {{blog.created_at|date:"M d, Y"|default:"Recently"}}</div>
+            </div>
+        </div>
     </td>
 
-    <td>
-        <div class="d-flex justify-content-end gap-2">
-            <a href="{% url 'blog_update' blog.pk %}" class="btn-action-edit" title="Edit Article">
-                <i class="bi bi-pencil"></i>
+    <td class="text-end pe-4">
+        <div class="d-flex justify-content-end gap-1">
+            <a href="{% url 'blog_update' blog.pk %}"
+                class="btn btn-sm btn-outline-primary border-0"
+                title="Edit Article">
+                <i class="bi bi-pencil-square fs-5"></i>
             </a>
-            <a href="{% url 'blog_delete' blog.pk %}" class="btn-action-delete" 
-               onclick="return confirm('Delete this article? This action cannot be undone.');">
-                <i class="bi bi-trash"></i>
+            <a href="{% url 'blog_delete' blog.pk %}"
+                class="btn btn-sm btn-outline-danger border-0"
+                onclick="return confirm('Delete this article? This action cannot be undone.');">
+                <i class="bi bi-trash3 fs-5"></i>
             </a>
         </div>
     </td>
@@ -69,7 +128,16 @@
 {% empty %}
 <tr>
     <td colspan="5" class="text-center py-5">
-        <p class="text-muted">No Blog Found.</p>
+        <div class="py-4">
+            <i
+                class="bi bi-journal-x display-4 text-muted opacity-25 d-block mb-3"></i>
+            <h5 class="text-muted">No Articles Found</h5>
+            <p class="small text-secondary">Start sharing news or updates by
+                creating your first post.</p>
+            <a href="{% url 'blog_create' %}"
+                class="btn btn-sm btn-primary rounded-pill px-4">Write New
+                Post</a>
+        </div>
     </td>
 </tr>
 {% endfor %}

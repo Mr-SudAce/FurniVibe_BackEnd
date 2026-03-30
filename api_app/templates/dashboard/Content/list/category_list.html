@@ -4,6 +4,23 @@
 {% block extra_css %}
     {{ block.super }}
     <link rel="stylesheet" href="{% static 'CSS/list.css' %}">
+    <style>
+        .category-thumb {
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+            border-radius: 12px;
+            border: 1px solid #f0f0f0;
+            background: #f8f9fa;
+        }
+        .slug-text {
+            font-family: 'Courier New', Courier, monospace;
+            background: #f1f3f5;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+        }
+    </style>
 {% endblock %}
 
 {% block list_title %}Categories{% endblock %}
@@ -13,53 +30,64 @@
 
 {% block table_headers %}
 <tr>
-    <th class="text-center" style="width: 100px;">Icon</th>
+    <th class="text-center" style="width: 80px;">Icon</th>
     <th>Category Details</th>
-    <th>Description</th>
-    <th>Status</th>
-    <th class="text-end">Actions</th>
+    <th class="d-none d-md-table-cell">Description</th>
+    <th class="text-center">Status</th>
+    <th class="text-end pe-4">Actions</th>
 </tr>
 {% endblock %}
 
 {% block table_rows %}
 {% for category in categories %}
-<tr>
+<tr class="align-middle">
     <td class="text-center">
-        <div class="category-icon-wrapper">
-            {% if category.image %}
-                <img src="{{ category.image.url }}" alt="{{ category.name }}" width="100px" >
-                {% else %}
-                <img src="{% static 'images/default_img.png' %}" alt="{{ category.name }}" width="100px" >
-            {% endif %}
-        </div>
+        {% if category.image %}
+            <img src="{{ category.image.url }}" alt="{{ category.name }}" class="category-thumb shadow-sm">
+        {% else %}
+            <div class="category-thumb d-flex align-items-center justify-content-center bg-light border">
+                <i class="bi bi-tag text-muted"></i>
+            </div>
+        {% endif %}
     </td>
     
     <td>
-        <div class="fw-bold text-dark fs-6">{{ category.name }}</div>
-        <small class="text-muted">{{ category.name|slugify }}</small>
+        <div class="fw-bold text-dark fs-6 mb-0">{{ category.name }}</div>
+        <div class="small mt-1">
+            <span class="text-muted">Slug:</span> <code class="slug-text text-primary">{{ category.name|slugify }}</code>
+        </div>
     </td>
 
-    <td class="text-muted small w-25">
-        {{ category.description|striptags|default:"No description provided."|truncatechars:60 }}
+    <td class="text-muted small d-none d-md-table-cell" style="max-width: 250px;">
+        {{ category.description|striptags|default:"No description provided."|truncatechars:80 }}
     </td>
 
-    <td>
+    <td class="text-center">
         {% if category.is_active %}
-            <span class="status-pill-active">Active <i class="bi bi-check-circle-fill ms-1 text-success"></i></span>
-            {% else %}
-            <span class="status-pill-inactive">Disabled <i class="bi bi-check-circle-fill ms-1 text-danger"></i></span>
+            <span class="badge rounded-pill bg-success-subtle text-success border border-success px-3">
+                <i class="bi bi-check-circle-fill me-1"></i> Active
+            </span>
+        {% else %}
+            <span class="badge rounded-pill bg-light text-muted border px-3">
+                <i class="bi bi-dash-circle me-1"></i> Disabled
+            </span>
         {% endif %}
     </td>
 
-    <td>
-        <div class="d-flex justify-content-end gap-2">
-            <a href="{% url 'category_update' category.pk %}" class="btn-action-edit" title="Edit Category">
-                <i class="bi bi-pencil"></i>
+    <td class="text-end pe-4">
+        <div class="d-flex justify-content-end gap-1">
+            <a href="{% url 'category_update' category.pk %}" 
+               class="btn btn-sm btn-outline-primary border-0" 
+               title="Edit Category">
+                <i class="bi bi-pencil-square fs-5"></i>
             </a>
             <form action="{% url 'category_delete' category.pk %}" method="POST" class="d-inline">
                 {% csrf_token %}
-                <button type="submit" class="btn-action-delete border-0" onclick="return confirm('Deleting this category may affect linked products. Continue?');">
-                    <i class="bi bi-trash"></i>
+                <button type="submit" 
+                        class="btn btn-sm btn-outline-danger border-0" 
+                        onclick="return confirm('Deleting this category may affect linked products. Continue?');"
+                        title="Delete Category">
+                    <i class="bi bi-trash3 fs-5"></i>
                 </button>
             </form>
         </div>
@@ -68,9 +96,11 @@
 {% empty %}
 <tr>
     <td colspan="5" class="text-center py-5">
-        <div class="text-muted">
-            <i class="bi bi-tag fs-1 opacity-25 d-block mb-3"></i>
-            No categories found.
+        <div class="py-4">
+            <i class="bi bi-folder2-open display-4 text-muted opacity-25 d-block mb-3"></i>
+            <h5 class="text-muted">No Categories Found</h5>
+            <p class="small text-secondary">Organize your products by adding your first category.</p>
+            <a href="{% url 'category_create' %}" class="btn btn-sm btn-primary rounded-pill px-4">Add Category</a>
         </div>
     </td>
 </tr>

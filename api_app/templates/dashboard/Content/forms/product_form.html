@@ -1,71 +1,113 @@
 {% extends 'dashboard/base_form.html' %}
+{% load static %}
 
 {% block form_title %}
-    {% if form.instance.pk %}Edit Product: {{ form.instance.name }}{% else %}Add New Product{% endif %}
+    {% if form.instance.pk %}
+        <i class="bi bi-pencil-square me-2"></i>Edit Product: {{ form.instance.name }}
+    {% else %}
+        <i class="bi bi-plus-circle me-2"></i>Add New Product
+    {% endif %}
 {% endblock %}
 
 {% block back_url %}{% url 'product_list' %}{% endblock %}
 
 {% block main_fields %}
-<div class="mb-4">
-    <label class="form-label">Product Name</label>
-    {{ form.name }}
-    {% if form.name.errors %}<div class="text-danger small">{{ form.name.errors }}</div>{% endif %}
-</div>
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body p-4">
+        <div class="mb-4">
+            <label class="form-label fw-bold text-dark">Product Name</label>
+            {{ form.name }}
+            <div class="form-text mt-1">Keep it concise and descriptive (e.g., "Minimalist Wooden Coffee Table").</div>
+            {% if form.name.errors %}<div class="text-danger small mt-1">{{ form.name.errors }}</div>{% endif %}
+        </div>
 
-<div class="row">
-    <div class="col-md-6 mb-3">
-        <label>Category</label>
-        {{ form.category }}
-    </div>
-    <div class="col-md-6 mb-3">
-        <label>Brand</label>
-        {{ form.brand }}
-    </div>
-</div>
+        <div class="row g-3 mb-4">
+            <div class="col-md-6">
+                <label class="form-label fw-bold text-dark">Category</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-light"><i class="bi bi-grid"></i></span>
+                    {{ form.category }}
+                </div>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label fw-bold text-dark">Brand</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-light"><i class="bi bi-bookmark-star"></i></span>
+                    {{ form.brand }}
+                </div>
+            </div>
+        </div>
 
-<div class="row bg-light p-3 rounded-3 mb-4 mx-0">
-    <div class="col-md-4 mb-3">
-        <label>Base Price (Rs.)</label>
-        {{ form.price }}
-    </div>
-    <div class="col-md-4 mb-3">
-        <label>Discount (%)</label>
-        {{ form.discount_percent }}
-    </div>
-    <div class="col-md-4 mb-3">
-        <label>Warranty (Years)</label>
-        {{ form.warranty_years }}
-    </div>
-</div>
+        <div class="p-3 bg-primary-subtle rounded-3 mb-4 border border-primary-subtle">
+            <h6 class="fw-bold text-primary mb-3"><i class="bi bi-currency-dollar me-2"></i>Pricing & Warranty</h6>
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label small fw-bold">Base Price (Rs.)</label>
+                    {{ form.price }}
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label small fw-bold">Discount (%)</label>
+                    {{ form.discount_percent }}
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label small fw-bold">Warranty (Years)</label>
+                    <div class="input-group input-group-sm">
+                        {{ form.warranty_years }}
+                        <span class="input-group-text">Years</span>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-<div class="mb-3">
-    <label>Detailed Description</label>
-    {{ form.description }}
+        <div class="mb-0">
+            <label class="form-label fw-bold text-dark">Detailed Description</label>
+            {{ form.description }}
+        </div>
+    </div>
 </div>
 {% endblock %}
 
 {% block side_fields %}
-<div class="card shadow-none bg-white border mb-4">
-    <div class="card-header text-muted small fw-bold">Primary Image</div>
-    <div class="card-body text-center">
-        {% if form.instance.image %}
-            <img src="{{ form.instance.image.url }}" class="preview-img-small mb-3" width="100px">
-        {% endif %}
-        <div class="custom-file-input">
+<div class="card border shadow-sm mb-4">
+    <div class="card-header bg-white py-3">
+        <h6 class="m-0 fw-bold text-dark">Primary Image</h6>
+    </div>
+    <div class="card-body text-center bg-light-subtle">
+        <div class="mb-3">
+            {% if form.instance.image %}
+                <img src="{{ form.instance.image.url }}" class="img-thumbnail shadow-sm rounded-3 mb-3" style="max-height: 180px; width: 100%; object-fit: cover;">
+            {% else %}
+                <div class="p-4 border border-2 border-dashed rounded-3 bg-white text-muted mb-3">
+                    <i class="bi bi-image display-6 d-block mb-2"></i>
+                    <span class="small">No image uploaded</span>
+                </div>
+            {% endif %}
+        </div>
+        <div class="small text-start">
+            <label class="form-label fw-bold">Upload New Image</label>
             {{ form.image }}
         </div>
     </div>
 </div>
 
-<div class="p-2 border rounded bg-white">
-    <div class="form-check mb-2">
-        {{ form.is_active }}
-        <label class="form-check-label">Visible to Customers</label>
+<div class="card border shadow-sm">
+    <div class="card-header bg-white py-3">
+        <h6 class="m-0 fw-bold text-dark">Visibility & Status</h6>
     </div>
-    <div class="form-check">
-        {{ form.is_featured }}
-        <label class="form-check-label">Featured on Home</label>
+    <div class="card-body">
+        <div class="form-check form-switch mb-3">
+            {{ form.is_active }}
+            <label class="form-check-label ms-2 fw-medium" for="{{ form.is_active.id_for_label }}">Active & Visible</label>
+            <div class="form-text smaller">Hide or show this product on the storefront.</div>
+        </div>
+        <hr class="my-3 opacity-50">
+        <div class="form-check form-switch">
+            {{ form.is_featured }}
+            <label class="form-check-label ms-2 fw-medium text-warning-emphasis" for="{{ form.is_featured.id_for_label }}">
+                <i class="bi bi-star-fill me-1"></i>Featured Product
+            </label>
+            <div class="form-text smaller">Prioritize this item on the homepage.</div>
+        </div>
     </div>
 </div>
 {% endblock %}

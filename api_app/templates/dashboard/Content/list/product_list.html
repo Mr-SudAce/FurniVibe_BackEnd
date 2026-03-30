@@ -4,6 +4,30 @@
 {% block extra_css %}
 {{ block.super }}
 <link rel="stylesheet" href="{% static 'CSS/list.css' %}">
+<style>
+    .product-img-wrapper img {
+        object-fit: cover;
+        border-radius: 8px;
+        transition: transform 0.2s;
+        border: 1px solid #eee;
+    }
+    .product-img-wrapper img:hover {
+        transform: scale(1.1);
+    }
+    .price-discounted { color: #0d6efd; font-weight: 700; }
+    .price-original { color: #999; font-size: 0.85rem; }
+    .status-pill-featured { 
+        background: #fff3cd; 
+        color: #856404; 
+        font-size: 0.7rem; 
+        padding: 2px 8px; 
+        border-radius: 50px; 
+        border: 1px solid #ffeeba;
+    }
+    @media (max-width: 768px) {
+        .d-mobile-none { display: none; }
+    }
+</style>
 {% endblock %}
 
 {% block list_title %}Products{% endblock %}
@@ -13,84 +37,98 @@
 
 {% block table_headers %}
 <tr>
-    <th class="text-center">Preview</th>
+    <th class="text-center" style="width: 80px;">Preview</th>
     <th>Product Details</th>
-    <th>Category & Brand</th>
+    <th class="d-mobile-none">Category & Brand</th>
     <th>Pricing</th>
-    <th>Status</th>
-    <th class="text-end">Actions</th>
+    <th>Status/Featured</th>
+    <th class="text-end pe-4">Actions</th>
 </tr>
 {% endblock %}
 
 {% block table_rows %}
 {% for product in products %}
-<tr>
+<tr class="align-middle">
     <td class="text-center">
         <div class="product-img-wrapper">
             {% if product.image %}
             <img src="{{ product.image.url }}" alt="{{ product.name }}"
-                width="100px">
+                width="60" height="60">
             {% else %}
-            <img src="{% static 'images/default_img.png' %}"
-                alt="{{ product.name }}" width="100px">
+            <img src="{% static 'images/default_img.png' %}" alt="Default"
+                width="60" height="60">
             {% endif %}
         </div>
     </td>
 
     <td>
-        <div class="fw-bold text-dark">{{ product.name }}</div>
-        <small class="text-muted">ID: #PROD-{{ product.pk }}</small>
+        <div class="fw-bold text-dark text-truncate"
+            style="max-width: 200px;">{{ product.name }}</div>
+        <div class="small text-muted">ID: <span class="font-monospace">
+            #PROD-{{product.pk }}</span></div>
+        <div class="d-md-none mt-1">
+            <span class="badge bg-light text-dark border"
+                style="font-size: 0.65rem;">{{
+                product.category.name|default:"Uncategorized" }}</span>
+        </div>
     </td>
 
-    <td>
-        <div class="badge-category">
-            {{product.category.name|default:"Uncategorized" }}
+    <td class="d-mobile-none">
+        <span
+            class="badge bg-primary-subtle text-primary border border-primary-subtle px-2">
+            {{ product.category.name|default:"Uncategorized" }}
+        </span>
+        <div class="small text-muted mt-1">
+            <i class="bi bi-tag-fill me-1"></i>
+            {{product.brand.name|default:"Generic" }}
         </div>
-        <div class="small text-muted mt-1"><i
-                class="bi bi-bookmark-fill me-1"></i>
-                {{product.brand.name|default:"-" }}
-            </div>
     </td>
 
     <td>
         {% if product.discount_percent > 0 %}
-        <div class="price-discounted">
-            Rs. {{product.discounted_price|floatformat:2 }}
+        <div class="price-discounted text-success fw-bold">
+            Rs. {{ product.discounted_price|floatformat:2 }}
         </div>
-        <div class="price-original text-decoration-line-through">
-            Rs. {{product.price }}
+        <div class="price-original text-decoration-line-through text-muted">
+            Rs. {{product.price|floatformat:2 }}
         </div>
         {% else %}
-        <div class="price-regular">Rs. {{ product.price }}</div>
+        <div class="fw-bolder  text-success">Rs. {{ product.price|floatformat:2 }}</div>
         {% endif %}
     </td>
 
-    <td>
-        <div class="d-flex flex-column gap-1">
+    <td class="text-center">
+        <div class="d-flex align-items-center gap-1">
             {% if product.is_active %}
-            <span class="status-pill-active">Active</span>
+            <span
+                class="badge rounded-pill bg-success-subtle text-success border border-success px-3"><i
+                    class="bi bi-check-circle-fill me-1"></i>Active</span>
             {% else %}
-            <span class="status-pill-inactive">Inactive</span>
+            <span
+                class="badge rounded-pill bg-secondary-subtle text-secondary border border-secondary-subtle px-3"
+                style="font-size: 0.7rem;"><i
+                    class="bi bi-dash-circle me-1"></i>Inactive</span>
             {% endif %}
 
             {% if product.is_featured %}
             <span class="status-pill-featured"><i
-                    class="bi bi-star-fill me-1"></i>Featured</span>
+                    class="bi bi-star-fill me-1"></i></span>
             {% endif %}
         </div>
     </td>
 
-    <td>
-        <div class="d-flex justify-content-end gap-2">
+    <td class="text-end pe-4">
+        <div class="d-flex justify-content-end gap-1">
             <a href="{% url 'product_update' product.pk %}"
-                class="btn-action-edit" title="Edit Product">
-                <i class="bi bi-pencil"></i>
+                class="btn btn-sm btn-outline-primary border-0"
+                title="Edit">
+                <i class="bi bi-pencil-square fs-5"></i>
             </a>
             <a href="{% url 'product_delete' product.pk %}"
-                class="btn-action-delete"
+                class="btn btn-sm btn-outline-danger border-0"
                 onclick="return confirm('Delete this product permanently?');"
-                title="Delete Product">
-                <i class="bi bi-trash"></i>
+                title="Delete">
+                <i class="bi bi-trash3 fs-5"></i>
             </a>
         </div>
     </td>
@@ -98,7 +136,10 @@
 {% empty %}
 <tr>
     <td colspan="6" class="text-center py-5">
-        <p class="text-muted">No Product Found.</p>
+        <i class="bi bi-box-seam display-4 text-muted mb-3 d-block"></i>
+        <p class="text-muted">No products found in your inventory.</p>
+        <a href="{% url 'product_create' %}" class="btn btn-sm btn-primary">Add
+            Your First Product</a>
     </td>
 </tr>
 {% endfor %}

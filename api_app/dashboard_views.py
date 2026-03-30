@@ -28,7 +28,6 @@ from .models import *
 from .forms import *
 
 
-
 class DashboardLoginView(APIView):
     renderer_classes = [TemplateHTMLRenderer, JSONRenderer]
     template_name = "dashboard/auth/login.html"
@@ -44,8 +43,8 @@ class DashboardLoginView(APIView):
                 # If they are logged in but NOT staff, don't let them stay on the login page
                 # Redirect them to your main public site home or a 403 page
                 messages.error(request, "Access denied. Staff only.")
-                return redirect("/") 
-        
+                return redirect("/")
+
         return render(request, self.template_name)
 
     def post(self, request):
@@ -56,15 +55,17 @@ class DashboardLoginView(APIView):
         # FIX: Use your permission handler for consistency
         if user is not None and admin_and_superuser(user):
             login(request, user)
-            refresh = RefreshToken.for_user(user) 
-            return Response({
-                "access": str(refresh.access_token),
-                "refresh": str(refresh),
-                "redirect_url": reverse("dashboard_home"),
-            }, status=200)
+            refresh = RefreshToken.for_user(user)
+            return Response(
+                {
+                    "access": str(refresh.access_token),
+                    "refresh": str(refresh),
+                    "redirect_url": reverse("dashboard_home"),
+                },
+                status=200,
+            )
 
         return Response({"detail": "Invalid credentials or not staff."}, status=401)
-
 
 
 class DashboardRegisterView(CreateView):
@@ -72,12 +73,14 @@ class DashboardRegisterView(CreateView):
     form_class = UserRegisterForm
     success_url = reverse_lazy("dashboard_login")
 
+
 class AccountProfileView(LoginRequiredMixin, TemplateView):
     template_name = "dashboard/auth/account_profile.html"
     login_url = "dashboard_login"
 
 
 defaultPath = "dashboard/Content/"
+
 
 # ############################## Reset  PW ####################################
 class MyPasswordResetView(auth_views.PasswordResetView):
@@ -100,7 +103,6 @@ class MyPasswordResetCompleteView(auth_views.PasswordResetCompleteView):
 
 
 # ############################## Update PW ####################################
-
 
 
 @login_required
@@ -146,21 +148,14 @@ def edit_profile(request):
 @login_required(login_url="dashboard_login")
 @only_admin_and_super
 def dashboard_home(request):
-    status_filter = request.GET.get('status', 'all')
-    
-    # Base counts for dashboard cards
+    status_filter = request.GET.get("status", "all")
     total_orders = OrderModel.objects.count()
     pending_orders = OrderModel.objects.filter(status="pending").count()
     completed_orders = OrderModel.objects.filter(status="paid").count()
     cancelled_orders = OrderModel.objects.filter(status="cancelled").count()
-    
-  # Updated View logic to reach all the way to the product name
-    orders_queryset = OrderModel.objects.select_related('user', 'order_detail') \
-                                        .prefetch_related('order_detail__items__product') \
-                                        .all().order_by("-created_at")
-    if status_filter and status_filter != 'all':
-        orders_queryset = orders_queryset.filter(status=status_filter)
-    
+    orders_queryset = OrderItemModel.objects.all().order_by("-created_at")
+    if status_filter and status_filter != "all":
+        orders_queryset = orders_queryset.filter(order__status=status_filter)
     recent_orders = orders_queryset[:5]
 
     context = {
@@ -174,9 +169,11 @@ def dashboard_home(request):
 
     return render(request, "dashboard/dashboard.html", context)
 
+
 def dashboard_logout(request):
     logout(request)
     return redirect("dashboard_login")
+
 
 @login_required(login_url="dashboard_login")
 def account_profile(request):
@@ -551,8 +548,10 @@ def other_detail_delete(request, pk):
 @login_required(login_url="dashboard_login")
 @only_admin_and_super
 def order_list_view(request):
-    recent_orders = OrderModel.objects.all().order_by("-created_at")
-    return render(request, f"{defaultPath}list/order_list.html", {"recent_orders": recent_orders})
+    recent_orders = OrderItemModel.objects.all().order_by("-created_at")
+    return render(
+        request, f"{defaultPath}list/order_list.html", {"recent_orders": recent_orders}
+    )
 
 
 def update_order(request, pk):
@@ -568,6 +567,7 @@ def update_order(request, pk):
     return render(
         request, f"{defaultPath}forms/order_form.html", {"form": form, "order": order}
     )
+
 
 @login_required(login_url="dashboard_login")
 @only_admin_and_super

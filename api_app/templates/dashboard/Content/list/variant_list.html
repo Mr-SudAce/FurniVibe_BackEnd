@@ -2,8 +2,54 @@
 {% load static %}
 
 {% block extra_css %}
-    {{ block.super }}
-    <link rel="stylesheet" href="{% static 'CSS/variant_list.css' %}">
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'CSS/list.css' %}">
+<style>
+    /* Variant Specific Styles */
+    .model-code {
+        font-family: 'Monaco', 'Consolas', monospace;
+        background: #f8f9fa;
+        color: #e83e8c;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-size: 0.85rem;
+        border: 1px solid #e9ecef;
+    }
+    .color-indicator {
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        display: inline-block;
+        border: 1px solid rgba(0,0,0,0.1);
+        vertical-align: middle;
+    }
+    .spec-tag {
+        background: #eef2ff;
+        color: #4338ca;
+        font-size: 0.75rem;
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-weight: 500;
+    }
+    .stock-badge {
+        font-weight: 700;
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+    }
+    .stock-low {
+        background-color: #fff5f5;
+        color: #e03131;
+        border: 1px solid #ffa8a8;
+    }
+    .status-pill-custom {
+        background: #f3f0ff;
+        color: #6741d9;
+        font-size: 0.7rem;
+        padding: 2px 8px;
+        border-radius: 50px;
+        border: 1px solid #d0bfff;
+    }
+</style>
 {% endblock %}
 
 {% block list_title %}Product Variants{% endblock %}
@@ -13,65 +59,67 @@
 
 {% block table_headers %}
 <tr>
-    <th>Parent Product</th>
+    <th class="ps-4">Parent Product</th>
     <th>Model / SKU</th>
-    <th>Specifications</th>
+    <th class="d-none d-md-table-cell">Specifications</th>
     <th class="text-center">Current Stock</th>
     <th>Availability</th>
-    <th class="text-end">Actions</th>
+    <th class="text-end pe-4">Actions</th>
 </tr>
 {% endblock %}
 
 {% block table_rows %}
 {% for variant in variants %}
-<tr>
-    <td>
+<tr class="align-middle">
+    <td class="ps-4">
         <div class="fw-bold text-dark">{{ variant.product.name }}</div>
-        <div class="tiny-text text-muted">ID: #VAR-{{ variant.pk }}</div>
+        <div class="small text-muted font-monospace" style="font-size: 0.7rem;">ID: #VAR-{{ variant.pk }}</div>
     </td>
 
     <td>
         <code class="model-code">{{ variant.model|default:"N/A" }}</code>
     </td>
 
-    <td>
-        <div class="d-flex align-items-center gap-2">
+    <td class="d-none d-md-table-cell">
+        <div class="d-flex align-items-center gap-2 flex-wrap">
             <span class="spec-tag">{{ variant.material|default:"Standard" }}</span>
             {% if variant.color %}
-                <span class="color-indicator" style="background-color: {{ variant.color|lower }};" title="{{ variant.color }}"></span>
-                <span class="small text-muted">{{ variant.color }}</span>
+                <div class="d-flex align-items-center border rounded-pill px-2 py-1 bg-white">
+                    <span class="color-indicator me-1" style="background-color: {{ variant.color|lower }};"></span>
+                    <span class="smaller text-muted" style="font-size: 0.7rem;">{{ variant.color }}</span>
+                </div>
             {% endif %}
         </div>
     </td>
 
     <td class="text-center">
-        <div class="stock-display {% if variant.stock < 5 %}stock-low{% endif %}">
-            {{ variant.stock }}
-        </div>
+        <span class="stock-badge {% if variant.stock < 5 %}stock-low animate-pulse{% else %}text-dark{% endif %}">
+            <i class="bi bi-box-seam me-1"></i>{{ variant.stock }}
+        </span>
     </td>
 
     <td>
         <div class="d-flex flex-column gap-1">
             {% if variant.is_active %}
-                <span class="status-pill-active">Active</span>
+                <span class="badge rounded-pill bg-success-subtle text-success border border-success px-3"><i class="bi bi-check-circle-fill me-1"></i> Active</span>
             {% else %}
-                <span class="status-pill-inactive">Inactive</span>
+                <span class="badge rounded-pill bg-light text-muted border px-3"><i class="bi bi-dash-circle me-1"></i> Inactive</span>
             {% endif %}
 
             {% if variant.is_made_to_order %}
-                <span class="status-pill-custom"><i class="bi bi-hammer me-1"></i>Made to Order</span>
+                <span class="status-pill-custom text-nowrap"><i class="bi bi-hammer me-1"></i>Custom</span>
             {% endif %}
         </div>
     </td>
 
-    <td>
-        <div class="d-flex justify-content-end gap-2">
-            <a href="{% url 'variant_update' variant.pk %}" class="btn-action-edit" title="Edit Variant">
-                <i class="bi bi-pencil"></i>
+    <td class="text-end pe-4">
+        <div class="d-flex justify-content-end gap-1">
+            <a href="{% url 'variant_update' variant.pk %}" class="btn btn-sm btn-outline-primary border-0" title="Edit">
+                <i class="bi bi-pencil-square fs-5"></i>
             </a>
-            <a href="{% url 'variant_delete' variant.pk %}" class="btn-action-delete" 
-               onclick="return confirm('Delete this variant? This may affect order history.');" title="Delete Variant">
-                <i class="bi bi-trash"></i>
+            <a href="{% url 'variant_delete' variant.pk %}" class="btn btn-sm btn-outline-danger border-0" 
+               onclick="return confirm('Delete this variant? This may affect order history.');" title="Delete">
+                <i class="bi bi-trash3 fs-5"></i>
             </a>
         </div>
     </td>
@@ -79,7 +127,12 @@
 {% empty %}
 <tr>
     <td colspan="6" class="text-center py-5">
-        <p class="text-muted">No Variants Found.</p>
+        <div class="py-4">
+            <i class="bi bi-layers display-4 text-muted opacity-25 d-block mb-3"></i>
+            <h5 class="text-muted">No SKU Variants Found</h5>
+            <p class="small text-secondary">Add different sizes, colors, or materials for your products.</p>
+            <a href="{% url 'variant_create' %}" class="btn btn-sm btn-primary rounded-pill px-4">Create Variant</a>
+        </div>
     </td>
 </tr>
 {% endfor %}

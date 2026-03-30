@@ -1,52 +1,131 @@
 {% extends 'dashboard/base_form.html' %}
+{% load static %}
 
-{% block form_title %}Product SKU Variant{% endblock %}
+{% block form_title %}
+    {% if form.instance.pk %}
+        <i class="bi bi-layers me-2 text-primary"></i>Edit Variant: {{ form.instance.model }}
+    {% else %}
+        <i class="bi bi-layers-plus me-2 text-primary"></i>Create Product SKU Variant
+    {% endif %}
+{% endblock %}
+
 {% block back_url %}{% url 'variant_list' %}{% endblock %}
 
 {% block main_fields %}
-<div class="mb-4 border-bottom pb-3">
-    <label>Select Parent Product</label>
-    {{ form.product }}
-</div>
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body p-4">
+        <div class="mb-4 pb-3 border-bottom">
+            <label class="form-label fw-bold text-dark">
+                <i class="bi bi-box-seam me-1 text-primary"></i> Select Parent Product
+            </label>
+            {{ form.product }}
+            <div class="form-text smaller">Choose the base product this variant belongs to.</div>
+            {% if form.product.errors %}<div class="text-danger small">{{ form.product.errors }}</div>{% endif %}
+        </div>
 
-<div class="row g-3">
-    <div class="col-md-4">
-        <label>Model/SKU</label>
-        {{ form.model }}
-    </div>
-    <div class="col-md-4">
-        <label>Material</label>
-        {{ form.material }}
-    </div>
-    <div class="col-md-4">
-        <label>Color Name</label>
-        {{ form.color }}
-    </div>
-</div>
+        <h6 class="fw-bold text-muted small text-uppercase mb-3" style="letter-spacing: 1px;">Variant Identity</h6>
+        <div class="row g-3 mb-4">
+            <div class="col-md-4">
+                <label class="form-label fw-bold small">Model / SKU</label>
+                {{ form.model }}
+            </div>
+            <div class="col-md-4">
+                <label class="form-label fw-bold small">Material</label>
+                {{ form.material }}
+            </div>
+            <div class="col-md-4">
+                <label class="form-label fw-bold small">Color Name</label>
+                <div class="input-group input-group-sm">
+                    <span class="input-group-text bg-white"><i class="bi bi-palette"></i></span>
+                    {{ form.color }}
+                </div>
+            </div>
+        </div>
 
-<div class="row mt-3">
-    <div class="col-md-3"><label>Weight (kg)</label>{{ form.weight_kg }}</div>
-    <div class="col-md-3"><label>Length</label>{{ form.length }}</div>
-    <div class="col-md-3"><label>Width</label>{{ form.width }}</div>
-    <div class="col-md-3"><label>Height</label>{{ form.height }}</div>
-</div>
+        <h6 class="fw-bold text-muted small text-uppercase mb-3" style="letter-spacing: 1px;">Dimensions & Logistics</h6>
+        <div class="row g-2 mb-4">
+            <div class="col-6 col-md-3">
+                <div class="p-2 border rounded bg-light-subtle">
+                    <label class="smaller text-muted d-block mb-1">Weight (kg)</label>
+                    {{ form.weight_kg }}
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="p-2 border rounded bg-light-subtle">
+                    <label class="smaller text-muted d-block mb-1">Length (cm)</label>
+                    {{ form.length }}
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="p-2 border rounded bg-light-subtle">
+                    <label class="smaller text-muted d-block mb-1">Width (cm)</label>
+                    {{ form.width }}
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="p-2 border rounded bg-light-subtle">
+                    <label class="smaller text-muted d-block mb-1">Height (cm)</label>
+                    {{ form.height }}
+                </div>
+            </div>
+        </div>
 
-<div class="row mt-3 bg-light p-3 rounded mx-0">
-    <div class="col-md-6"><label>Stock Quantity</label>{{ form.stock }}</div>
-    <div class="col-md-6"><label>Delivery (Days)</label>{{ form.delivery_days }}</div>
+        <div class="row g-3 p-3 bg-primary-subtle rounded-3 border border-primary-subtle mx-0">
+            <div class="col-md-6">
+                <label class="form-label fw-bold text-primary small">Stock Quantity</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="bi bi-archive"></i></span>
+                    {{ form.stock }}
+                </div>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label fw-bold text-primary small">Delivery Estimate (Days)</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="bi bi-truck"></i></span>
+                    {{ form.delivery_days }}
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}
 
 {% block side_fields %}
-<div class="alert alert-info py-2 small">
-    <i class="bi bi-info-circle me-1"></i> Use these settings to control production status.
+<div class="card border shadow-sm mb-4">
+    <div class="card-body p-3">
+        <div class="d-flex align-items-center text-info mb-3">
+            <i class="bi bi-info-circle-fill me-2 fs-5"></i>
+            <span class="small fw-bold">Status Controls</span>
+        </div>
+        
+        <div class="form-check form-switch mb-3">
+            {{ form.is_made_to_order }}
+            <label class="form-check-label fw-medium" for="{{ form.is_made_to_order.id_for_label }}">Made to Order</label>
+            <div class="smaller text-muted">Stock will not be deducted; production starts on order.</div>
+        </div>
+
+        <hr class="my-3 opacity-50">
+
+        <div class="form-check form-switch">
+            {{ form.is_active }}
+            <label class="form-check-label fw-medium" for="{{ form.is_active.id_for_label }}">Available for Sale</label>
+            <div class="smaller text-muted">Toggle visibility in the shop.</div>
+        </div>
+    </div>
 </div>
-<div class="form-check mb-2">
-    {{ form.is_made_to_order }}
-    <label class="form-check-label">Made to Order</label>
+
+<div class="card bg-light border-0 shadow-none">
+    <div class="card-body p-3">
+        <h6 class="smaller fw-bold text-dark mb-2">Pro Tip:</h6>
+        <p class="smaller text-muted mb-0">Use unique <strong>Model/SKU</strong> codes to help your warehouse team identify variants quickly.</p>
+    </div>
 </div>
-<div class="form-check">
-    {{ form.is_active }}
-    <label class="form-check-label">Available for Sale</label>
+{% endblock %}
+
+{% block form_actions %}
+<div class="d-grid d-md-block">
+    <button type="submit" class="btn btn-primary btn-lg px-5 shadow-sm rounded-pill fw-bold">
+        <i class="bi bi-save2 me-2"></i> Save Variant SKU
+    </button>
 </div>
 {% endblock %}

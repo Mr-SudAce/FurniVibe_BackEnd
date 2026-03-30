@@ -3,7 +3,78 @@
 
 {% block extra_css %}
 {{ block.super }}
-<link rel="stylesheet" href="{% static 'CSS/details_list.css' %}">
+<link rel="stylesheet" href="{% static 'CSS/list.css' %}">
+<style>
+    /* Specific styles for Site Details */
+    .logo-thumb {
+        width: 50px;
+        height: 50px;
+        object-fit: contain;
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 5px;
+        border: 1px solid #eee;
+    }
+    .contact-icon {
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        font-size: 0.9rem;
+    }
+    .bg-blue-light { background-color: #e7f1ff; }
+    
+    .app-pill {
+        font-size: 0.7rem;
+        padding: 2px 8px;
+        border-radius: 50px;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+    }
+    .whatsapp-pill { background: #dcf8c6; color: #075e54; }
+    .viber-pill { background: #f3e5f5; color: #7360f2; }
+
+    .social-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 4px;
+        width: fit-content;
+        margin: 0 auto;
+    }
+    .social-btn {
+        width: 24px;
+        height: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 4px;
+        color: white;
+        font-size: 0.75rem;
+        transition: opacity 0.2s;
+    }
+    .social-btn:hover { opacity: 0.8; color: white; }
+    .fb { background: #1877F2; }
+    .ig { background: #E4405F; }
+    .tw { background: #1DA1F2; }
+    .tk { background: #000000; }
+    .yt { background: #FF0000; }
+
+    .btn-location {
+        font-size: 0.75rem;
+        padding: 4px 10px;
+        border-radius: 6px;
+        background: #fff;
+        border: 1px solid #dee2e6;
+        color: #dc3545;
+        text-decoration: none;
+        white-space: nowrap;
+    }
+    .btn-location:hover { background: #fff5f5; color: #a71d2a; }
+</style>
 {% endblock %}
 
 {% block list_title %}Other Details{% endblock %}
@@ -13,43 +84,43 @@
 
 {% block table_headers %}
 <tr>
-    <th>Site Logo</th>
-    <th>Site Name</th>
-    <th>Site Tag</th>
-    <th>Contact Channels</th>
-    <th>WhatsApp & Viber</th>
-    <th>Email Address</th>
-    <th class="text-center">Social Media</th>
-    <th class="text-center">Location</th>
-    <th class="text-end">Actions</th>
+    <th class="ps-4">Site Identity</th>
+    <th>Contact Details</th>
+    <th>Chat Apps</th>
+    <th class="d-none d-lg-table-cell">Email</th>
+    <th class="text-center">Socials</th>
+    <th class="text-center">Map</th>
+    <th class="text-end pe-4">Actions</th>
 </tr>
 {% endblock %}
 
 {% block table_rows %}
 {% for detail in details %}
-<tr>
-    <td>
-        {% if detail.site_logo %}
-        <img src="{{ detail.site_logo.url }}" alt="Site Logo" class="logo-thumb" loading="lazy" width="100px">
-        {% else %}
-        <div class="logo-placeholder"><i class="bi bi-image"></i></div>
-        {% endif %}
-    </td>
-    <td>
-        <div class="fw-bold small text-dark">{{ detail.site_name|default:"-" }}</div>
-    </td>
-    <td>
-        <div class="text-muted small">{{ detail.site_tag|default:"-" }}</div>
+<tr class="align-middle">
+    <td class="ps-4">
+        <div class="d-flex align-items-center gap-3">
+            {% if detail.site_logo %}
+                <img src="{{ detail.site_logo.url }}" alt="Logo" class="logo-thumb shadow-sm" width="100px" height="100px">
+            {% else %}
+                <div class="logo-thumb d-flex align-items-center justify-content-center bg-light">
+                    <i class="bi bi-building text-muted"></i>
+                </div>
+            {% endif %}
+            <div>
+                <div class="fw-bold text-dark mb-0" style="font-size: 0.9rem;">{{ detail.site_name|default:"Unnamed Site" }}</div>
+                <div class="text-muted smaller">{{ detail.site_tag|truncatechars:20|default:"No tagline" }}</div>
+            </div>
+        </div>
     </td>
 
     <td>
         <div class="d-flex align-items-center">
-            <div class="contact-icon bg-blue-light text-primary"><i
-                    class="bi bi-telephone"></i></div>
+            <div class="contact-icon bg-blue-light text-primary shadow-sm">
+                <i class="bi bi-telephone"></i>
+            </div>
             <div class="ms-2">
-                <div class="fw-bold small">
-                    {{ detail.contact|default:"-"}}</div>
-                <div class="tiny-text text-muted">Primary Phone</div>
+                <div class="fw-bold small text-dark">{{ detail.contact|default:"-" }}</div>
+                <div class="smaller text-muted">Primary Phone</div>
             </div>
         </div>
     </td>
@@ -57,69 +128,62 @@
     <td>
         <div class="d-flex flex-column gap-1">
             {% if detail.whatsapp %}
-            <div class="app-pill whatsapp-pill"><i class="bi bi-whatsapp"></i>
-                {{ detail.whatsapp }}</div>
+                <span class="app-pill whatsapp-pill"><i class="bi bi-whatsapp"></i> {{ detail.whatsapp }}</span>
             {% endif %}
             {% if detail.viber %}
-            <div class="app-pill viber-pill"><i class="bi bi-chat-dots"></i>
-                {{detail.viber }}</div>
+                <span class="app-pill viber-pill"><i class="bi bi-chat-dots"></i> {{ detail.viber }}</span>
             {% endif %}
-            {% if not detail.whatsapp and not detail.viber %}<span
-                class="text-muted">-</span>{% endif %}
+            {% if not detail.whatsapp and not detail.viber %}
+                <span class="text-muted small">-</span>
+            {% endif %}
         </div>
     </td>
 
-    <td>
-        <div class="fw-medium small text-dark">
-            {{ detail.email|default:"-"}}</div>
+    <td class="d-none d-lg-table-cell">
+        <div class="small fw-medium text-dark">{{ detail.email|default:"-" }}</div>
     </td>
 
     <td class="text-center">
         <div class="social-grid">
-            {% if detail.facebook %}<a href="{{ detail.facebook }}"
-                target="_blank" class="social-btn fb" title="Facebook"><i
-                    class="bi bi-facebook"></i></a>{% endif %}
-            {% if detail.instagram %}<a href="{{ detail.instagram }}"
-                target="_blank" class="social-btn ig" title="Instagram"><i
-                    class="bi bi-instagram"></i></a>{% endif %}
-            {% if detail.twitter %}<a href="{{ detail.twitter }}"
-                target="_blank" class="social-btn tw" title="Twitter"><i
-                    class="bi bi-twitter"></i></a>{% endif %}
-            {% if detail.tiktok %}<a href="{{ detail.tiktok }}" target="_blank"
-                class="social-btn tk" title="TikTok"><i
-                    class="bi bi-tiktok"></i></a>{% endif %}
-            {% if detail.youtube %}<a href="{{ detail.youtube }}"
-                target="_blank" class="social-btn yt" title="Youtube"><i
-                    class="bi bi-youtube"></i></a>{% endif %}
+            {% if detail.facebook %}<a href="{{ detail.facebook }}" target="_blank" class="social-btn fb"><i class="bi bi-facebook"></i></a>{% endif %}
+            {% if detail.instagram %}<a href="{{ detail.instagram }}" target="_blank" class="social-btn ig"><i class="bi bi-instagram"></i></a>{% endif %}
+            {% if detail.twitter %}<a href="{{ detail.twitter }}" target="_blank" class="social-btn tw"><i class="bi bi-twitter"></i></a>{% endif %}
+            {% if detail.tiktok %}<a href="{{ detail.tiktok }}" target="_blank" class="social-btn tk"><i class="bi bi-tiktok"></i></a>{% endif %}
+            {% if detail.youtube %}<a href="{{ detail.youtube }}" target="_blank" class="social-btn yt"><i class="bi bi-youtube"></i></a>{% endif %}
         </div>
     </td>
 
     <td class="text-center">
         {% if detail.location %}
-        <a href="{{ detail.location|cut:'/embed' }}" target="_blank"
-            class="btn-location">
-            <i class="bi bi-geo-alt-fill me-1"></i> View Map
-        </a>
+            <a href="{{ detail.location|cut:'/embed' }}" target="_blank" class="btn-location shadow-sm">
+                <i class="bi bi-geo-alt-fill me-1"></i> Map
+            </a>
         {% else %}
-        <span class="text-muted">-</span>
+            <span class="text-muted">-</span>
         {% endif %}
     </td>
 
-    <td>
-        <div class="d-flex justify-content-end gap-2">
-            <a href="{% url 'other_detail_update' detail.pk %}"
-                class="btn-action-edit"><i class="bi bi-pencil"></i></a>
-            <a href="{% url 'other_detail_delete' detail.pk %}"
-                class="btn-action-delete"
-                onclick="return confirm('Delete this record?');"><i
-                    class="bi bi-trash"></i></a>
+    <td class="text-end pe-4">
+        <div class="d-flex justify-content-end gap-1">
+            <a href="{% url 'other_detail_update' detail.pk %}" class="btn btn-sm btn-outline-primary border-0">
+                <i class="bi bi-pencil-square fs-5"></i>
+            </a>
+            <a href="{% url 'other_detail_delete' detail.pk %}" class="btn btn-sm btn-outline-danger border-0" 
+               onclick="return confirm('Delete this record?');">
+                <i class="bi bi-trash3 fs-5"></i>
+            </a>
         </div>
     </td>
 </tr>
 {% empty %}
 <tr>
-    <td colspan="6" class="text-center py-5">
-        <p class="text-muted">No details yet.</p>
+    <td colspan="7" class="text-center py-5">
+        <div class="py-4">
+            <i class="bi bi-info-square display-4 text-muted opacity-25 d-block mb-3"></i>
+            <h5 class="text-muted">No Site Details Found</h5>
+            <p class="small text-secondary">Setup your company's contact and social media information.</p>
+            <a href="{% url 'other_detail_create' %}" class="btn btn-sm btn-primary rounded-pill px-4">Add Details</a>
+        </div>
     </td>
 </tr>
 {% endfor %}

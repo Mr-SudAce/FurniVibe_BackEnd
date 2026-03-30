@@ -260,40 +260,27 @@ class PlaceOrderAPI(APIView):
 
     def post(self, request):
         user = request.user
-
-        # 1. Get the active cart and check if it's empty
         cart = CartModel.objects.filter(user=user, is_active=True).first()
         if not cart or not cart.items.exists():
             return Response({"detail": "Your cart is empty."}, status=400)
-
-        # 2. Get the latest shipping address for this user
         shipping_address = ShippingAddressModel.objects.filter(user=user).last()
         if not shipping_address:
             return Response({"detail": "Shipping address required."}, status=400)
 
         try:
             with transaction.atomic():
-                # 3. Calculate Total Amount based on CURRENT CartItem prices
-                # (Remember: our UpdateCartItemAPI already refreshed these prices)
                 total_amount = sum(
                     item.price * item.quantity for item in cart.items.all()
                 )
-
-                # Apply your shipping logic (matches frontend: Free over 5000, else 150)
                 shipping_fee = 0 if total_amount > 5000 else 150
                 final_total = total_amount + shipping_fee
-
-                # 4. Create the Order
                 order = OrderModel.objects.create(
                     user=user,
                     shipping_address=shipping_address,
                     total_amount=final_total,
                     status="pending",
                 )
-
-                # 5. Move items from Cart to OrderItems (Snapshoting details)
                 for cart_item in cart.items.all():
-                    # Double check stock one last time before finalizing
                     if not cart_item.variant.is_made_to_order:
                         if cart_item.variant.stock < cart_item.quantity:
                             raise Exception(
@@ -308,11 +295,9 @@ class PlaceOrderAPI(APIView):
                         order=order,
                         product_name=cart_item.variant.product.name,
                         variant_details=f"{cart_item.variant.material} - {cart_item.variant.color}",
-                        price=cart_item.price,  # The price at the time of purchase
+                        price=cart_item.price,
                         quantity=cart_item.quantity,
                     )
-
-                # 6. Deactivate the cart so the user starts fresh next time
                 cart.is_active = False
                 cart.save()
 
