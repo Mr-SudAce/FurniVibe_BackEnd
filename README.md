@@ -13,7 +13,6 @@ This is the core backend service for FurniVibe, built with the **Django** framew
 ## 🛠 Tech Stack
 
 - **Framework:** Django
-<<<<<<< HEAD
 - **Toolkit:** Django REST Framework (DRF)
 - **Language:** Python
 - **Authentication:** SimpleJWT (JWT) & Django Auth
@@ -25,15 +24,6 @@ This is the core backend service for FurniVibe, built with the **Django** framew
 Before you begin, ensure you have the following installed:
 - Python 3.8+
 - pip (Python package manager)
-=======
-- **Language:** Python
-- **Authentication:** JSON Web Tokens (JWT)
-- **Database:** Sqlite3
-- **Security:** 
-    - `bcrypt` for password hashing.
-    - `cors` for cross-origin resource sharing with the Vite frontend.
-    - `dotenv` for environment variable management.
->>>>>>> c6792bd2eb1137066b927bd2c1136853fe1298a5
 
 ## 📦 Installation
 
