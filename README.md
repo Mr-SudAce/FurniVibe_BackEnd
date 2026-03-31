@@ -67,9 +67,9 @@ npm start
 
 ## 📂 Project Structure
 
-- `/controllers`: Route handlers and business logic.
+- `/views`: Route handlers and business logic.
 - `/models`: Database schemas and models.
-- `/routes`: API endpoint definitions.
+- `/urls`: API endpoint definitions.
 - `/middleware`: Custom auth and error-handling functions.
 - `/config`: Database connection and environment configurations.
 
