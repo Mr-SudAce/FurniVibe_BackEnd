@@ -1,26 +1,29 @@
-# FurniVibe Backend API
+# 🛋️ FurniVibe Backend - Django API & Dashboard
 
-This is the robust backend service for FurniVibe, providing a secure and scalable RESTful API to power the furniture e-commerce experience. It handles data persistence, user authentication, and business logic for the FurniVibe ecosystem.
+This is the core backend service for FurniVibe, built with the **Django** framework. It provides a hybrid architecture featuring a RESTful API for frontend consumption and a comprehensive server-side rendered Dashboard for inventory and order management.
 
 ## 🚀 Features
 
-- **Secure Authentication:** Implements JWT-based authentication (paired with `jwt-decode` on the frontend) for secure user sessions.
-- **Product Management:** Full CRUD operations for the furniture catalog, including category filtering and search optimization.
-- **Order Processing:** Secure handling of customer orders and transaction history.
-- **Middleware Architecture:** Includes robust error handling, CORS configuration, and request validation.
-- **Scalable Data Modeling:** Organized schema design for users, products, and orders.
+- **Admin Dashboard:** A custom-built interface for managing Products, Categories, Brands, and Product Variants.
+- **E-commerce Core:** Logic for handling `OrderModel` and `OrderItemModel` tracking.
+- **Secure Authentication:** Uses `rest_framework_simplejwt` for API tokens and standard Django Session Auth for the Dashboard.
+- **Content Management:** Integrated Blog management system and multi-image support for products.
+- **CRUD Operations:** Streamlined handlers for adding, updating, and deleting catalog items.
 
 ## 🛠 Tech Stack
 
-- **Runtime:** Node.js
-- **Framework:** Express.js
-- **Language:** JavaScript / TypeScript
-- **Authentication:** JSON Web Tokens (JWT)
-- **Database:** MongoDB (via Mongoose) or PostgreSQL (Assumed)
-- **Security:** 
-    - `bcrypt` for password hashing.
-    - `cors` for cross-origin resource sharing with the Vite frontend.
-    - `dotenv` for environment variable management.
+- **Framework:** Django
+- **Toolkit:** Django REST Framework (DRF)
+- **Language:** Python
+- **Authentication:** SimpleJWT (JWT) & Django Auth
+- **Database:** SQLite3 (Development)
+- **Templating:** Django Templates (for the Dashboard)
+
+## 📋 Prerequisites
+
+Before you begin, ensure you have the following installed:
+- Python 3.8+
+- pip (Python package manager)
 
 ## 📦 Installation
 
@@ -29,23 +32,32 @@ This is the robust backend service for FurniVibe, providing a secure and scalabl
    git clone https://github.com/your-username/FurniVibe.git
    cd B_furniVibe
    ```
-2. **Install dependencies**
+2. **Create and activate a virtual environment**
    ```sh
-   npm install
+   python -m venv venv
+   # Windows:
+   venv\Scripts\activate
+   # Mac/Linux:
+   source venv/bin/activate
    ```
-3. **Environment Setup**
-   Create a `.env` file in the root directory and add your credentials:
-   ```env
-   PORT=5000
-   MONGO_URI=your_mongodb_uri
-   JWT_SECRET=your_super_secret_key
+3. **Install dependencies**
+   ```sh
+   pip install -r requirements.txt
+   ```
+4. **Run Migrations**
+   ```sh
+   python manage.py migrate
+   ```
+5. **Create a Superuser** (Access the dashboard)
+   ```sh
+   python manage.py createsuperuser
    ```
 
 ## 💻 Usage
 
-To start the development server with hot-reloading:
+Start the Django development server:
 ```sh
-npm run dev
+python manage.py runserver
 ```
 
 To start the production server:
