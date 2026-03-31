@@ -12,11 +12,10 @@ This is the robust backend service for FurniVibe, providing a secure and scalabl
 
 ## 🛠 Tech Stack
 
-- **Runtime:** Node.js
-- **Framework:** Express.js
-- **Language:** JavaScript / TypeScript
+- **Framework:** Django
+- **Language:** Python
 - **Authentication:** JSON Web Tokens (JWT)
-- **Database:** MongoDB (via Mongoose) or PostgreSQL (Assumed)
+- **Database:** Sqlite3
 - **Security:** 
     - `bcrypt` for password hashing.
     - `cors` for cross-origin resource sharing with the Vite frontend.
