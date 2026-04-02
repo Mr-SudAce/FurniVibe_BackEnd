@@ -411,19 +411,18 @@ class OrderItemModel(models.Model):
 
 # Payment Model
 class PaymentModel(models.Model):
-    order = models.OneToOneField(OrderModel, on_delete=models.CASCADE)
-
+    order = models.OneToOneField(
+        OrderModel, on_delete=models.CASCADE, related_name="payment"
+    )
     payment_method = models.CharField(
         max_length=20,
         choices=[
             ("cod", "Cash on Delivery"),
             ("esewa", "eSewa"),
-            ("khalti", "Khalti"),
-            ("stripe", "Stripe"),
+            ("bank_transfer", "Bank Transfer"),
         ],
     )
     transaction_id = models.CharField(max_length=255, blank=True, null=True)
-
     payment_status = models.CharField(
         max_length=20,
         choices=[
@@ -435,7 +434,6 @@ class PaymentModel(models.Model):
         default="pending",
     )
     paid_at = models.DateTimeField(null=True, blank=True)
-
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

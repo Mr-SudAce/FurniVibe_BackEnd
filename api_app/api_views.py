@@ -186,7 +186,7 @@ class OrderViewSet(viewsets.ModelViewSet):
         filters.SearchFilter,
         filters.OrderingFilter,
     ]
-    filterset_fields = ["status", "paymentmodel__payment_status", "delivery_type"]
+    filterset_fields = ["status", "payment__payment_status", "delivery_type"]
     search_fields = ["id", "user__username", "user__email", "shipping_address__phone"]
 
 
@@ -260,9 +260,15 @@ class PlaceOrderAPI(APIView):
 
     def post(self, request):
         user = request.user
+        
+        # 1. Capture the dropdown data from the request body
+        delivery_type = request.data.get("delivery_type", "standard")
+        payment_method = request.data.get("payment_method", "cod")
+
         cart = CartModel.objects.filter(user=user, is_active=True).first()
         if not cart or not cart.items.exists():
             return Response({"detail": "Your cart is empty."}, status=400)
+            
         shipping_address = ShippingAddressModel.objects.filter(user=user).last()
         if not shipping_address:
             return Response({"detail": "Shipping address required."}, status=400)
@@ -272,14 +278,30 @@ class PlaceOrderAPI(APIView):
                 total_amount = sum(
                     item.price * item.quantity for item in cart.items.all()
                 )
+                
+                # You can adjust shipping fees based on delivery_type here
                 shipping_fee = 0 if total_amount > 5000 else 150
+                if delivery_type == "express":
+                    shipping_fee += 200 # Example extra charge
+                
                 final_total = total_amount + shipping_fee
+
+                # 2. Save delivery_type to the Order
                 order = OrderModel.objects.create(
                     user=user,
                     shipping_address=shipping_address,
                     total_amount=final_total,
+                    delivery_type=delivery_type, 
                     status="pending",
                 )
+
+                # 3. Create the Payment record linked to this order
+                PaymentModel.objects.create(
+                    order=order,
+                    payment_method=payment_method,
+                    payment_status="pending"
+                )
+
                 for cart_item in cart.items.all():
                     if not cart_item.variant.is_made_to_order:
                         if cart_item.variant.stock < cart_item.quantity:
@@ -287,7 +309,6 @@ class PlaceOrderAPI(APIView):
                                 f"Item {cart_item.variant.product.name} went out of stock."
                             )
 
-                        # Deduct stock
                         cart_item.variant.stock -= cart_item.quantity
                         cart_item.variant.save()
 
@@ -298,6 +319,7 @@ class PlaceOrderAPI(APIView):
                         price=cart_item.price,
                         quantity=cart_item.quantity,
                     )
+                
                 cart.is_active = False
                 cart.save()
 
@@ -312,7 +334,6 @@ class PlaceOrderAPI(APIView):
 
         except Exception as e:
             return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-
 
 class ShippingAddressViewSet(viewsets.ModelViewSet):
     queryset = ShippingAddressModel.objects.all()
@@ -340,7 +361,11 @@ class OrderDetailAPI(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request, order_id):
-        order = get_object_or_404(OrderModel, id=order_id, user=request.user)
+        order = get_object_or_404(
+            OrderModel.objects.select_related('payment').prefetch_related('items'), 
+            id=order_id, 
+            user=request.user
+        )
         serializer = OrderSerializer(order)
         return Response(serializer.data)
 

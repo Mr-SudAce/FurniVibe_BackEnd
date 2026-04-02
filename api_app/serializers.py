@@ -1,7 +1,8 @@
-from rest_framework import serializers
-from api_app.models import *
 from rest_framework.validators import UniqueValidator
+from rest_framework import serializers
 from django.db import transaction
+from api_app.models import *
+from django.utils import timezone
 from .models import *
 
 
@@ -34,8 +35,9 @@ class UserSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         return UserModel.objects.create_user(**validated_data)
+
     def update(self, instance, validated_data):
-        password = validated_data.pop('password', None)
+        password = validated_data.pop("password", None)
         if password:
             instance.set_password(password)
         return super().update(instance, validated_data)
@@ -79,11 +81,11 @@ class UserCreateSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         password = validated_data.pop("password")
         email = validated_data.pop("email")
-        
+
         first_name = validated_data.get("first_name", "").lower().strip()
         last_name = validated_data.get("last_name", "").lower().strip()
         base_username = f"{first_name}{last_name}"
-        
+
         if not base_username:
             base_username = "user"
 
@@ -94,10 +96,7 @@ class UserCreateSerializer(serializers.ModelSerializer):
             counter += 1
 
         user = UserModel.objects.create_user(
-            email=email,
-            username=username,
-            password=password,
-            **validated_data
+            email=email, username=username, password=password, **validated_data
         )
         return user
 
@@ -343,7 +342,6 @@ class PaymentSerializer(serializers.ModelSerializer):
     class Meta:
         model = PaymentModel
         fields = [
-            "id",
             "payment_method",
             "transaction_id",
             "payment_status",
@@ -352,21 +350,20 @@ class PaymentSerializer(serializers.ModelSerializer):
 
 
 class OrderSerializer(serializers.ModelSerializer):
+    payment = PaymentSerializer(read_only=True)
     items = OrderItemSerializer(many=True, read_only=True)
-    payment = PaymentSerializer(source="paymentmodel", read_only=True)
-    shipping_address = ShippingAddressSerializer(read_only=True)
-    
 
     class Meta:
         model = OrderModel
         fields = [
             "id",
-            "status",
-            "delivery_type",
-            "total_amount",
+            "user",
             "shipping_address",
-            "items",
+            "total_amount",
+            "delivery_type",
+            "status",
             "payment",
+            "items",
             "created_at",
         ]
 
@@ -375,7 +372,7 @@ class CheckoutSerializer(serializers.Serializer):
     cart_id = serializers.IntegerField()
     shipping_address_id = serializers.IntegerField()
     payment_method = serializers.ChoiceField(
-        choices=["cod", "esewa", "khalti", "stripe"]
+        choices=["cod", "esewa", "bank_transfer"], default="cod"
     )
     delivery_type = serializers.ChoiceField(
         choices=["standard", "express", "installation"], default="standard"
@@ -391,15 +388,12 @@ class CheckoutSerializer(serializers.Serializer):
         cart = CartModel.objects.select_for_update().get(
             id=validated_data["cart_id"], is_active=True
         )
-
         shipping_address = ShippingAddressModel.objects.get(
             id=validated_data["shipping_address_id"], user=user
         )
-
         cart_items = CartItemModel.objects.select_related(
             "variant", "variant__product"
         ).filter(cart=cart)
-
         if not cart_items.exists():
             raise serializers.ValidationError("Cart is empty.")
 
@@ -409,19 +403,16 @@ class CheckoutSerializer(serializers.Serializer):
                 variant = ProductVariantModel.objects.select_for_update().get(
                     id=item.variant.id
                 )
-
                 if not variant.is_made_to_order and variant.stock < item.quantity:
                     raise serializers.ValidationError(
                         f"Not enough stock for {variant.product.name}"
                     )
-
                 if not variant.is_made_to_order:
                     variant.stock -= item.quantity
                     variant.save()
 
                 total_amount += item.total_price
 
-            # 🧾 CREATE ORDER
             order = OrderModel.objects.create(
                 user=user,
                 shipping_address=shipping_address,
@@ -429,8 +420,6 @@ class CheckoutSerializer(serializers.Serializer):
                 delivery_type=validated_data["delivery_type"],
                 status="pending",
             )
-
-            # 📦 ORDER ITEMS (SNAPSHOT)
             for item in cart_items:
                 OrderItemModel.objects.create(
                     order=order,
@@ -440,11 +429,12 @@ class CheckoutSerializer(serializers.Serializer):
                     quantity=item.quantity,
                 )
 
-            # 💳 PAYMENT
             PaymentModel.objects.create(
                 order=order,
                 payment_method=validated_data["payment_method"],
                 payment_status="pending",
+                transaction_id=None,
+                paid_at=None,
             )
 
             # 🧹 CLOSE CART
